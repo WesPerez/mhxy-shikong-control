@@ -18,14 +18,15 @@
 - 托盘右键菜单提供“显示主窗口”和“退出”，其中“退出”才是真退出。
 - 多次启动同一个 exe 会唤醒已运行实例，不会保留多个主进程。
 - 界面包含目标窗口列表、窗口任务队列、任务库、步骤时间线、步骤属性、识别目标、预览/ROI、运行队列和运行记录。
-- 工作区保存到 Tauri AppData 下的 `workspace.json`，包含 workflows、assignments、assets、runHistory。
+- 工作区保存到 Tauri AppData 下的 `workspace.json`，包含 workflows、assignments、targets、runHistory；旧 assets 会在载入时迁移为 targets。
 - 首次启动会生成 5 个示例任务，每个 10 步以上，覆盖 hotkey、图像等待、图像点击、OCR 确认、后台点击、延迟、条件、重试、截图记录、恢复状态。
 - 已支持把当前任务追加到多个窗口的独立队列，并对已选窗口按各自队列执行观察运行。
 - 观察运行只模拟每个 hwnd 的任务会话、互斥锁、步骤进度和日志，不向游戏窗口发送输入。
 - 新增后台运行 beta：`hotkey`、`click`、`image_click` 可以通过目标 hwnd 投递后台消息。
 - 步骤编辑器新增常用参数控件，可把热键、点击坐标/按钮、图像阈值、延迟、条件和重试间隔同步到兼容的 `target/command` 字段。
+- 识别目标已升级为 `targets[]` 目标库，步骤通过 `targetId` 复用目标，并保留旧 `assetId` 导入兼容。
 - 后台执行会随每步传入启动时窗口身份快照，并在 Rust 端重新校验 title、pid、process、client size 和权限状态，发现漂移会安全失败。
-- `image_click` 支持用 Ctrl+V 图片或 ROI 裁剪图做轻量模板匹配，匹配后点击中心点。
+- `image_click` 支持用 Ctrl+V 图片或 ROI 裁剪图做轻量模板匹配，匹配后按目标默认点击点点击；ROI 也可以绑定到后台点击步骤并使用 ROI 中心。
 - OCR 目前仍是模型占位，运行时会明确返回未实现，不会伪装成可识别。
 
 ## 任务模型
@@ -35,7 +36,7 @@
 核心原则：
 
 - 任务是可版本化的工作流定义，不是一串写死的截图点击。
-- 工作区把 `Workflow`、`Step`、`Asset/Target`、`WindowAssignment`、`RunSession` 分开。
+- 工作区把 `Workflow`、`Step`、`Target`、`WindowAssignment`、`RunSession` 分开。
 - 步骤要有目标、动作参数、成功确认、超时、重试、失败策略和成功流转。
 - 图片、OCR、颜色、按钮、页面等识别目标应抽成共享目标库。
 - 同一个 hwnd 只能有一个运行会话并串行消费自己的任务队列；不同 hwnd 可以独立并行。
@@ -98,7 +99,7 @@ E:\Project\Common
 
 ## 后续路线
 
-1. 把 `assets` 升级成可复用 `targets` 识别目标库，支持阈值、ROI、模板、OCR 文本和点击点。
+1. 扩展 `targets` 识别目标库，补重命名、删除、分类、使用位置、文件化模板和 OCR 文本目标。
 2. 补共享 `restore` 恢复流程。
-3. 继续完善后台 hwnd 输入执行器：增加窗口身份校验、运行锁、停止/失败恢复和真实游戏反馈验证。
+3. 继续完善后台 hwnd 输入执行器：增加 Rust 后端 runner、事件流、停止/失败恢复和真实游戏反馈验证。
 4. 接入 OCR 实测，每补一个真实任务都保留观察运行、运行报告和输入安全审计。

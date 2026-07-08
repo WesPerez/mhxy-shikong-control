@@ -115,6 +115,12 @@ struct WorkflowStepInput {
     #[serde(default)]
     expect: String,
     #[serde(default)]
+    target_id: Option<String>,
+    #[serde(default)]
+    target_kind: Option<String>,
+    #[serde(default)]
+    target_data_url: Option<String>,
+    #[serde(default)]
     asset_id: Option<String>,
     #[serde(default)]
     asset_kind: Option<String>,
@@ -176,7 +182,7 @@ struct TemplateMatch {
     score: f32,
 }
 
-const WORKSPACE_SCHEMA_VERSION: u32 = 3;
+const WORKSPACE_SCHEMA_VERSION: u32 = 4;
 const DEFAULT_IMAGE_THRESHOLD: f32 = 0.86;
 const MAX_TEMPLATE_DATA_URL_CHARS: usize = 5 * 1024 * 1024;
 const MAX_TEMPLATE_BYTES: usize = 4 * 1024 * 1024;
@@ -387,7 +393,7 @@ fn default_workflow_workspace() -> Value {
         "activeWorkflowId": null,
         "workflows": [],
         "assignments": {},
-        "assets": [],
+        "targets": [],
         "runHistory": []
     })
 }
@@ -519,11 +525,7 @@ fn dispatch_image_step(
 ) -> Result<StepDispatchResult, String> {
     let button = command_value(&step.command, "button").unwrap_or("left");
     let threshold = image_threshold(step)?;
-    if let Some(data_url) = step
-        .asset_data_url
-        .as_deref()
-        .filter(|value| !value.is_empty())
-    {
+    if let Some(data_url) = template_data_url(step) {
         let frame = capture_client_rgb(hwnd)?;
         let template = load_image_data_url_rgb(data_url)?;
         let search_roi = scaled_roi(step.roi, frame.width, frame.height);
@@ -655,12 +657,26 @@ fn append_step_metadata(result: &mut StepDispatchResult, step: &WorkflowStepInpu
     {
         parts.push(format!("assetId={}", asset_id.trim()));
     }
+    if let Some(target_id) = step
+        .target_id
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("targetId={}", target_id.trim()));
+    }
     if let Some(asset_kind) = step
         .asset_kind
         .as_deref()
         .filter(|value| !value.trim().is_empty())
     {
         parts.push(format!("assetKind={}", asset_kind.trim()));
+    }
+    if let Some(target_kind) = step
+        .target_kind
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("targetKind={}", target_kind.trim()));
     }
     if !parts.is_empty() {
         result.detail = format!("{}; {}", result.detail, parts.join("; "));
@@ -682,6 +698,13 @@ fn command_value<'a>(command: &'a str, key: &str) -> Option<&'a str> {
             .then_some(right.trim())
             .filter(|value| !value.is_empty())
     })
+}
+
+fn template_data_url(step: &WorkflowStepInput) -> Option<&str> {
+    first_non_empty([
+        step.target_data_url.as_deref().unwrap_or_default(),
+        step.asset_data_url.as_deref().unwrap_or_default(),
+    ])
 }
 
 fn image_threshold(step: &WorkflowStepInput) -> Result<f32, String> {
@@ -1075,6 +1098,9 @@ mod tests {
             target: String::new(),
             command: command.to_string(),
             expect: String::new(),
+            target_id: None,
+            target_kind: None,
+            target_data_url: None,
             asset_id: None,
             asset_kind: None,
             asset_data_url: None,
@@ -1289,6 +1315,28 @@ mod tests {
     #[test]
     fn rejects_non_image_data_url_assets() {
         assert!(load_image_data_url_rgb("data:text/plain;base64,AA==").is_err());
+    }
+
+    #[test]
+    fn prefers_target_data_url_for_templates() {
+        let mut step = image_step("threshold=0.75");
+        step.target_data_url = Some(" data:image/png;base64,target ".to_string());
+        step.asset_data_url = Some("data:image/png;base64,asset".to_string());
+        assert_eq!(
+            template_data_url(&step),
+            Some("data:image/png;base64,target")
+        );
+    }
+
+    #[test]
+    fn falls_back_to_legacy_asset_data_url_for_templates() {
+        let mut step = image_step("threshold=0.75");
+        step.target_data_url = Some(" ".to_string());
+        step.asset_data_url = Some(" data:image/png;base64,asset ".to_string());
+        assert_eq!(
+            template_data_url(&step),
+            Some("data:image/png;base64,asset")
+        );
     }
 }
 

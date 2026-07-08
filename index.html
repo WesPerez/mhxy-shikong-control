@@ -64,7 +64,7 @@
             <div class="capture-actions">
               <button id="capture-preview" type="button">刷新预览</button>
               <button id="save-snapshot" type="button">保存截图</button>
-              <button id="asset-from-roi" type="button">ROI 存为目标</button>
+              <button id="target-from-roi" type="button">ROI 存为目标</button>
               <input id="offline-image-path" type="text" placeholder="离线截图路径" />
               <button id="load-offline-image" type="button">载入离线图</button>
             </div>
@@ -205,6 +205,12 @@
                       <strong>常用参数</strong>
                       <span id="step-param-summary">按步骤类型同步到目标和动作参数</span>
                     </div>
+                    <div class="param-grid" data-step-types="image_click wait_image detect_page click ocr_assert">
+                      <label class="wide">
+                        目标库
+                        <select id="param-target-select"></select>
+                      </label>
+                    </div>
                     <div class="param-grid" data-step-types="hotkey">
                       <label class="wide">
                         快捷键
@@ -327,10 +333,10 @@
               <section class="subsection">
                 <div class="section-row">
                   <h3>识别目标</h3>
-                  <span id="asset-count" class="count">0</span>
+                  <span id="target-count" class="count">0</span>
                 </div>
                 <p class="hint">可直接 Ctrl+V 粘贴图片到当前步骤，或把预览 ROI 存为目标。</p>
-                <div id="asset-list" class="compact-list"></div>
+                <div id="target-list" class="compact-list"></div>
               </section>
             </div>
           </section>

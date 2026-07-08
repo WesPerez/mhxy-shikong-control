@@ -48,6 +48,13 @@ IDENTITY_TOKENS = [
     "expectedWindow",
     "windowIdentity",
 ]
+TARGET_TOKENS = [
+    "targets",
+    "targetId",
+    "targetDataUrl",
+    "normalizeTarget",
+    "targetForStep",
+]
 
 
 def main() -> int:
@@ -62,6 +69,7 @@ def main() -> int:
     hwnd = scan_tokens(files, HWND_TOKENS)
     focus = scan_tokens(files, FOCUS_TOKENS)
     identity = scan_tokens(files, IDENTITY_TOKENS)
+    targets = scan_tokens(files, TARGET_TOKENS)
     identity_required = bool(hwnd)
     identity_seen = {hit["token"] for hit in identity}
     identity_missing = [
@@ -77,6 +85,7 @@ def main() -> int:
         "identityCheckEvidence": identity,
         "identityCheckRequired": identity_required,
         "identityCheckMissing": identity_missing,
+        "targetLibraryEvidence": targets,
         "passed": not forbidden and not focus and not identity_missing,
         "note": (
             "Forbidden tokens indicate real cursor/keyboard injection risk. "
@@ -94,6 +103,7 @@ def main() -> int:
         print(f"focusAffectingEvidence={len(focus)}")
         print(f"identityCheckEvidence={len(identity)}")
         print(f"identityCheckMissing={len(identity_missing)}")
+        print(f"targetLibraryEvidence={len(targets)}")
         if forbidden:
             for hit in forbidden:
                 print(f"FORBIDDEN {hit['path']}:{hit['line']} {hit['token']}")

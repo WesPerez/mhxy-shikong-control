@@ -443,14 +443,14 @@ h3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-#asset-from-roi,
+#target-from-roi,
 #offline-image-path,
 #load-offline-image,
 #assign-selected {
   width: 100%;
 }
 
-#asset-from-roi,
+#target-from-roi,
 #offline-image-path,
 #load-offline-image {
   grid-column: 1 / -1;
@@ -557,6 +557,11 @@ h3 {
 .workflow-row.active {
   border-color: #d7a94b;
   background: #28271d;
+}
+
+.compact-row.active {
+  border-color: #64c3b4;
+  background: #1b2b2c;
 }
 
 .workspace-path {
@@ -801,13 +806,13 @@ label {
   line-height: 1.45;
 }
 
-.asset-row {
+.target-row {
   grid-template-columns: 42px minmax(0, 1fr);
   align-items: center;
 }
 
-.asset-row img,
-.asset-row i {
+.target-row img,
+.target-row i {
   display: grid;
   place-items: center;
   width: 34px;

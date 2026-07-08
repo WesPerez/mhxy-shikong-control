@@ -3,8 +3,10 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
-const WORKSPACE_SCHEMA_VERSION = 3;
+const WORKSPACE_SCHEMA_VERSION = 4;
+const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
+const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page", "click", "ocr_assert"]);
 
 const stepTypes = [
   ["detect_page", "检测页面"],
@@ -194,7 +196,7 @@ function createSeedWorkspace() {
     activeWorkflowId: workflows[0]?.id || null,
     workflows,
     assignments: {},
-    assets: [],
+    targets: createTargetCatalogFromWorkflows(workflows),
     runHistory: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -270,7 +272,7 @@ function createSampleWorkflows() {
       step("realm-06", "condition", "检查次数是否可用", "state.realm_attempts", "guard=>0", "continue"),
       step("realm-07", "hotkey", "打开背包检查材料", "ALT+E", "mode=hwnd-key", "bag.open"),
       step("realm-08", "wait_image", "查找秘境材料", "item.realm_material", "threshold=0.86", "visible"),
-      step("realm-09", "wait_image", "确认材料图标", "asset.realm_material", "threshold=0.84", "material.visible"),
+      step("realm-09", "wait_image", "确认材料图标", "target.realm_material", "threshold=0.84", "material.visible"),
       step("realm-10", "click", "选择材料格", "grid.material_slot", "button=left; mode=hwnd-message", "item.selected"),
       step("realm-11", "retry_until", "等待准备就绪", "state.realm_ready", "interval=1000ms", "true", 9000, 5),
       step("realm-12", "snapshot", "记录准备状态", "window.client", "dry-run log only", "snapshot.recorded"),
@@ -359,12 +361,20 @@ function normalizeWorkspace(value) {
   const activeWorkflowId = workflows.some((item) => item.id === source.activeWorkflowId)
     ? source.activeWorkflowId
     : workflows[0]?.id || null;
+  const targetSource = Array.isArray(source.targets)
+    ? source.targets
+    : Array.isArray(source.assets)
+      ? source.assets
+      : [];
+  const targets = targetSource.length
+    ? mergeTargetCatalog(targetSource.map(normalizeTarget), workflows)
+    : createTargetCatalogFromWorkflows(workflows);
   return {
     schemaVersion: WORKSPACE_SCHEMA_VERSION,
     activeWorkflowId,
     workflows,
     assignments: normalizeAssignments(source.assignments, workflows),
-    assets: Array.isArray(source.assets) ? source.assets.map(normalizeAsset) : [],
+    targets,
     runHistory: Array.isArray(source.runHistory) ? source.runHistory.slice(0, 80) : [],
     createdAt: source.createdAt || new Date().toISOString(),
     updatedAt: source.updatedAt || new Date().toISOString(),
@@ -408,24 +418,115 @@ function normalizeStep(value) {
     onFail: String(value?.onFail || defaults.onFail),
     onSuccess: String(value?.onSuccess || defaults.onSuccess),
     enabled: value?.enabled !== false,
-    assetId: value?.assetId ? String(value.assetId) : "",
+    targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
   };
 }
 
-function normalizeAsset(value) {
+function normalizeTarget(value) {
+  const threshold = normalizedThreshold(value?.match?.threshold ?? value?.threshold, DEFAULT_IMAGE_THRESHOLD);
   return {
-    id: String(value?.id || randomId("asset")),
+    id: String(value?.id || randomId("target")),
     name: String(value?.name || "未命名目标"),
-    kind: String(value?.kind || "unknown"),
+    kind: String(value?.kind || (value?.dataUrl ? "image" : value?.roi ? "roi" : "unknown")),
     createdAt: String(value?.createdAt || new Date().toISOString()),
+    updatedAt: String(value?.updatedAt || value?.createdAt || new Date().toISOString()),
     dataUrl: value?.dataUrl ? String(value.dataUrl) : "",
     roi: value?.roi || null,
+    match: {
+      threshold,
+      scope: String(value?.match?.scope || (value?.roi ? "roi" : "window")),
+    },
+    texts: Array.isArray(value?.texts) ? value.texts.map(String).filter(Boolean) : [],
+    click: {
+      button: normalizedTargetButton(value?.click?.button || value?.button || "left"),
+      point: String(value?.click?.point || value?.point || "center"),
+    },
     source: value?.source || null,
     width: Number(value?.width || 0),
     height: Number(value?.height || 0),
     note: String(value?.note || ""),
   };
+}
+
+function mergeTargetCatalog(targets, workflows) {
+  const byId = new Map();
+  for (const target of createTargetCatalogFromWorkflows(workflows)) {
+    byId.set(target.id, target);
+  }
+  for (const target of targets) {
+    byId.set(target.id, target);
+  }
+  return [...byId.values()];
+}
+
+function createTargetCatalogFromWorkflows(workflows) {
+  const byId = new Map();
+  for (const workflow of workflows || []) {
+    for (const item of workflow.steps || []) {
+      if (!targetBackedStepTypes.has(item.type) || !isLogicalTargetName(item.target)) continue;
+      const id = item.target.trim();
+      if (byId.has(id)) continue;
+      byId.set(
+        id,
+        normalizeTarget({
+          id,
+          name: friendlyTargetName(id),
+          kind: targetKindForStep(item),
+          match: {
+            threshold: commandValue(item.command, "threshold") || defaultThresholdForStep(item),
+            scope: commandValue(item.command, "roi") || "window",
+          },
+          click: {
+            button: normalizedButton(item.command),
+            point: commandValue(item.command, "point") || "center",
+          },
+          texts: item.type === "ocr_assert" ? [item.target] : [],
+          note: "由任务步骤生成的逻辑目标，可直接粘贴图片或绑定 ROI",
+        }),
+      );
+    }
+  }
+  return [...byId.values()];
+}
+
+function isLogicalTargetName(value) {
+  const text = String(value || "").trim();
+  if (!text || text.includes("=") || durationMsFromText(text) != null) return false;
+  if (/^[A-Z]+(?:\+[A-Z0-9]+)+$/i.test(text)) return false;
+  return /^[\p{Script=Han}A-Za-z][\p{Script=Han}A-Za-z0-9_.:-]*$/u.test(text);
+}
+
+function friendlyTargetName(id) {
+  const text = String(id || "").trim();
+  const names = {
+    page: "页面",
+    button: "按钮",
+    target: "目标",
+    text: "文本",
+    state: "状态",
+    item: "物品",
+    tab: "页签",
+    entry: "入口",
+    grid: "格子",
+    list: "列表",
+    asset: "素材",
+  };
+  const [head, ...tail] = text.split(".");
+  const prefix = names[head] || head || "目标";
+  return tail.length ? `${prefix} · ${tail.join(".")}` : prefix;
+}
+
+function targetKindForStep(item) {
+  if (item.type === "ocr_assert") return "ocr";
+  if (item.type === "condition" || item.type === "retry_until") return "state";
+  if (item.type === "detect_page") return "page";
+  if (item.type === "click") return "click_target";
+  return "image";
+}
+
+function defaultThresholdForStep(item) {
+  return ["image_click", "wait_image", "detect_page"].includes(item.type) ? DEFAULT_IMAGE_THRESHOLD : "";
 }
 
 function normalizeAssignments(value, workflows = state.workspace.workflows) {
@@ -599,7 +700,7 @@ function renderAll() {
   renderWorkflowForm();
   renderSteps();
   renderStepEditor();
-  renderAssets();
+  renderTargets();
   renderWindows();
   renderAssignments();
   renderSessions();
@@ -828,16 +929,19 @@ function renderStepParamPanel(item) {
   }
 
   $("#step-param-summary").textContent = paramSummaryForStep(item);
+  renderTargetSelect(item);
   $("#param-hotkey").value = item.type === "hotkey" ? item.target || "" : "";
 
+  const boundTarget = targetForStep(item);
+  const boundDefaults = targetCommandDefaults(boundTarget, item.command);
   const point = parsePointText(item.target) || parsePointText(item.command);
   $("#param-click-x").value = point?.x ?? "";
   $("#param-click-y").value = point?.y ?? "";
-  $("#param-click-button").value = normalizedButton(item.command);
+  $("#param-click-button").value = boundDefaults.button;
 
-  $("#param-image-threshold").value = commandValue(item.command, "threshold") || "0.86";
-  $("#param-image-button").value = normalizedButton(item.command);
-  $("#param-image-point").value = commandValue(item.command, "point") || "center";
+  $("#param-image-threshold").value = commandValue(item.command, "threshold") || boundDefaults.threshold;
+  $("#param-image-button").value = boundDefaults.button;
+  $("#param-image-point").value = commandValue(item.command, "point") || boundDefaults.point;
   $("#param-image-target").value = ["image_click", "wait_image", "detect_page"].includes(item.type)
     ? item.target || ""
     : "";
@@ -850,15 +954,33 @@ function renderStepParamPanel(item) {
   $("#param-retry-interval").value = durationMsFromText(commandValue(item.command, "interval")) ?? "";
 }
 
+function renderTargetSelect(item) {
+  const select = $("#param-target-select");
+  if (!select) return;
+  const currentId = stepTargetId(item);
+  select.replaceChildren();
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = "未绑定目标库";
+  select.append(empty);
+  for (const target of state.workspace.targets) {
+    const option = document.createElement("option");
+    option.value = target.id;
+    option.textContent = `${target.name} · ${target.kind}`;
+    select.append(option);
+  }
+  select.value = state.workspace.targets.some((target) => target.id === currentId) ? currentId : "";
+}
+
 function paramSummaryForStep(item) {
-  const asset = assetForStep(item);
+  const target = targetForStep(item);
   if (["image_click", "wait_image", "detect_page"].includes(item.type)) {
-    const threshold = commandValue(item.command, "threshold") || "0.86";
-    return asset ? `${asset.name} · threshold ${threshold}` : `未绑定图片目标 · threshold ${threshold}`;
+    const threshold = commandValue(item.command, "threshold") || target?.match?.threshold || DEFAULT_IMAGE_THRESHOLD;
+    return target ? `${target.name} · threshold ${threshold}` : `未绑定图片目标 · threshold ${threshold}`;
   }
   if (item.type === "click") {
     const point = parsePointText(item.target) || parsePointText(item.command);
-    return point ? `点击 ${point.x},${point.y}` : asset?.roi ? "点击绑定 ROI 中心" : "需要坐标或 ROI";
+    return point ? `点击 ${point.x},${point.y}` : target?.roi ? "点击绑定 ROI 中心" : "需要坐标或 ROI";
   }
   if (item.type === "hotkey") return item.target || "输入快捷键";
   if (item.type === "delay") return `${durationMsFromText(item.target) ?? item.timeoutMs ?? 0} ms`;
@@ -866,6 +988,19 @@ function paramSummaryForStep(item) {
 }
 
 function bindStepParamEditor() {
+  $("#param-target-select").addEventListener("change", (event) => {
+    const target = state.workspace.targets.find((item) => item.id === event.target.value);
+    if (!target) {
+      updateSelectedStepFromParams((item) => {
+        item.targetId = "";
+      });
+      return;
+    }
+    updateSelectedStepFromParams((item) => {
+      bindTargetToStep(item, target, { preserveClick: item.type === "click" });
+    });
+    renderTargets();
+  });
   $("#param-hotkey").addEventListener("input", (event) => {
     updateSelectedStepFromParams((item) => {
       item.target = event.target.value.trim();
@@ -900,6 +1035,7 @@ function bindStepParamEditor() {
   $("#param-image-target").addEventListener("input", (event) => {
     updateSelectedStepFromParams((item) => {
       item.target = event.target.value.trim();
+      if (item.targetId && item.targetId !== item.target) item.targetId = "";
     });
   });
   $("#param-delay-ms").addEventListener("input", (event) => {
@@ -986,6 +1122,7 @@ function bindStepEditor() {
     const item = selectedStep();
     if (!item) return;
     item[field] = coerce(event.target.value);
+    if (field === "target" && item.targetId && item.targetId !== item.target) item.targetId = "";
     markDirty("draft");
     renderSteps();
     if (["target", "command"].includes(field)) renderStepParamPanel(item);
@@ -1019,8 +1156,8 @@ function bindStepEditor() {
     item.retry = defaults.retry;
     item.onFail = defaults.onFail;
     item.onSuccess = defaults.onSuccess;
-    if (!["image_click", "wait_image", "detect_page", "click"].includes(item.type)) {
-      item.assetId = "";
+    if (!targetBackedStepTypes.has(item.type)) {
+      item.targetId = "";
     }
     markDirty("draft");
     renderSteps();
@@ -1097,8 +1234,41 @@ function normalizedButton(command) {
   return "left";
 }
 
-function assetForStep(item) {
-  return item?.assetId ? state.workspace.assets.find((asset) => asset.id === item.assetId) || null : null;
+function normalizedTargetButton(value) {
+  return ["right", "r", "secondary"].includes(String(value || "").toLowerCase()) ? "right" : "left";
+}
+
+function normalizedThreshold(value, fallback = DEFAULT_IMAGE_THRESHOLD) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 && number <= 1 ? number : fallback;
+}
+
+function stepTargetId(item) {
+  if (!item) return "";
+  if (item.targetId) return item.targetId;
+  if (item.assetId) return item.assetId;
+  return targetBackedStepTypes.has(item.type) && isLogicalTargetName(item.target) ? item.target.trim() : "";
+}
+
+function targetForStep(item) {
+  const id = stepTargetId(item);
+  return id ? state.workspace.targets.find((target) => target.id === id) || null : null;
+}
+
+function targetCommandDefaults(target, command = "") {
+  return {
+    threshold: normalizedThreshold(target?.match?.threshold, DEFAULT_IMAGE_THRESHOLD),
+    button: target?.click?.button || normalizedButton(command),
+    point: target?.click?.point || commandValue(command, "point") || "center",
+  };
+}
+
+function commandWithMissingValues(command, defaults) {
+  const missing = {};
+  for (const [key, value] of Object.entries(defaults)) {
+    if (value != null && value !== "" && !commandValue(command, key)) missing[key] = value;
+  }
+  return Object.keys(missing).length ? commandWithValues(command, missing) : command;
 }
 
 async function refreshPrivilege() {
@@ -1551,7 +1721,7 @@ function roiText(roi) {
   return `${roi.x},${roi.y},${roi.w},${roi.h}`;
 }
 
-async function assetFromRoi() {
+async function targetFromRoi() {
   const roi = state.roiSelection;
   if (!roi || !state.preview) {
     setStatus("需要先在预览图上框选 ROI");
@@ -1562,13 +1732,15 @@ async function assetFromRoi() {
     appendLog("warn", `ROI 裁剪失败，仅保存坐标：${error}`);
     return "";
   });
-  const asset = {
-    id: randomId("asset"),
+  const targetItem = normalizeTarget({
+    id: randomId("target"),
     name: `ROI ${roiText(roi)}`,
     kind: "roi",
     createdAt: new Date().toISOString(),
     dataUrl,
     roi,
+    match: { threshold: DEFAULT_IMAGE_THRESHOLD, scope: "roi" },
+    click: { button: "left", point: "center" },
     source: {
       type: state.previewSource,
       hwnd: target?.hwnd || null,
@@ -1577,13 +1749,13 @@ async function assetFromRoi() {
     width: state.preview.width,
     height: state.preview.height,
     note: "由预览框选生成",
-  };
-  state.workspace.assets.unshift(asset);
-  bindAssetToSelectedStep(asset);
-  markDirty("asset");
-  renderAssets();
+  });
+  const savedTarget = saveTargetForSelectedStep(targetItem);
+  bindTargetToSelectedStep(savedTarget, { preserveClick: true });
+  markDirty("target");
+  renderTargets();
   renderStepEditor();
-  setStatus(`已保存 ROI 目标：${asset.name}`);
+  setStatus(`已保存 ROI 目标：${savedTarget.name}`);
 }
 
 async function cropPreviewRoiDataUrl(roi) {
@@ -1600,6 +1772,7 @@ async function cropPreviewRoiDataUrl(roi) {
 }
 
 async function handlePasteImage(event) {
+  if (isEditablePasteTarget(event.target)) return;
   const item = [...(event.clipboardData?.items || [])].find((entry) => entry.type.startsWith("image/"));
   if (!item) return;
   event.preventDefault();
@@ -1607,68 +1780,122 @@ async function handlePasteImage(event) {
   if (!file) return;
   const dataUrl = await readBlobAsDataUrl(file);
   const size = await imageSize(dataUrl).catch(() => ({ width: 0, height: 0 }));
-  const asset = {
-    id: randomId("asset"),
+  const targetItem = normalizeTarget({
+    id: randomId("target"),
     name: `粘贴图片 ${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`,
-    kind: "clipboard-image",
+    kind: "image",
     createdAt: new Date().toISOString(),
     dataUrl,
+    match: { threshold: DEFAULT_IMAGE_THRESHOLD, scope: "window" },
+    click: { button: "left", point: "center" },
     width: size.width,
     height: size.height,
     note: "由 Ctrl+V 粘贴创建",
-  };
-  state.workspace.assets.unshift(asset);
-  bindAssetToSelectedStep(asset);
-  markDirty("asset");
-  renderAssets();
+  });
+  const savedTarget = saveTargetForSelectedStep(targetItem);
+  bindTargetToSelectedStep(savedTarget);
+  markDirty("target");
+  renderTargets();
   renderSteps();
   renderStepEditor();
-  appendLog("info", `已粘贴图片目标：${asset.name}`);
+  appendLog("info", `已粘贴图片目标：${savedTarget.name}`);
 }
 
-function bindAssetToSelectedStep(asset) {
+function isEditablePasteTarget(target) {
+  const element = target instanceof Element ? target : null;
+  if (!element) return false;
+  return Boolean(element.closest("input, textarea, select, [contenteditable='true']"));
+}
+
+function bindTargetToSelectedStep(targetItem, options = {}) {
   const item = selectedStep();
   if (!item) return;
-  item.assetId = asset.id;
-  item.target = asset.id;
+  bindTargetToStep(item, targetItem, options);
+}
+
+function bindTargetToStep(item, targetItem, options = {}) {
+  item.targetId = targetItem.id;
+  item.target = targetItem.id;
+  const commandDefaults = targetCommandDefaults(targetItem, item.command);
+  if (item.type === "click" && options.preserveClick) {
+    item.command = commandWithValues(item.command, {
+      button: commandDefaults.button,
+      mode: "hwnd-message",
+    });
+    return;
+  }
+  if (item.type === "ocr_assert" || targetItem.kind === "ocr") {
+    item.type = "ocr_assert";
+    item.name = item.name || "OCR 确认";
+    item.command = commandWithMissingValues(item.command, { lang: "zh" });
+    item.expect = item.expect || "text_found";
+    return;
+  }
   if (!["image_click", "wait_image", "detect_page"].includes(item.type)) {
     item.type = "image_click";
     item.name = "图像点击";
-    item.command = "button=left; point=center";
     item.expect = "screen.changed";
   }
+  item.command = commandWithValues(item.command, commandDefaults);
 }
 
-function renderAssets() {
-  $("#asset-count").textContent = String(state.workspace.assets.length);
-  const list = $("#asset-list");
+function saveTargetForSelectedStep(incomingTarget) {
+  const item = selectedStep();
+  const existing = item ? targetForStep(item) : null;
+  if (!existing) {
+    state.workspace.targets.unshift(incomingTarget);
+    return incomingTarget;
+  }
+  const next = normalizeTarget({
+    ...existing,
+    kind: incomingTarget.kind || existing.kind,
+    dataUrl: incomingTarget.dataUrl || existing.dataUrl,
+    roi: incomingTarget.roi || existing.roi,
+    match: incomingTarget.match || existing.match,
+    click: incomingTarget.click || existing.click,
+    source: incomingTarget.source || existing.source,
+    width: incomingTarget.width || existing.width,
+    height: incomingTarget.height || existing.height,
+    note: incomingTarget.note || existing.note,
+    updatedAt: new Date().toISOString(),
+  });
+  Object.assign(existing, next);
+  return existing;
+}
+
+function renderTargets() {
+  $("#target-count").textContent = String(state.workspace.targets.length);
+  const list = $("#target-list");
   list.replaceChildren();
-  if (!state.workspace.assets.length) {
+  if (!state.workspace.targets.length) {
     const empty = document.createElement("div");
     empty.className = "empty-block compact";
     empty.textContent = "暂无识别目标";
     list.append(empty);
     return;
   }
-  for (const asset of state.workspace.assets) {
+  const selectedTargetId = stepTargetId(selectedStep());
+  for (const targetItem of state.workspace.targets) {
     const row = document.createElement("button");
     row.type = "button";
-    row.className = "compact-row asset-row";
-    const thumb = asset.dataUrl ? `<img src="${asset.dataUrl}" alt="${escapeHtml(asset.name)}" />` : "<i>ROI</i>";
+    row.className = `compact-row target-row${targetItem.id === selectedTargetId ? " active" : ""}`;
+    const thumb = targetItem.dataUrl ? `<img src="${targetItem.dataUrl}" alt="${escapeHtml(targetItem.name)}" />` : "<i>ROI</i>";
+    const threshold = targetItem.match?.threshold ?? DEFAULT_IMAGE_THRESHOLD;
+    const click = `${targetItem.click?.button || "left"}@${targetItem.click?.point || "center"}`;
     row.innerHTML = `
       ${thumb}
       <span>
-        <strong>${escapeHtml(asset.name)}</strong>
-        <small>${escapeHtml(asset.kind)} · ${asset.width || "-"}x${asset.height || "-"}</small>
+        <strong>${escapeHtml(targetItem.name)}</strong>
+        <small>${escapeHtml(targetItem.kind)} · ${targetItem.width || "-"}x${targetItem.height || "-"} · t=${escapeHtml(threshold)} · ${escapeHtml(click)}</small>
       </span>
     `;
     row.addEventListener("click", () => {
-      bindAssetToSelectedStep(asset);
-      markDirty("asset");
-      renderAssets();
+      bindTargetToSelectedStep(targetItem, { preserveClick: true });
+      markDirty("target");
+      renderTargets();
       renderSteps();
       renderStepEditor();
-      setStatus(`已绑定目标：${asset.name}`);
+      setStatus(`已绑定目标：${targetItem.name}`);
     });
     list.append(row);
   }
@@ -1716,9 +1943,13 @@ function validateStepRuntimeFields(item, prefix, issues, warnings, mode) {
     }
   }
   const point = parsePointText(item.target) || parsePointText(item.command);
-  const asset = assetForStep(item);
-  const hasRoi = Boolean(asset?.roi);
-  const hasImage = Boolean(asset?.dataUrl);
+  const targetId = stepTargetId(item);
+  const targetItem = targetForStep(item);
+  const hasRoi = Boolean(targetItem?.roi);
+  const hasImage = Boolean(targetItem?.dataUrl);
+  if (targetId && !targetItem) {
+    issues.push(`${prefix} 绑定的识别目标已不存在`);
+  }
   if (item.type === "click" && !point && !hasRoi) {
     const message = `${prefix} 后台点击需要 x/y 坐标或绑定 ROI 目标`;
     mode === "background" ? issues.push(message) : warnings.push(message);
@@ -1990,17 +2221,37 @@ function windowIdentityMismatchReason(expected, actual) {
 }
 
 function backendStepPayload(item) {
-  const asset = item.assetId ? state.workspace.assets.find((entry) => entry.id === item.assetId) : null;
+  const targetItem = targetForStep(item);
+  const targetId = stepTargetId(item);
+  const command = effectiveCommandForStep(item, targetItem);
   return {
     type: item.type,
     target: item.target || "",
-    command: item.command || "",
+    command,
     expect: item.expect || "",
-    assetId: item.assetId || "",
-    assetKind: asset?.kind || "",
-    assetDataUrl: asset?.dataUrl || "",
-    roi: asset?.roi || null,
+    targetId,
+    targetKind: targetItem?.kind || "",
+    targetDataUrl: targetItem?.dataUrl || "",
+    assetId: targetId,
+    assetKind: targetItem?.kind || "",
+    assetDataUrl: targetItem?.dataUrl || "",
+    roi: targetItem?.roi || null,
   };
+}
+
+function effectiveCommandForStep(item, targetItem = targetForStep(item)) {
+  if (!targetItem) return item.command || "";
+  const defaults = targetCommandDefaults(targetItem, item.command);
+  if (["image_click", "wait_image", "detect_page"].includes(item.type)) {
+    return commandWithMissingValues(item.command, defaults);
+  }
+  if (item.type === "click") {
+    return commandWithMissingValues(item.command, {
+      button: defaults.button,
+      mode: "hwnd-message",
+    });
+  }
+  return item.command || "";
 }
 
 function formatStepLog(index, workflow, item, result) {
@@ -2140,7 +2391,7 @@ $("#save-workspace").addEventListener("click", () => saveWorkspaceNow());
 $("#capture-preview").addEventListener("click", capturePreview);
 $("#save-snapshot").addEventListener("click", saveSnapshot);
 $("#load-offline-image").addEventListener("click", loadOfflineImage);
-$("#asset-from-roi").addEventListener("click", assetFromRoi);
+$("#target-from-roi").addEventListener("click", targetFromRoi);
 $("#assign-selected").addEventListener("click", assignWorkflowToSelected);
 $("#new-workflow").addEventListener("click", newWorkflow);
 $("#duplicate-workflow").addEventListener("click", duplicateWorkflow);
