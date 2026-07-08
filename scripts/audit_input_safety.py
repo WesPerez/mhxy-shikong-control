@@ -53,10 +53,11 @@ def main() -> int:
         "forbiddenTokens": forbidden,
         "hwndInputEvidence": hwnd,
         "focusAffectingEvidence": focus,
-        "passed": not forbidden and bool(hwnd),
+        "passed": not forbidden and not focus,
         "note": (
             "Forbidden tokens indicate real cursor/keyboard injection risk. "
-            "Focus-affecting APIs are reported for review but do not fail this audit."
+            "Focus-affecting APIs indicate foreground-control risk. "
+            "hwndInputEvidence may be empty when this build has no runtime input dispatcher."
         ),
     }
     if args.json:
@@ -69,8 +70,9 @@ def main() -> int:
         if forbidden:
             for hit in forbidden:
                 print(f"FORBIDDEN {hit['path']}:{hit['line']} {hit['token']}")
-        if not hwnd:
-            print("FORBIDDEN no hwnd-targeted input evidence found")
+        if focus:
+            for hit in focus:
+                print(f"FORBIDDEN_FOCUS {hit['path']}:{hit['line']} {hit['token']}")
     return 0 if report["passed"] else 2
 
 

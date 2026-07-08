@@ -20,29 +20,11 @@ pub struct AppWindow {
     pub display: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub enum CaptureSource {
-    WindowClient,
-    ScreenRegionFallback,
-    ImageFile,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct WindowIdentity {
-    pub hwnd: isize,
-    pub title: String,
-    pub process_id: u32,
-    pub process_name: String,
-}
-
 #[derive(Debug, Clone)]
 pub struct RgbFrame {
     pub width: u32,
     pub height: u32,
     pub pixels: Vec<u8>,
-    pub capture_source: CaptureSource,
 }
 
 #[cfg(windows)]
@@ -74,70 +56,6 @@ pub fn capture_client_rgb(_hwnd: isize) -> Result<RgbFrame, String> {
 }
 
 #[cfg(windows)]
-pub fn close_window_by_hwnd(hwnd: isize) -> Result<(), String> {
-    windows_impl::close_window_by_hwnd(hwnd)
-}
-
-#[cfg(not(windows))]
-pub fn close_window_by_hwnd(_hwnd: isize) -> Result<(), String> {
-    Err("window close is only implemented on Windows".to_string())
-}
-
-#[cfg(windows)]
-pub fn click_client_point(hwnd: isize, x: i32, y: i32) -> Result<(), String> {
-    windows_impl::click_client_point(hwnd, x, y)
-}
-
-#[cfg(not(windows))]
-pub fn click_client_point(_hwnd: isize, _x: i32, _y: i32) -> Result<(), String> {
-    Err("window input is only implemented on Windows".to_string())
-}
-
-#[cfg(windows)]
-pub fn drag_client_points(
-    hwnd: isize,
-    start_x: i32,
-    start_y: i32,
-    end_x: i32,
-    end_y: i32,
-    duration_ms: u64,
-) -> Result<(), String> {
-    windows_impl::drag_client_points(hwnd, start_x, start_y, end_x, end_y, duration_ms)
-}
-
-#[cfg(not(windows))]
-pub fn drag_client_points(
-    _hwnd: isize,
-    _start_x: i32,
-    _start_y: i32,
-    _end_x: i32,
-    _end_y: i32,
-    _duration_ms: u64,
-) -> Result<(), String> {
-    Err("window input is only implemented on Windows".to_string())
-}
-
-#[cfg(windows)]
-pub fn input_text_to_window(hwnd: isize, text: &str) -> Result<(), String> {
-    windows_impl::input_text_to_window(hwnd, text)
-}
-
-#[cfg(not(windows))]
-pub fn input_text_to_window(_hwnd: isize, _text: &str) -> Result<(), String> {
-    Err("window text input is only implemented on Windows".to_string())
-}
-
-#[cfg(windows)]
-pub fn send_scancode_sequence(hwnd: isize, scancodes: &[u16]) -> Result<(), String> {
-    windows_impl::send_scancode_sequence(hwnd, scancodes)
-}
-
-#[cfg(not(windows))]
-pub fn send_scancode_sequence(_hwnd: isize, _scancodes: &[u16]) -> Result<(), String> {
-    Err("window key input is only implemented on Windows".to_string())
-}
-
-#[cfg(windows)]
 pub fn current_process_elevated() -> bool {
     windows_impl::current_process_elevated()
 }
@@ -145,26 +63,6 @@ pub fn current_process_elevated() -> bool {
 #[cfg(not(windows))]
 pub fn current_process_elevated() -> bool {
     false
-}
-
-#[cfg(windows)]
-pub fn window_elevated_by_hwnd(hwnd: isize) -> Result<Option<bool>, String> {
-    windows_impl::window_elevated_by_hwnd(hwnd)
-}
-
-#[cfg(not(windows))]
-pub fn window_elevated_by_hwnd(_hwnd: isize) -> Result<Option<bool>, String> {
-    Ok(None)
-}
-
-#[cfg(windows)]
-pub fn window_identity_by_hwnd(hwnd: isize) -> Result<WindowIdentity, String> {
-    windows_impl::window_identity_by_hwnd(hwnd)
-}
-
-#[cfg(not(windows))]
-pub fn window_identity_by_hwnd(_hwnd: isize) -> Result<WindowIdentity, String> {
-    Err("window identity is only implemented on Windows".to_string())
 }
 
 #[cfg(windows)]
@@ -179,18 +77,10 @@ pub fn restart_current_process_as_admin() -> Result<(), String> {
 
 #[cfg(windows)]
 mod windows_impl {
-    use super::{AppWindow, CaptureSource, RgbFrame, WindowIdentity};
+    use super::{AppWindow, RgbFrame};
     use std::{
-        collections::BTreeMap,
-        ffi::c_void,
-        mem::size_of,
-        os::windows::ffi::OsStrExt,
-        path::PathBuf,
-        sync::{Mutex, OnceLock},
-        thread,
-        time::Duration,
+        collections::BTreeMap, ffi::c_void, mem::size_of, os::windows::ffi::OsStrExt, path::PathBuf,
     };
-    use windows::Win32::Foundation::WPARAM;
     use windows::{
         core::{BOOL, PCWSTR, PWSTR},
         Win32::{
@@ -199,8 +89,8 @@ mod windows_impl {
                 Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED},
                 Gdi::{
                     BitBlt, ClientToScreen, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC,
-                    DeleteObject, GetDC, GetDIBits, MapWindowPoints, ReleaseDC, SelectObject,
-                    BITMAPINFO, BI_RGB, DIB_RGB_COLORS, HBITMAP, HDC, HGDIOBJ, SRCCOPY,
+                    DeleteObject, GetDC, GetDIBits, ReleaseDC, SelectObject, BITMAPINFO, BI_RGB,
+                    DIB_RGB_COLORS, HBITMAP, HDC, HGDIOBJ, SRCCOPY,
                 },
             },
             Security::{GetTokenInformation, TokenElevation, TOKEN_ELEVATION, TOKEN_QUERY},
@@ -212,20 +102,14 @@ mod windows_impl {
                 SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,
                 DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,
             },
-            UI::Input::KeyboardAndMouse::{MapVirtualKeyW, MAPVK_VSC_TO_VK_EX},
             UI::Shell::ShellExecuteW,
             UI::WindowsAndMessaging::{
-                ChildWindowFromPointEx, EnumWindows, GetClientRect, GetWindow, GetWindowLongW,
-                GetWindowRect, GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId,
-                IsChild, IsWindow, IsWindowVisible, PostMessageW, CWP_SKIPDISABLED,
-                CWP_SKIPINVISIBLE, GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL, WM_CHAR, WM_CLOSE,
-                WM_KEYDOWN, WM_KEYUP, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_SYSKEYDOWN,
-                WM_SYSKEYUP, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
+                EnumWindows, GetClientRect, GetWindow, GetWindowLongW, GetWindowRect,
+                GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible,
+                GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
             },
         },
     };
-
-    static INPUT_TARGETS: OnceLock<Mutex<BTreeMap<isize, isize>>> = OnceLock::new();
 
     pub fn configure_process_dpi_awareness() {
         unsafe {
@@ -343,18 +227,6 @@ mod windows_impl {
         })
     }
 
-    pub fn close_window_by_hwnd(hwnd: isize) -> Result<(), String> {
-        unsafe {
-            PostMessageW(
-                Some(HWND(hwnd as *mut c_void)),
-                WM_CLOSE,
-                WPARAM(0),
-                LPARAM(0),
-            )
-            .map_err(|err| err.to_string())
-        }
-    }
-
     pub fn capture_client_rgb(hwnd: isize) -> Result<RgbFrame, String> {
         unsafe {
             let hwnd = HWND(hwnd as *mut c_void);
@@ -363,81 +235,6 @@ mod windows_impl {
             };
             capture_window_client(hwnd, width, height)
                 .or_else(|_| capture_screen_region(left, top, width, height))
-        }
-    }
-
-    pub fn click_client_point(hwnd: isize, x: i32, y: i32) -> Result<(), String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            post_mouse_message(hwnd, WM_MOUSEMOVE, 0, x, y)?;
-            thread::sleep(Duration::from_millis(20));
-            post_mouse_message(hwnd, WM_LBUTTONDOWN, 1, x, y)?;
-            thread::sleep(Duration::from_millis(35));
-            post_mouse_message(hwnd, WM_LBUTTONUP, 0, x, y)?;
-            Ok(())
-        }
-    }
-
-    pub fn drag_client_points(
-        hwnd: isize,
-        start_x: i32,
-        start_y: i32,
-        end_x: i32,
-        end_y: i32,
-        duration_ms: u64,
-    ) -> Result<(), String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            let steps = (duration_ms / 16).clamp(6, 80) as i32;
-            post_mouse_message(hwnd, WM_MOUSEMOVE, 0, start_x, start_y)?;
-            thread::sleep(Duration::from_millis(20));
-            post_mouse_message(hwnd, WM_LBUTTONDOWN, 1, start_x, start_y)?;
-            for step in 1..=steps {
-                let ratio = step as f32 / steps as f32;
-                let x = start_x + ((end_x - start_x) as f32 * ratio).round() as i32;
-                let y = start_y + ((end_y - start_y) as f32 * ratio).round() as i32;
-                post_mouse_message(hwnd, WM_MOUSEMOVE, 1, x, y)?;
-                thread::sleep(Duration::from_millis((duration_ms / steps as u64).max(1)));
-            }
-            post_mouse_message(hwnd, WM_LBUTTONUP, 0, end_x, end_y)?;
-            Ok(())
-        }
-    }
-
-    pub fn input_text_to_window(hwnd: isize, text: &str) -> Result<(), String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            let target_hwnd = remembered_input_target(hwnd);
-            for unit in text.encode_utf16() {
-                PostMessageW(Some(target_hwnd), WM_CHAR, WPARAM(unit as usize), LPARAM(0))
-                    .map_err(|err| err.to_string())?;
-                thread::sleep(Duration::from_millis(8));
-            }
-            Ok(())
-        }
-    }
-
-    pub fn send_scancode_sequence(hwnd: isize, scancodes: &[u16]) -> Result<(), String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            let mut alt_down = false;
-            for code in scancodes {
-                let alt_context = alt_down || is_alt_scancode(*code);
-                post_scancode(hwnd, *code, false, alt_context)?;
-                if is_alt_scancode(*code) {
-                    alt_down = true;
-                }
-                thread::sleep(Duration::from_millis(20));
-            }
-            for code in scancodes.iter().rev() {
-                let alt_context = alt_down || is_alt_scancode(*code);
-                post_scancode(hwnd, *code, true, alt_context)?;
-                if is_alt_scancode(*code) {
-                    alt_down = false;
-                }
-                thread::sleep(Duration::from_millis(20));
-            }
-            Ok(())
         }
     }
 
@@ -468,132 +265,6 @@ mod windows_impl {
         value.encode_wide().chain(std::iter::once(0)).collect()
     }
 
-    unsafe fn post_mouse_message(
-        hwnd: HWND,
-        message: u32,
-        wparam: usize,
-        x: i32,
-        y: i32,
-    ) -> Result<(), String> {
-        let root_hwnd = hwnd;
-        let (hwnd, point) = mouse_target_for_client_point(hwnd, x, y);
-        if message == WM_LBUTTONDOWN {
-            remember_input_target(root_hwnd, hwnd);
-        }
-        PostMessageW(
-            Some(hwnd),
-            message,
-            WPARAM(wparam),
-            client_point_lparam(point.x, point.y),
-        )
-        .map_err(|err| err.to_string())
-    }
-
-    unsafe fn mouse_target_for_client_point(mut hwnd: HWND, x: i32, y: i32) -> (HWND, POINT) {
-        let mut point = POINT { x, y };
-        for _ in 0..8 {
-            let child = unsafe {
-                ChildWindowFromPointEx(hwnd, point, CWP_SKIPINVISIBLE | CWP_SKIPDISABLED)
-            };
-            if child.0.is_null() || child.0 == hwnd.0 {
-                break;
-            }
-            unsafe {
-                MapWindowPoints(Some(hwnd), Some(child), std::slice::from_mut(&mut point));
-            }
-            hwnd = child;
-        }
-        (hwnd, point)
-    }
-
-    fn input_targets() -> &'static Mutex<BTreeMap<isize, isize>> {
-        INPUT_TARGETS.get_or_init(|| Mutex::new(BTreeMap::new()))
-    }
-
-    unsafe fn remember_input_target(root_hwnd: HWND, target_hwnd: HWND) {
-        if root_hwnd.0.is_null() || target_hwnd.0.is_null() {
-            return;
-        }
-        if target_hwnd.0 != root_hwnd.0 && !unsafe { IsChild(root_hwnd, target_hwnd) }.as_bool() {
-            return;
-        }
-        if let Ok(mut targets) = input_targets().lock() {
-            targets.insert(root_hwnd.0 as isize, target_hwnd.0 as isize);
-        }
-    }
-
-    unsafe fn remembered_input_target(root_hwnd: HWND) -> HWND {
-        let root_key = root_hwnd.0 as isize;
-        let Some(target) = input_targets()
-            .lock()
-            .ok()
-            .and_then(|targets| targets.get(&root_key).copied())
-        else {
-            return root_hwnd;
-        };
-        let target_hwnd = HWND(target as *mut c_void);
-        if unsafe { IsWindow(Some(target_hwnd)) }.as_bool()
-            && (target_hwnd.0 == root_hwnd.0
-                || unsafe { IsChild(root_hwnd, target_hwnd) }.as_bool())
-        {
-            target_hwnd
-        } else {
-            if let Ok(mut targets) = input_targets().lock() {
-                targets.remove(&root_key);
-            }
-            root_hwnd
-        }
-    }
-
-    fn is_alt_scancode(scancode: u16) -> bool {
-        (scancode & 0xff) == 0x38
-    }
-
-    unsafe fn post_scancode(
-        hwnd: HWND,
-        scancode: u16,
-        key_up: bool,
-        alt_context: bool,
-    ) -> Result<(), String> {
-        let virtual_key = MapVirtualKeyW(scancode as u32, MAPVK_VSC_TO_VK_EX);
-        let lparam = key_lparam(scancode, key_up, alt_context);
-        PostMessageW(
-            Some(hwnd),
-            if alt_context {
-                if key_up {
-                    WM_SYSKEYUP
-                } else {
-                    WM_SYSKEYDOWN
-                }
-            } else if key_up {
-                WM_KEYUP
-            } else {
-                WM_KEYDOWN
-            },
-            WPARAM(virtual_key as usize),
-            lparam,
-        )
-        .map_err(|err| err.to_string())
-    }
-
-    fn client_point_lparam(x: i32, y: i32) -> LPARAM {
-        let low = (x as i16 as u16) as u32;
-        let high = (y as i16 as u16) as u32;
-        LPARAM(((high << 16) | low) as isize)
-    }
-
-    fn key_lparam(scancode: u16, key_up: bool, alt_context: bool) -> LPARAM {
-        let mut value = 1u32 | (((scancode & 0xff) as u32) << 16);
-        if alt_context {
-            value |= 1 << 29;
-        }
-        if key_up {
-            value |= 1 << 30;
-            value |= 1 << 31;
-        }
-        LPARAM(value as isize)
-    }
-
     unsafe fn capture_screen_region(
         left: i32,
         top: i32,
@@ -604,16 +275,7 @@ mod windows_impl {
         let height_i32 =
             i32::try_from(height).map_err(|_| "capture height too large".to_string())?;
         let screen_dc = ScreenDc::new()?;
-        capture_from_dc(
-            screen_dc.0,
-            left,
-            top,
-            width,
-            height,
-            width_i32,
-            height_i32,
-            CaptureSource::ScreenRegionFallback,
-        )
+        capture_from_dc(screen_dc.0, left, top, width, height, width_i32, height_i32)
     }
 
     unsafe fn capture_window_client(
@@ -625,16 +287,7 @@ mod windows_impl {
         let height_i32 =
             i32::try_from(height).map_err(|_| "capture height too large".to_string())?;
         let window_dc = WindowDc::new(hwnd)?;
-        capture_from_dc(
-            window_dc.dc,
-            0,
-            0,
-            width,
-            height,
-            width_i32,
-            height_i32,
-            CaptureSource::WindowClient,
-        )
+        capture_from_dc(window_dc.dc, 0, 0, width, height, width_i32, height_i32)
     }
 
     unsafe fn capture_from_dc(
@@ -645,7 +298,6 @@ mod windows_impl {
         height: u32,
         width_i32: i32,
         height_i32: i32,
-        capture_source: CaptureSource,
     ) -> Result<RgbFrame, String> {
         let memory_dc = MemoryDc::new(source_dc)?;
         let bitmap = Bitmap::new(source_dc, width_i32, height_i32)?;
@@ -693,7 +345,6 @@ mod windows_impl {
             width,
             height,
             pixels,
-            capture_source,
         })
     }
 
@@ -783,45 +434,6 @@ mod windows_impl {
 
     pub fn current_process_elevated() -> bool {
         unsafe { token_elevated(GetCurrentProcess()).unwrap_or(false) }
-    }
-
-    pub fn window_elevated_by_hwnd(hwnd: isize) -> Result<Option<bool>, String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            if hwnd.0.is_null() {
-                return Err("invalid hwnd".to_string());
-            }
-            let mut process_id = 0u32;
-            GetWindowThreadProcessId(hwnd, Some(&mut process_id));
-            if process_id == 0 {
-                return Err("GetWindowThreadProcessId failed".to_string());
-            }
-            Ok(process_elevated(process_id))
-        }
-    }
-
-    pub fn window_identity_by_hwnd(hwnd: isize) -> Result<WindowIdentity, String> {
-        unsafe {
-            let hwnd = HWND(hwnd as *mut c_void);
-            if hwnd.0.is_null() || !IsWindow(Some(hwnd)).as_bool() {
-                return Err("window handle is no longer valid".to_string());
-            }
-            if !IsWindowVisible(hwnd).as_bool() {
-                return Err("window is no longer visible".to_string());
-            }
-            let mut process_id = 0u32;
-            GetWindowThreadProcessId(hwnd, Some(&mut process_id));
-            if process_id == 0 {
-                return Err("GetWindowThreadProcessId failed".to_string());
-            }
-            let title = window_title(hwnd).ok_or_else(|| "window title unavailable".to_string())?;
-            Ok(WindowIdentity {
-                hwnd: hwnd.0 as isize,
-                title,
-                process_id,
-                process_name: process_name(process_id).unwrap_or_default(),
-            })
-        }
     }
 
     fn process_elevated(process_id: u32) -> Option<bool> {
