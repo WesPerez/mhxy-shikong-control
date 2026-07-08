@@ -18,14 +18,22 @@ FORBIDDEN_TOKENS = [
     "pynput",
     "win32api.SetCursorPos",
     "win32api.mouse_event",
+    "AttachThreadInput",
+    "SwitchToThisWindow",
+    "SetActiveWindow",
+    "SendMessageW(",
 ]
 HWND_TOKENS = [
     "PostMessageW",
     "WM_LBUTTONDOWN",
     "WM_LBUTTONUP",
+    "WM_RBUTTONDOWN",
+    "WM_RBUTTONUP",
     "WM_MOUSEMOVE",
     "WM_KEYDOWN",
     "WM_KEYUP",
+    "WM_SYSKEYDOWN",
+    "WM_SYSKEYUP",
     "WM_CHAR",
 ]
 FOCUS_TOKENS = [

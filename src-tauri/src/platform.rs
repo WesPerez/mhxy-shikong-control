@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -25,6 +25,21 @@ pub struct RgbFrame {
     pub width: u32,
     pub height: u32,
     pub pixels: Vec<u8>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HwndPoint {
+    pub x: u32,
+    pub y: u32,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HwndInputResult {
+    pub hwnd: isize,
+    pub sent_messages: u32,
+    pub detail: String,
 }
 
 #[cfg(windows)]
@@ -76,15 +91,47 @@ pub fn restart_current_process_as_admin() -> Result<(), String> {
 }
 
 #[cfg(windows)]
+pub fn post_mouse_click(
+    hwnd: isize,
+    point: HwndPoint,
+    button: &str,
+) -> Result<HwndInputResult, String> {
+    windows_impl::post_mouse_click(hwnd, point, button)
+}
+
+#[cfg(not(windows))]
+pub fn post_mouse_click(
+    hwnd: isize,
+    _point: HwndPoint,
+    _button: &str,
+) -> Result<HwndInputResult, String> {
+    Err(format!(
+        "hwnd mouse input is only implemented on Windows: {hwnd}"
+    ))
+}
+
+#[cfg(windows)]
+pub fn post_hotkey(hwnd: isize, hotkey: &str) -> Result<HwndInputResult, String> {
+    windows_impl::post_hotkey(hwnd, hotkey)
+}
+
+#[cfg(not(windows))]
+pub fn post_hotkey(hwnd: isize, _hotkey: &str) -> Result<HwndInputResult, String> {
+    Err(format!(
+        "hwnd keyboard input is only implemented on Windows: {hwnd}"
+    ))
+}
+
+#[cfg(windows)]
 mod windows_impl {
-    use super::{AppWindow, RgbFrame};
+    use super::{AppWindow, HwndInputResult, HwndPoint, RgbFrame};
     use std::{
         collections::BTreeMap, ffi::c_void, mem::size_of, os::windows::ffi::OsStrExt, path::PathBuf,
     };
     use windows::{
         core::{BOOL, PCWSTR, PWSTR},
         Win32::{
-            Foundation::{CloseHandle, HWND, LPARAM, POINT, RECT},
+            Foundation::{CloseHandle, HWND, LPARAM, POINT, RECT, WPARAM},
             Graphics::{
                 Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED},
                 Gdi::{
@@ -105,11 +152,25 @@ mod windows_impl {
             UI::Shell::ShellExecuteW,
             UI::WindowsAndMessaging::{
                 EnumWindows, GetClientRect, GetWindow, GetWindowLongW, GetWindowRect,
-                GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindowVisible,
-                GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
+                GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindow,
+                IsWindowVisible, PostMessageW, GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL, WM_KEYDOWN,
+                WM_KEYUP, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_RBUTTONDOWN, WM_RBUTTONUP,
+                WM_SYSKEYDOWN, WM_SYSKEYUP, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
             },
         },
     };
+
+    const VK_BACKSPACE: u16 = 0x08;
+    const VK_TAB_KEY: u16 = 0x09;
+    const VK_RETURN: u16 = 0x0D;
+    const VK_SHIFT_KEY: u16 = 0x10;
+    const VK_CONTROL_KEY: u16 = 0x11;
+    const VK_MENU_KEY: u16 = 0x12;
+    const VK_ESCAPE: u16 = 0x1B;
+    const VK_SPACE_KEY: u16 = 0x20;
+    const VK_F1: u16 = 0x70;
+    const MK_LBUTTON_FLAG: u32 = 0x0001;
+    const MK_RBUTTON_FLAG: u32 = 0x0002;
 
     pub fn configure_process_dpi_awareness() {
         unsafe {
@@ -261,8 +322,126 @@ mod windows_impl {
         Ok(())
     }
 
+    pub fn post_mouse_click(
+        hwnd: isize,
+        point: HwndPoint,
+        button: &str,
+    ) -> Result<HwndInputResult, String> {
+        unsafe {
+            let hwnd = checked_hwnd(hwnd)?;
+            let (down, up, wparam) = match button.trim().to_ascii_lowercase().as_str() {
+                "right" | "r" | "secondary" => (WM_RBUTTONDOWN, WM_RBUTTONUP, MK_RBUTTON_FLAG),
+                _ => (WM_LBUTTONDOWN, WM_LBUTTONUP, MK_LBUTTON_FLAG),
+            };
+            let lparam = point_lparam(point.x, point.y)?;
+            post(hwnd, WM_MOUSEMOVE, WPARAM(0), lparam)?;
+            post(hwnd, down, WPARAM(wparam as usize), lparam)?;
+            post(hwnd, up, WPARAM(0), lparam)?;
+            Ok(HwndInputResult {
+                hwnd: hwnd.0 as isize,
+                sent_messages: 3,
+                detail: format!("posted {button} click at {},{}", point.x, point.y),
+            })
+        }
+    }
+
+    pub fn post_hotkey(hwnd: isize, hotkey: &str) -> Result<HwndInputResult, String> {
+        unsafe {
+            let hwnd = checked_hwnd(hwnd)?;
+            let keys = parse_hotkey(hotkey)?;
+            let has_alt = keys.iter().any(|key| key.vk == VK_MENU_KEY);
+            let (down_msg, up_msg) = if has_alt {
+                (WM_SYSKEYDOWN, WM_SYSKEYUP)
+            } else {
+                (WM_KEYDOWN, WM_KEYUP)
+            };
+            for key in &keys {
+                post(hwnd, down_msg, WPARAM(key.vk as usize), LPARAM(1))?;
+            }
+            for key in keys.iter().rev() {
+                post(hwnd, up_msg, WPARAM(key.vk as usize), LPARAM(1))?;
+            }
+            Ok(HwndInputResult {
+                hwnd: hwnd.0 as isize,
+                sent_messages: (keys.len() * 2) as u32,
+                detail: format!("posted hotkey {}", hotkey.trim()),
+            })
+        }
+    }
+
+    unsafe fn checked_hwnd(hwnd: isize) -> Result<HWND, String> {
+        let hwnd = HWND(hwnd as *mut c_void);
+        if hwnd.0.is_null() || !unsafe { IsWindow(Some(hwnd)) }.as_bool() {
+            return Err("target hwnd is no longer valid".to_string());
+        }
+        Ok(hwnd)
+    }
+
+    unsafe fn post(hwnd: HWND, message: u32, wparam: WPARAM, lparam: LPARAM) -> Result<(), String> {
+        unsafe { PostMessageW(Some(hwnd), message, wparam, lparam) }.map_err(|err| err.to_string())
+    }
+
     fn wide_null(value: &std::ffi::OsStr) -> Vec<u16> {
         value.encode_wide().chain(std::iter::once(0)).collect()
+    }
+
+    fn point_lparam(x: u32, y: u32) -> Result<LPARAM, String> {
+        if x > i16::MAX as u32 || y > i16::MAX as u32 {
+            return Err(format!("point is outside WM_* coordinate range: {x},{y}"));
+        }
+        Ok(LPARAM(((y as isize) << 16) | (x as isize & 0xffff)))
+    }
+
+    #[derive(Debug, Clone, Copy)]
+    struct ParsedKey {
+        vk: u16,
+    }
+
+    fn parse_hotkey(value: &str) -> Result<Vec<ParsedKey>, String> {
+        let keys = value
+            .split('+')
+            .map(str::trim)
+            .filter(|part| !part.is_empty())
+            .map(parse_key)
+            .collect::<Result<Vec<_>, _>>()?;
+        if keys.is_empty() {
+            return Err("hotkey is empty".to_string());
+        }
+        Ok(keys)
+    }
+
+    fn parse_key(value: &str) -> Result<ParsedKey, String> {
+        let upper = value.trim().to_ascii_uppercase();
+        let vk = match upper.as_str() {
+            "ALT" | "MENU" => VK_MENU_KEY,
+            "CTRL" | "CONTROL" => VK_CONTROL_KEY,
+            "SHIFT" => VK_SHIFT_KEY,
+            "TAB" => VK_TAB_KEY,
+            "SPACE" => VK_SPACE_KEY,
+            "ESC" | "ESCAPE" => VK_ESCAPE,
+            "ENTER" | "RETURN" => VK_RETURN,
+            "BACKSPACE" => VK_BACKSPACE,
+            key if key.len() == 1 => {
+                let byte = key.as_bytes()[0];
+                if byte.is_ascii_alphanumeric() {
+                    byte as u16
+                } else {
+                    return Err(format!("unsupported hotkey key: {value}"));
+                }
+            }
+            key if key.starts_with('F') => {
+                let number = key[1..]
+                    .parse::<u16>()
+                    .map_err(|_| format!("unsupported function key: {value}"))?;
+                if (1..=24).contains(&number) {
+                    VK_F1 + number - 1
+                } else {
+                    return Err(format!("function key out of range: {value}"));
+                }
+            }
+            _ => return Err(format!("unsupported hotkey key: {value}")),
+        };
+        Ok(ParsedKey { vk })
     }
 
     unsafe fn capture_screen_region(
@@ -575,6 +754,37 @@ mod windows_impl {
             unsafe {
                 SelectObject(self.dc, self.previous);
             }
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn packs_client_point_lparam() {
+            let value = point_lparam(12, 34).expect("point should pack");
+            assert_eq!(value.0, (34 << 16) | 12);
+        }
+
+        #[test]
+        fn rejects_point_outside_message_range() {
+            assert!(point_lparam(40_000, 10).is_err());
+            assert!(point_lparam(10, 40_000).is_err());
+        }
+
+        #[test]
+        fn parses_hotkey_sequence() {
+            let keys = parse_hotkey("CTRL+SHIFT+1").expect("hotkey should parse");
+            assert_eq!(
+                keys.iter().map(|key| key.vk).collect::<Vec<_>>(),
+                vec![VK_CONTROL_KEY, VK_SHIFT_KEY, b'1' as u16]
+            );
+        }
+
+        #[test]
+        fn rejects_unknown_hotkey_key() {
+            assert!(parse_hotkey("ALT+鼠").is_err());
         }
     }
 }

@@ -79,7 +79,7 @@ where
     let join = thread::Builder::new()
         .name("mhxy-shikong-control-single-instance".to_string())
         .spawn(move || run_listener(listener, stop_for_thread, on_wake))
-        .map_err(|err| io::Error::new(io::ErrorKind::Other, err.to_string()))?;
+        .map_err(|err| io::Error::other(err.to_string()))?;
 
     Ok(SingleInstanceGuard {
         stop,

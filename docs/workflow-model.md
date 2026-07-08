@@ -12,7 +12,7 @@
 2. 每个窗口 hwnd 可以分配不同任务。
 3. 每个 hwnd 的 dry-run 会话独立，且同 hwnd 互斥。
 4. `Asset` 先承接粘贴图片和 ROI 目标，后续升级成完整 `Target` 识别库。
-5. 真实输入执行器暂不内置，避免在模型未稳定前重新引入风险。
+5. 后台运行 beta 已接入 `PostMessageW` 点击/热键和轻量图像匹配；OCR 仍是明确占位。
 
 ## 参考模式
 
@@ -90,7 +90,7 @@
 
 关键策略：
 
-- `targetPolicy.inputMode` 固定表达“目标设计是 hwnd 后台消息”，但当前阶段 dry-run 不发送输入。
+- `targetPolicy.inputMode` 固定表达“目标设计是 hwnd 后台消息”。dry-run 不发送输入，后台运行 beta 只投递 hwnd 消息。
 - `targetPolicy.concurrency=per-window-exclusive` 表示同 hwnd 互斥，不同 hwnd 可并行。
 - `restorePolicy` 后续会引用共享恢复流程。
 
@@ -118,10 +118,10 @@
 
 - `detect_page`: 检测页面或状态。
 - `wait_image`: 等待图像出现。
-- `image_click`: 图像识别后点击。
-- `ocr_assert`: OCR 文本确认。
-- `click`: 后台点击动作的模型占位。
-- `hotkey`: 快捷键动作的模型占位。
+- `image_click`: 图像识别后点击；当前 beta 使用模板匹配后点击中心点。
+- `ocr_assert`: OCR 文本确认；当前运行时返回未实现。
+- `click`: 后台点击动作。
+- `hotkey`: 快捷键动作。
 - `delay`: 延迟等待。
 - `condition`: 条件判断。
 - `retry_until`: 重试直到成功。
@@ -136,7 +136,7 @@
 当前 `assets` 先接两类内容：
 
 - `clipboard-image`: 用户 Ctrl+V 粘贴的图片，直接保存为 data URL。
-- `roi`: 用户从预览图框选的区域，保存 ROI 坐标和来源窗口。
+- `roi`: 用户从预览图框选的区域，保存 ROI 坐标、来源窗口和裁剪后的 data URL。
 
 后续应升级为 `targets`：
 
@@ -169,7 +169,7 @@
 
 ## 运行策略
 
-当前实现的是 dry-run：
+当前有两种运行策略：
 
 - 用户把任务分配给已选窗口。
 - 点击 dry-run 后，每个窗口生成独立 `RunSession`。
@@ -177,6 +177,11 @@
 - 不同 hwnd 的会话并行推进，各自记录步骤进度和日志。
 - dry-run 结束后写入 `runHistory`，并保存工作区。
 - dry-run 不截图、不点击、不发快捷键、不启动客户端、不请求管理员重启。
+- 点击后台运行 beta 后，每个窗口同样生成独立 `RunSession`。
+- `hotkey` 通过 hwnd 投递 `WM_KEYDOWN/WM_KEYUP` 或 `WM_SYSKEYDOWN/WM_SYSKEYUP`。
+- `click` 通过 hwnd 投递 `WM_MOUSEMOVE`、`WM_LBUTTONDOWN/UP` 或 `WM_RBUTTONDOWN/UP`。
+- `image_click` 会截图、匹配模板图，达到阈值后点击匹配矩形中心。
+- `ocr_assert` 会明确记录 unsupported，不会把未识别当成功。
 
 后续真实执行层必须在每一步执行前重新校验 hwnd、标题、pid 和窗口尺寸，发现漂移就安全失败并记录日志。
 
@@ -186,8 +191,8 @@
 
 - 不调用 `SendInput`、`SetCursorPos`、`mouse_event`、`keybd_event`。
 - 不为了任务执行调用 `SetForegroundWindow` 或 `BringWindowToTop`。
-- 当前 dry-run 不发送任何游戏输入。
-- 后续鼠标、键盘、文本输入都只能走目标 hwnd 的后台消息。
+- dry-run 不发送任何游戏输入。
+- 鼠标和键盘输入只能走目标 hwnd 的后台消息。
 - 同一个 hwnd 只能运行一个任务；不同 hwnd 可以并行。
 - 所有任务报告必须记录 hwnd、初始窗口身份、最终窗口身份、截图来源和失败原因。
 

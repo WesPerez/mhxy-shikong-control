@@ -1155,18 +1155,23 @@ function roiText(roi) {
   return `${roi.x},${roi.y},${roi.w},${roi.h}`;
 }
 
-function assetFromRoi() {
+async function assetFromRoi() {
   const roi = state.roiSelection;
   if (!roi || !state.preview) {
     setStatus("需要先在预览图上框选 ROI");
     return;
   }
   const target = activeWindow();
+  const dataUrl = await cropPreviewRoiDataUrl(roi).catch((error) => {
+    appendLog("warn", `ROI 裁剪失败，仅保存坐标：${error}`);
+    return "";
+  });
   const asset = {
     id: randomId("asset"),
     name: `ROI ${roiText(roi)}`,
     kind: "roi",
     createdAt: new Date().toISOString(),
+    dataUrl,
     roi,
     source: {
       type: state.previewSource,
@@ -1183,6 +1188,19 @@ function assetFromRoi() {
   renderAssets();
   renderStepEditor();
   setStatus(`已保存 ROI 目标：${asset.name}`);
+}
+
+async function cropPreviewRoiDataUrl(roi) {
+  const image = $("#preview-image");
+  if (!image.getAttribute("src")) throw new Error("preview image is empty");
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, roi.w);
+  canvas.height = Math.max(1, roi.h);
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("canvas context unavailable");
+  await image.decode().catch(() => {});
+  context.drawImage(image, roi.x, roi.y, roi.w, roi.h, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
 }
 
 async function handlePasteImage(event) {
@@ -1217,8 +1235,11 @@ function bindAssetToSelectedStep(asset) {
   if (!item) return;
   item.assetId = asset.id;
   item.target = asset.id;
-  if (!["image_click", "wait_image", "paste_image", "detect_page"].includes(item.type)) {
-    item.type = "paste_image";
+  if (!["image_click", "wait_image", "detect_page"].includes(item.type)) {
+    item.type = "image_click";
+    item.name = "图像点击";
+    item.command = "button=left; point=center";
+    item.expect = "screen.changed";
   }
 }
 
@@ -1325,6 +1346,14 @@ function validateAllWorkflows() {
 }
 
 function dryRunSelected() {
+  runSelected("dry");
+}
+
+function backgroundRunSelected() {
+  runSelected("background");
+}
+
+function runSelected(mode) {
   const workflow = activeWorkflow();
   const targets = selectedWindows();
   if (!workflow || !targets.length) {
@@ -1333,19 +1362,20 @@ function dryRunSelected() {
   }
   if (!validateActiveWorkflow()) return;
   for (const target of targets) {
-    startDryRunForWindow(target, workflow);
+    startRunForWindow(target, workflow, mode);
   }
 }
 
-function startDryRunForWindow(target, workflow) {
+function startRunForWindow(target, workflow, mode) {
   const key = String(target.hwnd);
   const running = state.sessions[key]?.status === "running";
   if (running) {
-    appendLog("warn", `${target.display} 已有运行中的 dry-run，同 hwnd 保持互斥`);
+    appendLog("warn", `${target.display} 已有运行中的会话，同 hwnd 保持互斥`);
     return;
   }
   const session = {
     id: `run-${++state.sessionSerial}`,
+    mode,
     hwnd: target.hwnd,
     display: target.display,
     processId: target.processId,
@@ -1360,7 +1390,7 @@ function startDryRunForWindow(target, workflow) {
   };
   state.sessions[key] = session;
   setRunState("running");
-  appendLog("info", `dry-run 启动：${target.display} -> ${workflow.name}`);
+  appendLog("info", `${modeLabel(mode)} 启动：${target.display} -> ${workflow.name}`);
   renderSessions();
   void runSession(session, JSON.parse(JSON.stringify(workflow)));
 }
@@ -1369,14 +1399,33 @@ async function runSession(session, workflow) {
   for (const [index, item] of workflow.steps.entries()) {
     if (session.cancelRequested) break;
     session.currentStep = index + 1;
-    session.logs.unshift(`${String(index + 1).padStart(2, "0")} ${item.name} [${item.type}]`);
+    if (session.mode === "background") {
+      const result = await executeBackendStep(session, item).catch((error) => ({
+        status: "error",
+        action: "backend",
+        detail: String(error),
+        inputSent: false,
+        matched: false,
+      }));
+      session.logs.unshift(formatStepLog(index, item, result));
+      if (shouldStopAfterResult(item, result)) {
+        session.cancelRequested = true;
+        session.status = "failed";
+        break;
+      }
+    } else {
+      session.logs.unshift(`${String(index + 1).padStart(2, "0")} ${item.name} [${item.type}]`);
+      await sleep(dryRunDelay(item));
+    }
     renderSessions();
-    await sleep(dryRunDelay(item));
   }
-  session.status = session.cancelRequested ? "stopped" : "done";
+  if (session.status !== "failed") {
+    session.status = session.cancelRequested ? "stopped" : "done";
+  }
   session.endedAt = new Date().toISOString();
   state.workspace.runHistory.unshift({
     id: session.id,
+    mode: session.mode,
     hwnd: session.hwnd,
     display: session.display,
     workflowId: session.workflowId,
@@ -1391,7 +1440,51 @@ async function runSession(session, workflow) {
   renderSessions();
   const stillRunning = Object.values(state.sessions).some((item) => item.status === "running");
   setRunState(stillRunning ? "running" : "idle");
-  appendLog(session.status === "done" ? "info" : "warn", `dry-run ${session.status}：${session.display}`);
+  appendLog(
+    session.status === "done" ? "info" : "warn",
+    `${modeLabel(session.mode)} ${session.status}：${session.display}`,
+  );
+}
+
+async function executeBackendStep(session, item) {
+  const payload = backendStepPayload(item);
+  return invoke("execute_workflow_step", {
+    hwnd: Number(session.hwnd),
+    step: payload,
+  });
+}
+
+function backendStepPayload(item) {
+  const asset = item.assetId ? state.workspace.assets.find((entry) => entry.id === item.assetId) : null;
+  return {
+    type: item.type,
+    target: item.target || "",
+    command: item.command || "",
+    expect: item.expect || "",
+    assetId: item.assetId || "",
+    assetKind: asset?.kind || "",
+    assetDataUrl: asset?.dataUrl || "",
+    roi: asset?.roi || null,
+  };
+}
+
+function formatStepLog(index, item, result) {
+  const point = result.x != null && result.y != null ? ` @${result.x},${result.y}` : "";
+  const score = result.score != null ? ` score=${Number(result.score).toFixed(3)}` : "";
+  const sent = result.inputSent ? " sent" : "";
+  return `${String(index + 1).padStart(2, "0")} ${item.name} [${item.type}] ${result.status}/${result.action}${point}${score}${sent} · ${result.detail}`;
+}
+
+function shouldStopAfterResult(item, result) {
+  if (result.status === "error") return true;
+  if (["unsupported", "missing_asset", "below_threshold"].includes(result.status)) {
+    return ["stop", "restore"].includes(item.onFail || "stop");
+  }
+  return false;
+}
+
+function modeLabel(mode) {
+  return mode === "background" ? "后台运行" : "dry-run";
 }
 
 function dryRunDelay(item) {
@@ -1407,7 +1500,7 @@ function stopDryRun() {
       count += 1;
     }
   }
-  appendLog("warn", `已请求停止 ${count} 个 dry-run 会话`);
+  appendLog("warn", `已请求停止 ${count} 个运行会话`);
   renderSessions();
 }
 
@@ -1428,7 +1521,7 @@ function renderSessions() {
     lane.innerHTML = `
       <div>
         <strong>${escapeHtml(session.display)}</strong>
-        <span>${escapeHtml(session.workflowName)} · ${session.currentStep}/${session.totalSteps}</span>
+        <span>${escapeHtml(modeLabel(session.mode))} · ${escapeHtml(session.workflowName)} · ${session.currentStep}/${session.totalSteps}</span>
       </div>
       <progress max="${session.totalSteps}" value="${session.currentStep}"></progress>
       <small>${escapeHtml(session.status)} · hwnd=${escapeHtml(session.hwnd)}</small>
@@ -1519,6 +1612,7 @@ $("#delete-step").addEventListener("click", deleteSelectedStep);
 $("#validate-workflow").addEventListener("click", validateActiveWorkflow);
 $("#validate-all-workflows").addEventListener("click", validateAllWorkflows);
 $("#dry-run-selected").addEventListener("click", dryRunSelected);
+$("#background-run-selected").addEventListener("click", backgroundRunSelected);
 $("#stop-dry-run").addEventListener("click", stopDryRun);
 $("#export-workspace").addEventListener("click", exportWorkspace);
 $("#import-workspace").addEventListener("click", importWorkspace);

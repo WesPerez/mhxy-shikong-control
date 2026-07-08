@@ -6,7 +6,10 @@ mod tray;
 
 use base64::{engine::general_purpose, Engine as _};
 use image::{codecs::png::PngEncoder, ColorType, ImageEncoder};
-use platform::{capture_client_rgb, current_process_elevated, list_windows, RgbFrame};
+use platform::{
+    capture_client_rgb, current_process_elevated, list_windows, post_hotkey, post_mouse_click,
+    HwndPoint, RgbFrame,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
@@ -100,6 +103,60 @@ struct WorkflowWorkspaceSave {
     bytes: usize,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct WorkflowStepInput {
+    #[serde(rename = "type")]
+    step_type: String,
+    #[serde(default)]
+    target: String,
+    #[serde(default)]
+    command: String,
+    #[serde(default)]
+    expect: String,
+    #[serde(default)]
+    asset_id: Option<String>,
+    #[serde(default)]
+    asset_kind: Option<String>,
+    #[serde(default)]
+    asset_data_url: Option<String>,
+    #[serde(default)]
+    roi: Option<RoiRect>,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RoiRect {
+    x: u32,
+    y: u32,
+    w: u32,
+    h: u32,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StepDispatchResult {
+    hwnd: isize,
+    step_type: String,
+    status: String,
+    action: String,
+    detail: String,
+    input_sent: bool,
+    matched: bool,
+    x: Option<u32>,
+    y: Option<u32>,
+    score: Option<f32>,
+}
+
+#[derive(Debug, Clone)]
+struct TemplateMatch {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+    score: f32,
+}
+
 #[tauri::command]
 fn list_game_windows(title_needle: String) -> Result<Vec<platform::AppWindow>, String> {
     list_windows(&title_needle)
@@ -169,6 +226,56 @@ fn save_workflow_workspace(
         saved_path: path.display().to_string(),
         bytes: text.len(),
     })
+}
+
+#[tauri::command]
+fn execute_workflow_step(
+    hwnd: isize,
+    step: WorkflowStepInput,
+) -> Result<StepDispatchResult, String> {
+    let step_type = step.step_type.trim().to_ascii_lowercase();
+    let mut result = match step_type.as_str() {
+        "hotkey" => dispatch_hotkey_step(hwnd, &step),
+        "click" => dispatch_click_step(hwnd, &step),
+        "image_click" => dispatch_image_step(hwnd, &step, true),
+        "wait_image" | "detect_page" => dispatch_image_step(hwnd, &step, false),
+        "snapshot" => {
+            let frame = capture_client_rgb(hwnd)?;
+            Ok(step_result(
+                hwnd,
+                &step.step_type,
+                "observed",
+                "snapshot",
+                format!(
+                    "captured {}x{} for step verification",
+                    frame.width, frame.height
+                ),
+            ))
+        }
+        "delay" | "condition" | "retry_until" | "restore" => Ok(step_result(
+            hwnd,
+            &step.step_type,
+            "planned",
+            "no_input",
+            "step is represented in the runner but has no direct backend input in this build",
+        )),
+        "ocr_assert" => Ok(step_result(
+            hwnd,
+            &step.step_type,
+            "unsupported",
+            "ocr",
+            "OCR is modeled but not implemented in this build",
+        )),
+        other => Ok(step_result(
+            hwnd,
+            other,
+            "unsupported",
+            "unknown",
+            format!("unsupported step type: {other}"),
+        )),
+    }?;
+    append_step_metadata(&mut result, &step);
+    Ok(result)
 }
 
 #[tauri::command]
@@ -255,6 +362,357 @@ fn default_workflow_workspace() -> Value {
         "assets": [],
         "runHistory": []
     })
+}
+
+fn dispatch_hotkey_step(
+    hwnd: isize,
+    step: &WorkflowStepInput,
+) -> Result<StepDispatchResult, String> {
+    let hotkey = first_non_empty([step.target.as_str(), step.command.as_str()])
+        .ok_or_else(|| "hotkey step requires target or command".to_string())?;
+    let result = post_hotkey(hwnd, hotkey)?;
+    Ok(step_result_with_input(
+        hwnd,
+        &step.step_type,
+        "sent",
+        "hotkey",
+        result.detail,
+        true,
+        None,
+    ))
+}
+
+fn dispatch_click_step(
+    hwnd: isize,
+    step: &WorkflowStepInput,
+) -> Result<StepDispatchResult, String> {
+    let point = point_from_step(step).ok_or_else(|| {
+        "click step requires target x=...,y=... or an ROI-bound asset".to_string()
+    })?;
+    let button = command_value(&step.command, "button").unwrap_or("left");
+    let result = post_mouse_click(hwnd, point.clone(), button)?;
+    let mut output = step_result_with_input(
+        hwnd,
+        &step.step_type,
+        "sent",
+        "click",
+        result.detail,
+        true,
+        None,
+    );
+    output.x = Some(point.x);
+    output.y = Some(point.y);
+    Ok(output)
+}
+
+fn dispatch_image_step(
+    hwnd: isize,
+    step: &WorkflowStepInput,
+    execute_click: bool,
+) -> Result<StepDispatchResult, String> {
+    let button = command_value(&step.command, "button").unwrap_or("left");
+    if let Some(data_url) = step
+        .asset_data_url
+        .as_deref()
+        .filter(|value| !value.is_empty())
+    {
+        let frame = capture_client_rgb(hwnd)?;
+        let template = load_image_data_url_rgb(data_url)?;
+        let search_roi = scaled_roi(step.roi, frame.width, frame.height);
+        let threshold = command_value(&step.command, "threshold")
+            .and_then(|value| value.parse::<f32>().ok())
+            .unwrap_or(0.86);
+        let matched = match_template(&frame, &template, search_roi)?;
+        let center = HwndPoint {
+            x: matched.x + matched.width / 2,
+            y: matched.y + matched.height / 2,
+        };
+        let mut output = step_result_with_input(
+            hwnd,
+            &step.step_type,
+            if matched.score >= threshold {
+                if execute_click {
+                    "sent"
+                } else {
+                    "matched"
+                }
+            } else {
+                "below_threshold"
+            },
+            if execute_click {
+                "image_click"
+            } else {
+                "image_match"
+            },
+            format!(
+                "best score {:.3} at {},{} size {}x{} threshold {:.3}",
+                matched.score, matched.x, matched.y, matched.width, matched.height, threshold
+            ),
+            false,
+            Some(matched.score),
+        );
+        output.matched = matched.score >= threshold;
+        output.x = Some(center.x);
+        output.y = Some(center.y);
+        if execute_click && matched.score >= threshold {
+            let result = post_mouse_click(hwnd, center, button)?;
+            output.input_sent = true;
+            output.detail = format!("{}; {}", output.detail, result.detail);
+        }
+        return Ok(output);
+    }
+
+    if let Some(point) = point_from_step(step) {
+        if execute_click {
+            let result = post_mouse_click(hwnd, point.clone(), button)?;
+            let mut output = step_result_with_input(
+                hwnd,
+                &step.step_type,
+                "sent",
+                "roi_click",
+                result.detail,
+                true,
+                None,
+            );
+            output.matched = true;
+            output.x = Some(point.x);
+            output.y = Some(point.y);
+            return Ok(output);
+        }
+        let mut output = step_result(
+            hwnd,
+            &step.step_type,
+            "planned",
+            "roi_match",
+            "ROI target is available, but no template image is bound for visual matching",
+        );
+        output.matched = true;
+        output.x = Some(point.x);
+        output.y = Some(point.y);
+        return Ok(output);
+    }
+
+    Ok(step_result(
+        hwnd,
+        &step.step_type,
+        "missing_asset",
+        if execute_click {
+            "image_click"
+        } else {
+            "image_match"
+        },
+        "image step requires a pasted image asset or ROI target",
+    ))
+}
+
+fn step_result(
+    hwnd: isize,
+    step_type: &str,
+    status: impl Into<String>,
+    action: impl Into<String>,
+    detail: impl Into<String>,
+) -> StepDispatchResult {
+    step_result_with_input(hwnd, step_type, status, action, detail, false, None)
+}
+
+fn step_result_with_input(
+    hwnd: isize,
+    step_type: &str,
+    status: impl Into<String>,
+    action: impl Into<String>,
+    detail: impl Into<String>,
+    input_sent: bool,
+    score: Option<f32>,
+) -> StepDispatchResult {
+    StepDispatchResult {
+        hwnd,
+        step_type: step_type.to_string(),
+        status: status.into(),
+        action: action.into(),
+        detail: detail.into(),
+        input_sent,
+        matched: score.is_some_and(|value| value >= 0.0),
+        x: None,
+        y: None,
+        score,
+    }
+}
+
+fn append_step_metadata(result: &mut StepDispatchResult, step: &WorkflowStepInput) {
+    let mut parts = Vec::new();
+    if !step.expect.trim().is_empty() {
+        parts.push(format!("expect={}", step.expect.trim()));
+    }
+    if let Some(asset_id) = step
+        .asset_id
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("assetId={}", asset_id.trim()));
+    }
+    if let Some(asset_kind) = step
+        .asset_kind
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("assetKind={}", asset_kind.trim()));
+    }
+    if !parts.is_empty() {
+        result.detail = format!("{}; {}", result.detail, parts.join("; "));
+    }
+}
+
+fn first_non_empty<'a>(values: impl IntoIterator<Item = &'a str>) -> Option<&'a str> {
+    values
+        .into_iter()
+        .map(str::trim)
+        .find(|value| !value.is_empty())
+}
+
+fn command_value<'a>(command: &'a str, key: &str) -> Option<&'a str> {
+    command.split([';', ',']).find_map(|part| {
+        let (left, right) = part.split_once('=')?;
+        left.trim()
+            .eq_ignore_ascii_case(key)
+            .then_some(right.trim())
+            .filter(|value| !value.is_empty())
+    })
+}
+
+fn point_from_step(step: &WorkflowStepInput) -> Option<HwndPoint> {
+    parse_point(&step.target)
+        .or_else(|| parse_point(&step.command))
+        .or_else(|| step.roi.map(|roi| roi.center()))
+}
+
+fn parse_point(value: &str) -> Option<HwndPoint> {
+    let mut x = None;
+    let mut y = None;
+    for part in value
+        .split([',', ';', ' '])
+        .filter(|part| !part.trim().is_empty())
+    {
+        let (key, raw) = part.split_once('=')?;
+        match key.trim().to_ascii_lowercase().as_str() {
+            "x" => x = raw.trim().parse::<u32>().ok(),
+            "y" => y = raw.trim().parse::<u32>().ok(),
+            _ => {}
+        }
+    }
+    Some(HwndPoint { x: x?, y: y? })
+}
+
+impl RoiRect {
+    fn center(self) -> HwndPoint {
+        HwndPoint {
+            x: self.x + self.w / 2,
+            y: self.y + self.h / 2,
+        }
+    }
+}
+
+fn scaled_roi(roi: Option<RoiRect>, width: u32, height: u32) -> Option<RoiRect> {
+    let roi = roi?;
+    if roi.w == 0 || roi.h == 0 {
+        return None;
+    }
+    Some(RoiRect {
+        x: roi.x.min(width.saturating_sub(1)),
+        y: roi.y.min(height.saturating_sub(1)),
+        w: roi.w.min(width.saturating_sub(roi.x.min(width))),
+        h: roi.h.min(height.saturating_sub(roi.y.min(height))),
+    })
+}
+
+fn load_image_data_url_rgb(data_url: &str) -> Result<RgbFrame, String> {
+    let payload = data_url
+        .split_once(',')
+        .map(|(_, payload)| payload)
+        .unwrap_or(data_url);
+    let bytes = general_purpose::STANDARD
+        .decode(payload.trim())
+        .map_err(|err| err.to_string())?;
+    let image = image::load_from_memory(&bytes)
+        .map_err(|err| err.to_string())?
+        .to_rgb8();
+    Ok(RgbFrame {
+        width: image.width(),
+        height: image.height(),
+        pixels: image.into_raw(),
+    })
+}
+
+fn match_template(
+    frame: &RgbFrame,
+    template: &RgbFrame,
+    search_roi: Option<RoiRect>,
+) -> Result<TemplateMatch, String> {
+    if template.width == 0 || template.height == 0 {
+        return Err("template image is empty".to_string());
+    }
+    if template.width > frame.width || template.height > frame.height {
+        return Err(format!(
+            "template {}x{} is larger than frame {}x{}",
+            template.width, template.height, frame.width, frame.height
+        ));
+    }
+    let roi = search_roi.unwrap_or(RoiRect {
+        x: 0,
+        y: 0,
+        w: frame.width,
+        h: frame.height,
+    });
+    let search_right = roi.x.saturating_add(roi.w).min(frame.width);
+    let search_bottom = roi.y.saturating_add(roi.h).min(frame.height);
+    if search_right < roi.x.saturating_add(template.width)
+        || search_bottom < roi.y.saturating_add(template.height)
+    {
+        return Err("search ROI is smaller than template".to_string());
+    }
+    let max_x = search_right - template.width;
+    let max_y = search_bottom - template.height;
+
+    let mut best = TemplateMatch {
+        x: roi.x,
+        y: roi.y,
+        width: template.width,
+        height: template.height,
+        score: f32::MIN,
+    };
+    for y in roi.y..=max_y {
+        for x in roi.x..=max_x {
+            let score = template_score(frame, template, x, y);
+            if score > best.score {
+                best.x = x;
+                best.y = y;
+                best.score = score;
+            }
+        }
+    }
+    Ok(best)
+}
+
+fn template_score(frame: &RgbFrame, template: &RgbFrame, left: u32, top: u32) -> f32 {
+    let mut diff: u64 = 0;
+    for y in 0..template.height {
+        let frame_row = ((top + y) * frame.width + left) as usize * 3;
+        let template_row = (y * template.width) as usize * 3;
+        for x in 0..template.width as usize {
+            let frame_index = frame_row + x * 3;
+            let template_index = template_row + x * 3;
+            diff += (i16::from(frame.pixels[frame_index])
+                - i16::from(template.pixels[template_index]))
+            .unsigned_abs() as u64;
+            diff += (i16::from(frame.pixels[frame_index + 1])
+                - i16::from(template.pixels[template_index + 1]))
+            .unsigned_abs() as u64;
+            diff += (i16::from(frame.pixels[frame_index + 2])
+                - i16::from(template.pixels[template_index + 2]))
+            .unsigned_abs() as u64;
+        }
+    }
+    let max_diff = template.width as f32 * template.height as f32 * 3.0 * 255.0;
+    1.0 - (diff as f32 / max_diff)
 }
 
 fn launch_configured_game_client() -> Result<GameLaunchResult, String> {
@@ -480,6 +938,7 @@ fn main() {
             game_launch_status,
             load_workflow_workspace,
             save_workflow_workspace,
+            execute_workflow_step,
             capture_window_preview,
             save_window_snapshot,
             import_preview_image

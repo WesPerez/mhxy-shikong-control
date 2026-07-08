@@ -107,7 +107,7 @@
             </div>
             <div class="preview-footer">
               <span id="roi-meta" class="meta">ROI: none</span>
-              <span class="meta">当前执行为 dry-run，不发送游戏输入</span>
+              <span class="meta">观察演练不发送输入；后台执行只向指定 hwnd 投递消息</span>
             </div>
           </section>
 
@@ -259,8 +259,9 @@
             <div class="run-actions">
               <button id="validate-workflow" type="button">校验当前任务</button>
               <button id="validate-all-workflows" type="button">校验全部样例</button>
-              <button id="dry-run-selected" type="button">Dry-run 已选窗口</button>
-              <button id="stop-dry-run" type="button" class="danger">停止 dry-run</button>
+              <button id="dry-run-selected" type="button">观察演练已选窗口</button>
+              <button id="background-run-selected" type="button">后台执行已选窗口</button>
+              <button id="stop-dry-run" type="button" class="danger">停止运行</button>
               <button id="export-workspace" type="button">导出工作区 JSON</button>
               <button id="import-workspace" type="button">载入工作区 JSON</button>
             </div>
