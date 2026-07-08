@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "梦幻西游：时空 接管台",
+  "productName": "时空任务编排器",
   "version": "0.1.0",
   "identifier": "local.mhxy.shikong.control",
   "build": {
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "梦幻西游：时空 接管台",
+        "title": "时空任务编排器",
         "width": 1460,
         "height": 880,
         "minWidth": 920,

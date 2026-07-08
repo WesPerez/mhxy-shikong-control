@@ -8,7 +8,7 @@ use tauri::{
 const TRAY_ID: &str = "mhxy-shikong-control-main";
 const TRAY_MENU_SHOW_ID: &str = "mhxy-shikong-control-show";
 const TRAY_MENU_EXIT_ID: &str = "mhxy-shikong-control-exit";
-const TRAY_TOOLTIP: &str = "梦幻西游：时空 接管台";
+const TRAY_TOOLTIP: &str = "时空任务编排器";
 
 pub fn setup(app: &mut App) -> tauri::Result<()> {
     let menu = MenuBuilder::new(app)

@@ -1356,10 +1356,7 @@ impl TaskRunner {
         ))
     }
 
-    fn capture_freeze_frame(
-        &mut self,
-        target: Option<[i32; 4]>,
-    ) -> Result<RgbFrame, String> {
+    fn capture_freeze_frame(&mut self, target: Option<[i32; 4]>) -> Result<RgbFrame, String> {
         let frame = self.capture_client_frame()?;
         let Some(target) = target else {
             return Ok(frame);
@@ -1402,7 +1399,11 @@ impl TaskRunner {
         if let Err(err) = fs::create_dir_all(&capture_dir) {
             return Some(format!("post_capture_sequence mkdir failed: {err}"));
         }
-        let stem = format!("{}-{}", timestamp_ns(), sanitize_runtime_file_part(node_name));
+        let stem = format!(
+            "{}-{}",
+            timestamp_ns(),
+            sanitize_runtime_file_part(node_name)
+        );
         let started = Instant::now();
         let mut saved = Vec::new();
         for delay in delays {

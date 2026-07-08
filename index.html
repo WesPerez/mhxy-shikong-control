@@ -3,279 +3,204 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>梦幻西游：时空 接管台</title>
+    <meta
+      name="description"
+      content="时空任务编排器：面向窗口捕获、画面检测和步骤编排的本地控制台"
+    />
+    <title>时空任务编排器</title>
   </head>
   <body>
+    <a class="skip-link" href="#workspace">跳到工作区</a>
     <main id="app">
       <header class="topbar">
-        <div>
-          <h1>梦幻西游：时空 接管台</h1>
+        <div class="brand">
+          <p class="eyebrow">ShiKong Control</p>
+          <h1>时空任务编排器</h1>
           <p id="status">Ready</p>
         </div>
-        <div class="toolbar">
+        <div class="toolbar" aria-label="窗口操作">
           <button id="refresh-windows" type="button">刷新窗口</button>
           <button id="launch-game-client" type="button">启动客户端</button>
-          <span id="launch-status" class="meta"></span>
-          <button id="select-game-windows" type="button">选择时空窗口</button>
-          <button id="refresh-inventory" type="button">刷新 Maa 清单</button>
+          <button id="select-game-windows" type="button">选择全部</button>
           <button id="restart-admin" type="button">管理员重启</button>
+          <span id="launch-status" class="meta"></span>
         </div>
       </header>
 
-      <section class="layout">
-        <aside class="sidebar">
-          <section class="panel">
+      <section id="workspace" class="app-shell">
+        <aside class="target-rail" aria-label="目标窗口">
+          <section class="panel target-panel">
             <div class="panel-title">
-              <h2>窗口</h2>
-              <span id="window-count">0</span>
+              <div>
+                <p class="eyebrow">Targets</p>
+                <h2>目标窗口</h2>
+              </div>
+              <span id="window-count" class="count">0</span>
             </div>
             <div id="window-list" class="window-list"></div>
           </section>
 
-          <section class="panel">
+          <section class="panel capture-panel">
             <div class="panel-title">
-              <h2>任务</h2>
-              <span id="task-count">0</span>
+              <div>
+                <p class="eyebrow">Capture</p>
+                <h2>采样</h2>
+              </div>
+              <span id="privilege-state" class="state-pill">权限未知</span>
             </div>
-            <input id="task-filter" class="filter" type="search" placeholder="筛选任务" />
-            <div id="selected-task-meta" class="selected-task-meta">未选择任务</div>
-            <div id="task-options" class="task-options"></div>
-            <div id="task-list" class="task-list"></div>
-          </section>
-        </aside>
-
-        <section class="workspace">
-          <nav id="tabs" class="tabs"></nav>
-
-          <section class="preview-strip">
-            <div class="preview-stage">
-              <img id="preview-image" alt="窗口预览" />
-              <div id="roi-box"></div>
-              <div id="preview-empty" class="empty">选择一个窗口开始接管</div>
-            </div>
-            <div class="preview-actions">
-              <button id="focus-window" type="button" title="手动把窗口置前查看；自动任务不会调用此按钮">置前查看</button>
+            <div class="capture-actions">
+              <button id="focus-window" type="button">置前查看</button>
               <button id="capture-preview" type="button">刷新预览</button>
               <button id="save-snapshot" type="button">保存截图</button>
               <input id="offline-image-path" type="text" placeholder="离线截图路径" />
               <button id="load-offline-image" type="button">载入离线图</button>
-              <button id="capture-image-roi" type="button">截取离线拖框到 ShiKong</button>
-              <div id="active-window-meta" class="meta"></div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="workbench">
+          <section class="preview-panel panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Preview</p>
+                <h2>画面预览</h2>
+              </div>
+              <span id="active-window-meta" class="meta">未选择窗口</span>
+            </div>
+            <div class="preview-stage">
+              <img id="preview-image" alt="当前目标窗口预览" />
+              <div id="roi-box"></div>
+              <div id="preview-empty" class="empty">暂无预览</div>
+            </div>
+            <div class="preview-footer">
+              <span id="roi-meta" class="meta">ROI: none</span>
+              <span class="meta">后台输入路径保留，当前仅编排定义</span>
             </div>
           </section>
 
-          <section class="runtime-panel">
+          <section class="workflow-panel panel">
             <div class="panel-title">
-              <h2>Maa 运行器</h2>
-              <span id="runtime-state">idle</span>
+              <div>
+                <p class="eyebrow">Definition</p>
+                <h2>任务定义</h2>
+              </div>
+              <span id="task-model-state" class="state-pill">draft</span>
             </div>
-            <div class="runtime-tools">
+            <div class="form-grid">
               <label>
-                坐标
-                <select id="coordinate-mode">
-                  <option value="cropCenter4x3" selected>4:3 中心裁切</option>
-                  <option value="stretch1280x720">1280x720 拉伸</option>
+                名称
+                <input id="flow-name" type="text" />
+              </label>
+              <label>
+                恢复策略
+                <select id="restore-policy">
+                  <option value="none">none</option>
+                  <option value="restore">restore</option>
+                  <option value="restart">restart</option>
+                </select>
+              </label>
+              <label class="wide">
+                初始检查
+                <input id="initial-check" type="text" />
+              </label>
+              <label class="wide">
+                备注
+                <textarea id="flow-description" rows="3"></textarea>
+              </label>
+            </div>
+            <div class="workflow-actions">
+              <button id="validate-workflow" type="button">校验定义</button>
+              <button id="export-workflow" type="button">导出 JSON</button>
+              <button id="import-workflow" type="button">载入 JSON</button>
+            </div>
+            <textarea id="workflow-json" spellcheck="false"></textarea>
+          </section>
+
+          <section class="step-panel panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Steps</p>
+                <h2>步骤编排</h2>
+              </div>
+              <span id="step-count" class="count">0</span>
+            </div>
+            <div class="step-toolbar">
+              <select id="new-step-type">
+                <option value="detect_page">detect_page</option>
+                <option value="image_click">image_click</option>
+                <option value="mouse_move">mouse_move</option>
+                <option value="hotkey">hotkey</option>
+                <option value="restore">restore</option>
+              </select>
+              <button id="add-step" type="button">添加步骤</button>
+            </div>
+            <div id="step-list" class="step-list"></div>
+          </section>
+
+          <section class="inspector-panel panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Inspector</p>
+                <h2>步骤属性</h2>
+              </div>
+            </div>
+            <div id="step-editor-empty" class="empty-block">未选择步骤</div>
+            <div id="step-editor" class="step-editor" hidden>
+              <label>
+                名称
+                <input id="step-name" type="text" />
+              </label>
+              <label>
+                类型
+                <select id="step-type">
+                  <option value="detect_page">detect_page</option>
+                  <option value="image_click">image_click</option>
+                  <option value="mouse_move">mouse_move</option>
+                  <option value="hotkey">hotkey</option>
+                  <option value="restore">restore</option>
                 </select>
               </label>
               <label>
-                步数
-                <input id="max-steps" type="number" min="1" max="5000" value="2000" />
+                目标
+                <input id="step-target" type="text" />
               </label>
-              <button id="dry-run-task" type="button">Dry-run</button>
-              <button id="run-task" type="button">执行任务</button>
-              <button id="dry-run-all-task" type="button">Dry-run 已选窗口</button>
-              <button id="run-all-task" type="button">执行已选窗口</button>
-              <button id="dry-run-acceptance" type="button">Dry-run 全任务验收</button>
-              <button id="run-acceptance" type="button">执行全任务验收</button>
-              <button id="dry-run-all-acceptance" type="button">Dry-run 已选窗口验收</button>
-              <button id="run-all-acceptance" type="button">执行已选窗口验收</button>
-              <button id="run-missing-acceptance" type="button">执行缺失验收</button>
-              <button id="run-all-missing-acceptance" type="button">执行已选窗口缺失</button>
-              <button id="cancel-task" type="button">停止任务</button>
-              <button id="refresh-ocr" type="button">OCR 状态</button>
-              <span id="ocr-status" class="meta"></span>
-            </div>
-            <div class="preset-tools">
-              <select id="preset-select"></select>
-              <button id="dry-run-preset" type="button">Dry-run 预设</button>
-              <button id="run-preset" type="button">执行预设</button>
-              <button id="dry-run-all-preset" type="button">Dry-run 已选窗口预设</button>
-              <button id="run-all-preset" type="button">执行已选窗口预设</button>
-            </div>
-            <div id="run-summary" class="run-summary">等待任务</div>
-            <div class="run-log-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>节点</th>
-                    <th>状态</th>
-                    <th>识别</th>
-                    <th>动作</th>
-                    <th>详情</th>
-                    <th>队列</th>
-                  </tr>
-                </thead>
-                <tbody id="run-log"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="tool-dock">
-            <div class="tool-tabs" role="tablist" aria-label="接管工具">
-              <button class="tool-tab active" data-tool-tab="migration" type="button">实机验收</button>
-              <button class="tool-tab" data-tool-tab="template" type="button">图片替换</button>
-              <button class="tool-tab" data-tool-tab="compat" type="button">兼容审计</button>
-            </div>
-
-          <section class="compat-panel" data-tool-panel="compat">
-            <div class="panel-title">
-              <h2>Maa 兼容审计</h2>
-              <span id="compat-state">not checked</span>
-            </div>
-            <div class="compat-tools">
-              <button id="refresh-compat" type="button">刷新兼容报告</button>
-            </div>
-            <div id="compat-summary" class="compat-summary">未生成兼容报告</div>
-            <div class="compat-grid">
-              <div>
-                <h3>待处理项</h3>
-                <div id="compat-issues" class="bucket-list"></div>
+              <div class="inline-fields">
+                <label>
+                  超时 ms
+                  <input id="step-timeout" type="number" min="0" step="100" />
+                </label>
+                <label>
+                  重试
+                  <input id="step-retry" type="number" min="0" max="20" />
+                </label>
               </div>
-              <div>
-                <h3>Pipeline 状态</h3>
-                <div id="compat-pipelines" class="bucket-list"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="migration-panel active" data-tool-panel="migration">
-            <div class="panel-title">
-              <h2>迁移门禁</h2>
-              <span id="migration-state">not checked</span>
-            </div>
-            <div class="compat-tools">
-              <button id="refresh-migration" type="button">刷新迁移门禁</button>
-              <button id="refresh-live-acceptance" type="button">刷新实机验收</button>
-              <button id="refresh-acceptance-plan" type="button">刷新验收计划</button>
-              <button id="preview-runtime-missing-roi" type="button">预览拖框候选</button>
-              <button id="capture-runtime-missing-roi" type="button">截取拖框到选中缺口</button>
-            </div>
-            <div id="migration-summary" class="compat-summary">未读取迁移门禁报告</div>
-            <div class="live-acceptance-panel">
-              <div class="panel-title">
-                <h3>实机验收</h3>
-                <span id="live-acceptance-state">not checked</span>
-              </div>
-              <div id="live-acceptance-summary" class="compat-summary">未读取实机验收报告</div>
-              <div id="acceptance-plan-summary" class="compat-summary">未读取验收计划</div>
-              <div class="live-acceptance-grid">
-                <div>
-                  <h3>检查项</h3>
-                  <div id="live-acceptance-checks" class="bucket-list"></div>
-                </div>
-                <div>
-                  <h3>窗口覆盖</h3>
-                  <div id="live-acceptance-hwnds" class="bucket-list"></div>
-                </div>
-                <div>
-                  <h3>最近报告</h3>
-                  <div id="live-acceptance-reports" class="bucket-list"></div>
-                </div>
-                <div>
-                  <h3>补跑计划</h3>
-                  <div id="acceptance-plan-rows" class="bucket-list"></div>
-                </div>
-              </div>
-            </div>
-            <div class="migration-grid">
-              <div>
-                <h3>门禁</h3>
-                <div id="migration-gates" class="bucket-list"></div>
-              </div>
-              <div>
-                <h3>缺口资源域</h3>
-                <div id="migration-domains" class="bucket-list"></div>
-              </div>
-              <div>
-                <h3>缺口任务</h3>
-                <div id="migration-tasks" class="bucket-list"></div>
-              </div>
-            </div>
-            <div class="runtime-missing-panel">
-              <h3>运行时缺口</h3>
-              <div id="migration-runtime-missing" class="runtime-missing-list"></div>
-              <div class="runtime-missing-reference">
-                <div class="runtime-missing-preview-card">
-                  <strong>原 Maa</strong>
-                  <img id="runtime-missing-reference" alt="原 Maa 模板参考" />
-                  <div id="runtime-missing-reference-meta" class="meta">未选择缺口模板</div>
-                </div>
-                <div class="runtime-missing-preview-card">
-                  <strong>拖框候选</strong>
-                  <img id="runtime-missing-candidate" alt="拖框候选裁剪" />
-                  <div id="runtime-missing-candidate-meta" class="meta">未预览拖框候选</div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="template-panel" data-tool-panel="template">
-            <div class="panel-title">
-              <h2>图片识别替换</h2>
-              <span id="template-count">0</span>
-            </div>
-            <div class="template-tools">
-              <input id="template-filter" class="filter" type="search" placeholder="筛选模板路径或节点" />
-              <input id="manual-roi" class="filter" type="text" placeholder="手工 ROI: x,y,w,h" />
-              <button id="capture-template" type="button">截取选中 ROI 到 ShiKong</button>
-              <button id="capture-client-roi" type="button">截取拖框到 ShiKong</button>
-            </div>
-            <div class="coverage-tools">
-              <button id="refresh-coverage" type="button">刷新覆盖报告</button>
-              <label class="check-inline">
-                <input id="coverage-unreplaced-only" type="checkbox" checked />
-                仅未替换
+              <label>
+                失败处理
+                <select id="step-on-fail">
+                  <option value="stop">stop</option>
+                  <option value="retry">retry</option>
+                  <option value="skip">skip</option>
+                  <option value="restore">restore</option>
+                </select>
               </label>
-              <input id="crop-plan-name" class="filter" type="text" placeholder="裁剪计划名" />
-              <input id="crop-plan-limit" class="filter" type="number" min="1" max="999" placeholder="数量" />
-              <button id="write-crop-plan" type="button">生成裁剪计划</button>
-              <button id="write-runtime-missing-plan" type="button">生成运行时缺口计划</button>
-              <input id="crop-plan-path" class="filter" type="text" placeholder="裁剪计划 JSON 路径" />
-              <button id="apply-crop-plan" type="button">应用裁剪计划</button>
-            </div>
-            <div class="coverage-summary">
-              <div id="coverage-summary">未生成覆盖报告</div>
-              <div class="coverage-buckets">
-                <div>
-                  <h3>资源域</h3>
-                  <div id="coverage-domains" class="bucket-list"></div>
-                </div>
-                <div>
-                  <h3>Pipeline</h3>
-                  <div id="coverage-pipelines" class="bucket-list"></div>
-                </div>
-                <div>
-                  <h3>任务</h3>
-                  <div id="coverage-tasks" class="bucket-list"></div>
-                </div>
+              <div class="step-actions">
+                <button id="move-step-up" type="button">上移</button>
+                <button id="move-step-down" type="button">下移</button>
+                <button id="delete-step" type="button" class="danger">删除</button>
               </div>
             </div>
-            <div class="template-table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>状态</th>
-                    <th>模板</th>
-                    <th>节点</th>
-                    <th>ROI</th>
-                    <th>pipeline</th>
-                  </tr>
-                </thead>
-                <tbody id="template-rows"></tbody>
-              </table>
-            </div>
           </section>
+
+          <section class="run-panel panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Runbook</p>
+                <h2>运行记录</h2>
+              </div>
+              <span id="run-state" class="state-pill">idle</span>
+            </div>
+            <div id="run-summary" class="run-summary">等待定义</div>
+            <div id="run-log" class="run-log"></div>
           </section>
         </section>
       </section>
