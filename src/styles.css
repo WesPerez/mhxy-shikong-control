@@ -755,6 +755,41 @@ h3 {
   color: #dec56f;
 }
 
+.step-validation-detail {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #30383d;
+  border-radius: 7px;
+  background: #111619;
+  padding: 8px;
+}
+
+.step-validation-detail[hidden] {
+  display: none;
+}
+
+.step-validation-detail p {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  color: #aeb8bf;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.step-validation-detail strong {
+  color: #d7a94b;
+}
+
+.step-validation-detail .issue strong {
+  color: #e99a8d;
+}
+
+.step-validation-detail .warning strong {
+  color: #dec56f;
+}
+
 .inspector-scroll {
   display: grid;
   align-content: start;
@@ -915,8 +950,9 @@ label {
   background: #0d1012;
   color: #d7a94b;
   object-fit: cover;
-  font-size: 11px;
+  font-size: 10px;
   font-style: normal;
+  text-align: center;
 }
 
 .target-editor {

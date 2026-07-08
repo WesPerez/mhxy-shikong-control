@@ -914,7 +914,7 @@ function fillStepBlockSelect(select) {
   );
 }
 
-function renderSteps() {
+function renderSteps(validationOverride = null) {
   const workflow = activeWorkflow();
   $("#step-count").textContent = String(workflow?.steps.length || 0);
   const list = $("#step-list");
@@ -929,7 +929,7 @@ function renderSteps() {
   if (!state.selectedStepId || !workflow.steps.some((item) => item.id === state.selectedStepId)) {
     state.selectedStepId = workflow.steps[0]?.id || null;
   }
-  const validation = validateWorkflow(workflow);
+  const validation = validationOverride || validateWorkflow(workflow);
   state.stepValidation = buildStepValidationIndex(workflow, validation);
   workflow.steps.forEach((item, index) => {
     const row = document.createElement("button");
@@ -1414,6 +1414,7 @@ function renderStepEditor() {
   $("#step-editor-empty").hidden = Boolean(item);
   $("#step-editor").hidden = !item;
   if (!item) return;
+  renderStepValidationDetails(item);
   $("#step-name").value = item.name || "";
   $("#step-type").value = item.type;
   $("#step-enabled").checked = item.enabled !== false;
@@ -1426,6 +1427,27 @@ function renderStepEditor() {
   $("#step-on-success").value = item.onSuccess || "next";
   $("#step-notes").value = item.notes || "";
   renderStepParamPanel(item);
+}
+
+function renderStepValidationDetails(item) {
+  const box = $("#step-validation-detail");
+  const messages = state.stepValidation[item?.id] || { issues: [], warnings: [] };
+  const rows = [
+    ...messages.issues.map((text) => ({ type: "issue", label: "问题", text })),
+    ...messages.warnings.map((text) => ({ type: "warning", label: "提醒", text })),
+  ];
+  box.hidden = rows.length === 0;
+  box.innerHTML = rows
+    .slice(0, 4)
+    .map(
+      (row) => `
+        <p class="${row.type}">
+          <strong>${row.label}</strong>
+          <span>${escapeHtml(row.text)}</span>
+        </p>
+      `,
+    )
+    .join("");
 }
 
 function bindStepEditor() {
@@ -1625,10 +1647,16 @@ function targetSearchText(target) {
     .toLowerCase();
 }
 
-function ensureSelectedTarget() {
-  if (selectedManagedTarget()) return selectedManagedTarget();
+function ensureSelectedTarget(filteredTargets = null) {
+  const visibleIds = filteredTargets ? new Set(filteredTargets.map((target) => target.id)) : null;
+  const current = selectedManagedTarget();
+  if (current && (!visibleIds || visibleIds.has(current.id))) return current;
   const bound = targetForStep(selectedStep());
-  state.selectedTargetId = bound?.id || state.workspace.targets[0]?.id || "";
+  if (bound && (!visibleIds || visibleIds.has(bound.id))) {
+    state.selectedTargetId = bound.id;
+  } else {
+    state.selectedTargetId = filteredTargets ? filteredTargets[0]?.id || "" : state.workspace.targets[0]?.id || "";
+  }
   return selectedManagedTarget();
 }
 
@@ -1652,8 +1680,8 @@ function fillTargetKindSelects() {
   }
 }
 
-function renderTargetEditor() {
-  const target = ensureSelectedTarget();
+function renderTargetEditor(filteredTargets = null) {
+  const target = ensureSelectedTarget(filteredTargets);
   $("#target-editor-empty").hidden = Boolean(target);
   $("#target-editor").hidden = !target;
   if (!target) return;
@@ -2445,6 +2473,18 @@ function isStepBlockPlaceholderTarget(targetItem) {
   return !targetItem?.dataUrl && !targetItem?.roi && String(targetItem?.note || "").includes("步骤片段自动创建");
 }
 
+function targetThumbLabel(targetItem) {
+  if (targetItem?.dataUrl) return "";
+  if (isStepBlockPlaceholderTarget(targetItem)) return "待贴图";
+  if (targetItem?.roi) return "ROI";
+  if (targetItem?.kind === "ocr") return "OCR";
+  if (targetItem?.kind === "click_target") return "XY";
+  if (targetItem?.kind === "state") return "STATE";
+  if (targetItem?.kind === "page") return "PAGE";
+  if (targetItem?.kind === "image") return "IMG";
+  return "?";
+}
+
 function renderTargets(options = {}) {
   fillTargetKindSelects();
   $("#target-search").value = state.targetSearch;
@@ -2456,22 +2496,23 @@ function renderTargets(options = {}) {
       : `${filteredTargets.length}/${state.workspace.targets.length}`;
   const list = $("#target-list");
   list.replaceChildren();
+  const previousSelectedTargetId = state.selectedTargetId;
   if (!state.workspace.targets.length) {
     const empty = document.createElement("div");
     empty.className = "empty-block compact";
     empty.textContent = "暂无识别目标";
     list.append(empty);
     state.selectedTargetId = "";
-    renderTargetEditor();
+    renderTargetEditor([]);
     return;
   }
-  ensureSelectedTarget();
+  ensureSelectedTarget(filteredTargets);
   if (!filteredTargets.length) {
     const empty = document.createElement("div");
     empty.className = "empty-block compact";
     empty.textContent = "没有符合筛选条件的目标";
     list.append(empty);
-    if (!options.preserveEditor) renderTargetEditor();
+    renderTargetEditor(filteredTargets);
     return;
   }
   const boundTargetId = stepTargetId(selectedStep());
@@ -2481,7 +2522,9 @@ function renderTargets(options = {}) {
     row.className = "compact-row target-row";
     row.classList.toggle("active", targetItem.id === state.selectedTargetId);
     row.classList.toggle("bound", targetItem.id === boundTargetId);
-    const thumb = targetItem.dataUrl ? `<img src="${targetItem.dataUrl}" alt="${escapeHtml(targetItem.name)}" />` : "<i>ROI</i>";
+    const thumb = targetItem.dataUrl
+      ? `<img src="${targetItem.dataUrl}" alt="${escapeHtml(targetItem.name)}" />`
+      : `<i>${escapeHtml(targetThumbLabel(targetItem))}</i>`;
     const threshold = targetItem.match?.threshold ?? DEFAULT_IMAGE_THRESHOLD;
     const click = `${targetItem.click?.button || "left"}@${targetItem.click?.point || "center"}`;
     const usages = targetUsages(targetItem.id).length;
@@ -2504,7 +2547,9 @@ function renderTargets(options = {}) {
     });
     list.append(row);
   }
-  if (!options.preserveEditor) renderTargetEditor();
+  if (!options.preserveEditor || previousSelectedTargetId !== state.selectedTargetId) {
+    renderTargetEditor(filteredTargets);
+  }
 }
 
 function validateWorkflow(workflow = activeWorkflow(), mode = "definition") {
@@ -2638,6 +2683,7 @@ function validateActiveWorkflow() {
   $("#run-summary").textContent = `${workflow.name} · 启用 ${enabledSteps}/${workflow.steps.length} 步 · ${result.warnings.join(" / ") || "可运行"}`;
   appendLog("info", `定义校验通过：启用 ${enabledSteps}/${workflow.steps.length} 步`);
   renderSteps();
+  renderStepEditor();
   return true;
 }
 
@@ -2695,6 +2741,17 @@ function runSelected(mode) {
     }
     const validation = validateWorkflowQueue(workflows, mode);
     if (validation.issues.length) {
+      if (validation.firstBlockingWorkflow?.id === activeWorkflow()?.id) {
+        state.stepValidation = buildStepValidationIndex(
+          validation.firstBlockingWorkflow,
+          validation.firstBlockingValidation,
+        );
+        if (validation.firstBlockingValidation.firstIssueStepId) {
+          state.selectedStepId = validation.firstBlockingValidation.firstIssueStepId;
+        }
+        renderSteps(validation.firstBlockingValidation);
+        renderStepEditor();
+      }
       appendLog("warn", `${target.display} 队列校验失败：${validation.issues.join("；")}`);
       continue;
     }
@@ -2709,12 +2766,18 @@ function runSelected(mode) {
 function validateWorkflowQueue(workflows, mode = "definition") {
   const issues = [];
   const warnings = [];
+  let firstBlockingWorkflow = null;
+  let firstBlockingValidation = null;
   for (const [index, workflow] of workflows.entries()) {
     const result = validateWorkflow(workflow, mode);
+    if (result.issues.length && !firstBlockingWorkflow) {
+      firstBlockingWorkflow = workflow;
+      firstBlockingValidation = result;
+    }
     for (const issue of result.issues) issues.push(`${index + 1}.${workflow.name}: ${issue}`);
     for (const warning of result.warnings) warnings.push(`${index + 1}.${workflow.name}: ${warning}`);
   }
-  return { issues, warnings };
+  return { issues, warnings, firstBlockingWorkflow, firstBlockingValidation };
 }
 
 function startRunForWindow(target, workflows, mode, source) {

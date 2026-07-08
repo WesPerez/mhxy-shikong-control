@@ -91,8 +91,16 @@ STEP_VALIDATION_TOKENS = [
     "stepValidation",
     "buildStepValidationIndex",
     "firstIssueStepId",
+    "step-validation-detail",
+    "renderStepValidationDetails",
     "step-badge",
     ".step-badge.issue",
+    ".step-badge.warning",
+]
+TARGET_FILTER_UI_TOKENS = [
+    "ensureSelectedTarget(filteredTargets",
+    "targetThumbLabel",
+    "待贴图",
 ]
 PASTE_AUTO_STEP_TOKENS = [
     "capturedImageStepTypes",
@@ -131,6 +139,7 @@ def main() -> int:
     identity = scan_tokens(files, IDENTITY_TOKENS)
     targets = scan_tokens(files, TARGET_TOKENS)
     target_crud = scan_tokens(files, TARGET_CRUD_TOKENS)
+    target_filter_ui = scan_tokens(files, TARGET_FILTER_UI_TOKENS)
     step_edit = scan_tokens(files, STEP_EDIT_TOKENS)
     step_validation = scan_tokens(files, STEP_VALIDATION_TOKENS)
     paste_auto_step = scan_tokens(files, PASTE_AUTO_STEP_TOKENS)
@@ -144,6 +153,10 @@ def main() -> int:
     target_crud_seen = {hit["token"] for hit in target_crud}
     target_crud_missing = [
         token for token in TARGET_CRUD_TOKENS if token not in target_crud_seen
+    ]
+    target_filter_ui_seen = {hit["token"] for hit in target_filter_ui}
+    target_filter_ui_missing = [
+        token for token in TARGET_FILTER_UI_TOKENS if token not in target_filter_ui_seen
     ]
     step_edit_seen = {hit["token"] for hit in step_edit}
     step_edit_missing = [
@@ -178,6 +191,8 @@ def main() -> int:
         "targetLibraryEvidence": targets,
         "targetCrudEvidence": target_crud,
         "targetCrudMissing": target_crud_missing,
+        "targetFilterUiEvidence": target_filter_ui,
+        "targetFilterUiMissing": target_filter_ui_missing,
         "stepEditEvidence": step_edit,
         "stepEditMissing": step_edit_missing,
         "stepValidationEvidence": step_validation,
@@ -193,6 +208,7 @@ def main() -> int:
             and not focus
             and not identity_missing
             and not target_crud_missing
+            and not target_filter_ui_missing
             and not step_edit_missing
             and not step_validation_missing
             and not paste_auto_step_missing
@@ -219,6 +235,8 @@ def main() -> int:
         print(f"targetLibraryEvidence={len(targets)}")
         print(f"targetCrudEvidence={len(target_crud)}")
         print(f"targetCrudMissing={len(target_crud_missing)}")
+        print(f"targetFilterUiEvidence={len(target_filter_ui)}")
+        print(f"targetFilterUiMissing={len(target_filter_ui_missing)}")
         print(f"stepEditEvidence={len(step_edit)}")
         print(f"stepEditMissing={len(step_edit_missing)}")
         print(f"stepValidationEvidence={len(step_validation)}")
@@ -241,6 +259,9 @@ def main() -> int:
         if target_crud_missing:
             for token in target_crud_missing:
                 print(f"MISSING_TARGET_CRUD {token}")
+        if target_filter_ui_missing:
+            for token in target_filter_ui_missing:
+                print(f"MISSING_TARGET_FILTER_UI {token}")
         if step_edit_missing:
             for token in step_edit_missing:
                 print(f"MISSING_STEP_EDIT {token}")
