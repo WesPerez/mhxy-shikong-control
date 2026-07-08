@@ -3,7 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
-const WORKSPACE_SCHEMA_VERSION = 2;
+const WORKSPACE_SCHEMA_VERSION = 3;
 
 const stepTypes = [
   ["detect_page", "检测页面"],
@@ -376,10 +376,7 @@ function normalizeWorkspace(value) {
     schemaVersion: WORKSPACE_SCHEMA_VERSION,
     activeWorkflowId,
     workflows,
-    assignments:
-      source.assignments && typeof source.assignments === "object" && !Array.isArray(source.assignments)
-        ? source.assignments
-        : {},
+    assignments: normalizeAssignments(source.assignments, workflows),
     assets: Array.isArray(source.assets) ? source.assets.map(normalizeAsset) : [],
     runHistory: Array.isArray(source.runHistory) ? source.runHistory.slice(0, 80) : [],
     createdAt: source.createdAt || new Date().toISOString(),
@@ -444,6 +441,48 @@ function normalizeAsset(value) {
   };
 }
 
+function normalizeAssignments(value, workflows = state.workspace.workflows) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const workflowIds = new Set(workflows.map((item) => item.id));
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([hwnd, assignment]) => [String(hwnd), normalizeAssignment(hwnd, assignment, workflowIds)])
+      .filter(([, assignment]) => assignment.queue.length > 0),
+  );
+}
+
+function normalizeAssignment(hwnd, value, workflowIds = new Set(state.workspace.workflows.map((item) => item.id))) {
+  const source = value && typeof value === "object" ? value : {};
+  const legacyWorkflowId = source.workflowId ? String(source.workflowId) : "";
+  const queue = Array.isArray(source.queue)
+    ? source.queue.map(normalizeQueueItem)
+    : legacyWorkflowId
+      ? [normalizeQueueItem({ workflowId: legacyWorkflowId, addedAt: source.assignedAt })]
+      : [];
+  return {
+    hwnd: source.hwnd ?? hwnd,
+    title: String(source.title || ""),
+    processId: source.processId ?? null,
+    display: String(source.display || hwnd),
+    queue: queue
+      .filter((item) => workflowIds.has(item.workflowId))
+      .map((item, index) => ({ ...item, order: index + 1 })),
+    assignedAt: String(source.assignedAt || new Date().toISOString()),
+    updatedAt: String(source.updatedAt || source.assignedAt || new Date().toISOString()),
+  };
+}
+
+function normalizeQueueItem(value) {
+  const source = value && typeof value === "object" ? value : {};
+  return {
+    id: String(source.id || randomId("queue")),
+    workflowId: String(source.workflowId || ""),
+    enabled: source.enabled !== false,
+    order: Number(source.order || 0),
+    addedAt: String(source.addedAt || new Date().toISOString()),
+  };
+}
+
 async function saveWorkspaceNow() {
   window.clearTimeout(state.saveTimer);
   state.saveTimer = null;
@@ -499,6 +538,49 @@ function activeWindow() {
 
 function selectedWindows() {
   return state.windows.filter((item) => state.selected.has(String(item.hwnd)));
+}
+
+function assignmentForHwnd(hwnd) {
+  return state.workspace.assignments[String(hwnd)] || null;
+}
+
+function ensureAssignment(target) {
+  const key = String(target.hwnd);
+  const existing = state.workspace.assignments[key];
+  const now = new Date().toISOString();
+  const assignment = existing || {
+    hwnd: target.hwnd,
+    title: target.title,
+    processId: target.processId,
+    display: target.display,
+    queue: [],
+    assignedAt: now,
+    updatedAt: now,
+  };
+  assignment.hwnd = target.hwnd;
+  assignment.title = target.title;
+  assignment.processId = target.processId;
+  assignment.display = target.display;
+  assignment.queue = Array.isArray(assignment.queue) ? assignment.queue.map(normalizeQueueItem) : [];
+  assignment.updatedAt = now;
+  state.workspace.assignments[key] = assignment;
+  return assignment;
+}
+
+function queueWorkflowsForTarget(target) {
+  const assignment = assignmentForHwnd(target.hwnd);
+  const queue = assignment?.queue || [];
+  return queue
+    .filter((item) => item.enabled)
+    .map((item) => workflowById(item.workflowId))
+    .filter(Boolean);
+}
+
+function totalQueuedWorkflows() {
+  return Object.values(state.workspace.assignments || {}).reduce(
+    (sum, assignment) => sum + (assignment.queue?.length || 0),
+    0,
+  );
 }
 
 function renderAll() {
@@ -616,7 +698,8 @@ function deleteWorkflow() {
   }
   state.workspace.workflows = state.workspace.workflows.filter((item) => item.id !== workflow.id);
   for (const [hwnd, assignment] of Object.entries(state.workspace.assignments)) {
-    if (assignment.workflowId === workflow.id) delete state.workspace.assignments[hwnd];
+    assignment.queue = (assignment.queue || []).filter((item) => item.workflowId !== workflow.id);
+    if (!assignment.queue.length) delete state.workspace.assignments[hwnd];
   }
   state.workspace.activeWorkflowId = state.workspace.workflows[0]?.id || null;
   state.selectedStepId = activeWorkflow()?.steps[0]?.id || null;
@@ -656,10 +739,11 @@ function renderSteps() {
     row.type = "button";
     row.className = "step-row";
     row.classList.toggle("active", item.id === state.selectedStepId);
+    row.classList.toggle("disabled", item.enabled === false);
     row.innerHTML = `
       <span>${String(index + 1).padStart(2, "0")}</span>
       <strong>${escapeHtml(item.name || stepLabels[item.type] || item.type)}</strong>
-      <small>${escapeHtml(stepLabels[item.type] || item.type)} · ${escapeHtml(item.target || "target: none")}</small>
+      <small>${item.enabled === false ? "停用 · " : ""}${escapeHtml(stepLabels[item.type] || item.type)} · ${escapeHtml(item.target || "target: none")}</small>
     `;
     row.addEventListener("click", () => {
       state.selectedStepId = item.id;
@@ -727,6 +811,7 @@ function renderStepEditor() {
   if (!item) return;
   $("#step-name").value = item.name || "";
   $("#step-type").value = item.type;
+  $("#step-enabled").checked = item.enabled !== false;
   $("#step-target").value = item.target || "";
   $("#step-command").value = item.command || "";
   $("#step-expect").value = item.expect || "";
@@ -749,6 +834,13 @@ function bindStepEditor() {
   $("#step-target").addEventListener("input", update("target"));
   $("#step-command").addEventListener("input", update("command"));
   $("#step-expect").addEventListener("input", update("expect"));
+  $("#step-enabled").addEventListener("change", (event) => {
+    const item = selectedStep();
+    if (!item) return;
+    item.enabled = event.target.checked;
+    markDirty("draft");
+    renderSteps();
+  });
   $("#step-timeout").addEventListener("input", update("timeoutMs", (value) => Number(value) || 0));
   $("#step-retry").addEventListener("input", update("retry", (value) => Number(value) || 0));
   $("#step-on-fail").addEventListener("change", update("onFail"));
@@ -876,7 +968,11 @@ function renderWindows() {
     const body = document.createElement("span");
     const privilege = item.elevated === true ? "管理员" : item.elevated === false ? "普通" : "未知";
     const assigned = state.workspace.assignments[String(item.hwnd)];
-    const assignedName = workflowById(assigned?.workflowId)?.name || "未分配";
+    const queued = assigned?.queue || [];
+    const nextWorkflow = queued.filter((entry) => entry.enabled).map((entry) => workflowById(entry.workflowId)).find(Boolean);
+    const assignedName = queued.length
+      ? `队列 ${queued.length} 项 · 下一项：${nextWorkflow?.name || "无启用任务"}`
+      : "未分配";
     body.innerHTML = `
       <strong>${escapeHtml(item.display)}</strong>
       <small>${escapeHtml(item.processName || "-")} · ${escapeHtml(item.clientWidth)}x${escapeHtml(item.clientHeight)} · ${privilege}</small>
@@ -914,51 +1010,115 @@ function assignWorkflowToSelected() {
     return;
   }
   for (const target of targets) {
-    state.workspace.assignments[String(target.hwnd)] = {
-      workflowId: workflow.id,
-      hwnd: target.hwnd,
-      title: target.title,
-      processId: target.processId,
-      display: target.display,
-      assignedAt: new Date().toISOString(),
-    };
+    const assignment = ensureAssignment(target);
+    assignment.queue.push(
+      normalizeQueueItem({
+        workflowId: workflow.id,
+        order: assignment.queue.length + 1,
+        addedAt: new Date().toISOString(),
+      }),
+    );
+    assignment.queue = assignment.queue.map((item, index) => ({ ...item, order: index + 1 }));
   }
-  markDirty("assigned");
+  markDirty("queued");
   renderWindows();
   renderAssignments();
-  setStatus(`已把 ${workflow.name} 分配给 ${targets.length} 个窗口`);
+  setStatus(`已把 ${workflow.name} 追加到 ${targets.length} 个窗口队列`);
 }
 
 function renderAssignments() {
   const list = $("#assignment-list");
   list.replaceChildren();
-  const entries = Object.entries(state.workspace.assignments || {});
-  $("#assignment-count").textContent = String(entries.length);
+  const entries = Object.entries(state.workspace.assignments || {}).filter(
+    ([, assignment]) => assignment.queue?.length,
+  );
+  $("#assignment-count").textContent = String(totalQueuedWorkflows());
   if (!entries.length) {
     const empty = document.createElement("div");
     empty.className = "empty-block compact";
-    empty.textContent = "还没有窗口分配";
+    empty.textContent = "还没有窗口任务队列";
     list.append(empty);
     return;
   }
   for (const [hwnd, assignment] of entries) {
-    const workflow = workflowById(assignment.workflowId);
-    const row = document.createElement("button");
-    row.type = "button";
-    row.className = "compact-row";
+    const row = document.createElement("div");
+    row.className = "queue-window";
     row.innerHTML = `
-      <strong>${escapeHtml(assignment.display || hwnd)}</strong>
-      <span>${escapeHtml(workflow?.name || "任务已删除")} · hwnd=${escapeHtml(hwnd)}</span>
+      <button class="compact-row queue-window-head" type="button">
+        <strong>${escapeHtml(assignment.display || hwnd)}</strong>
+        <span>${assignment.queue.length} 个任务 · hwnd=${escapeHtml(hwnd)}</span>
+      </button>
+      <div class="queue-items"></div>
     `;
-    row.addEventListener("click", () => {
+    row.querySelector(".queue-window-head").addEventListener("click", () => {
       state.activeHwnd = hwnd;
       state.selected.add(String(hwnd));
-      if (workflow) state.workspace.activeWorkflowId = workflow.id;
+      const firstWorkflow = assignment.queue.map((item) => workflowById(item.workflowId)).find(Boolean);
+      if (firstWorkflow) {
+        state.workspace.activeWorkflowId = firstWorkflow.id;
+        state.selectedStepId = firstWorkflow.steps[0]?.id || null;
+      }
       renderAll();
       capturePreview();
     });
+    const items = row.querySelector(".queue-items");
+    assignment.queue.forEach((queueItem, index) => {
+      const workflow = workflowById(queueItem.workflowId);
+      const itemRow = document.createElement("div");
+      itemRow.className = "queue-item";
+      itemRow.classList.toggle("disabled", queueItem.enabled === false || !workflow);
+      itemRow.innerHTML = `
+        <button class="queue-item-title" type="button">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <strong>${escapeHtml(workflow?.name || "任务已删除")}</strong>
+          <small>${queueItem.enabled === false ? "停用" : `${workflow?.steps?.length || 0} 步`}</small>
+        </button>
+        <div class="queue-item-actions">
+          <button type="button" data-action="toggle">${queueItem.enabled === false ? "启用" : "停用"}</button>
+          <button type="button" data-action="up">上移</button>
+          <button type="button" data-action="down">下移</button>
+          <button type="button" data-action="remove">删除</button>
+        </div>
+      `;
+      itemRow.querySelector(".queue-item-title").addEventListener("click", () => {
+        if (!workflow) return;
+        state.workspace.activeWorkflowId = workflow.id;
+        state.selectedStepId = workflow.steps[0]?.id || null;
+        state.activeHwnd = hwnd;
+        renderAll();
+        capturePreview();
+      });
+      itemRow.querySelector(".queue-item-actions").addEventListener("click", (event) => {
+        const action = event.target?.dataset?.action;
+        if (!action) return;
+        updateQueueItem(hwnd, queueItem.id, action);
+      });
+      items.append(itemRow);
+    });
     list.append(row);
   }
+}
+
+function updateQueueItem(hwnd, queueItemId, action) {
+  const assignment = assignmentForHwnd(hwnd);
+  const queue = assignment?.queue || [];
+  const index = queue.findIndex((item) => item.id === queueItemId);
+  if (!assignment || index < 0) return;
+  if (action === "remove") {
+    queue.splice(index, 1);
+  } else if (action === "up" && index > 0) {
+    [queue[index - 1], queue[index]] = [queue[index], queue[index - 1]];
+  } else if (action === "down" && index < queue.length - 1) {
+    [queue[index + 1], queue[index]] = [queue[index], queue[index + 1]];
+  } else if (action === "toggle") {
+    queue[index].enabled = queue[index].enabled === false;
+  }
+  assignment.queue = queue.map((item, orderIndex) => ({ ...item, order: orderIndex + 1 }));
+  assignment.updatedAt = new Date().toISOString();
+  if (!assignment.queue.length) delete state.workspace.assignments[String(hwnd)];
+  markDirty("queued");
+  renderAssignments();
+  renderWindows();
 }
 
 async function restartAsAdmin() {
@@ -1285,12 +1445,17 @@ function validateWorkflow(workflow = activeWorkflow()) {
   if (!workflow) issues.push("没有当前任务");
   if (workflow && !workflow.name.trim()) issues.push("任务名称为空");
   if (workflow && workflow.steps.length === 0) issues.push("步骤为空");
-  if (workflow && workflow.steps.length > 0 && workflow.steps.length < 10) {
+  const enabledSteps = workflow?.steps.filter((item) => item.enabled !== false) || [];
+  if (workflow && workflow.steps.length > 0 && !enabledSteps.length) {
+    issues.push("没有启用步骤");
+  }
+  if (workflow && enabledSteps.length > 0 && enabledSteps.length < 10) {
     warnings.push("少于 10 步，作为完整样例覆盖不足");
   }
   for (const [index, item] of workflow?.steps.entries() || []) {
     const prefix = `第 ${index + 1} 步`;
     if (!stepLabels[item.type]) issues.push(`${prefix} 类型未知`);
+    if (item.enabled === false) continue;
     if (!item.name.trim()) issues.push(`${prefix} 名称为空`);
     if (!item.target.trim() && !["delay", "snapshot"].includes(item.type)) {
       issues.push(`${prefix} 缺少目标`);
@@ -1320,8 +1485,9 @@ function validateActiveWorkflow() {
   $("#task-model-state").textContent = result.warnings.length ? "ready with warnings" : "ready";
   $("#task-model-state").classList.add("ok");
   setRunState("ready");
-  $("#run-summary").textContent = `${workflow.name} · ${workflow.steps.length} 步 · ${result.warnings.join(" / ") || "可 dry-run"}`;
-  appendLog("info", `定义校验通过：${workflow.steps.length} 步`);
+  const enabledSteps = workflow.steps.filter((item) => item.enabled !== false).length;
+  $("#run-summary").textContent = `${workflow.name} · 启用 ${enabledSteps}/${workflow.steps.length} 步 · ${result.warnings.join(" / ") || "可运行"}`;
+  appendLog("info", `定义校验通过：启用 ${enabledSteps}/${workflow.steps.length} 步`);
   return true;
 }
 
@@ -1354,70 +1520,119 @@ function backgroundRunSelected() {
 }
 
 function runSelected(mode) {
-  const workflow = activeWorkflow();
   const targets = selectedWindows();
-  if (!workflow || !targets.length) {
-    setStatus("需要先选择任务和窗口");
+  if (!targets.length) {
+    setStatus("需要先选择窗口");
     return;
   }
-  if (!validateActiveWorkflow()) return;
+  let launched = 0;
   for (const target of targets) {
-    startRunForWindow(target, workflow, mode);
+    const assignment = assignmentForHwnd(target.hwnd);
+    const queuedWorkflows = queueWorkflowsForTarget(target);
+    const hasWindowQueue = Boolean(assignment?.queue?.length);
+    const source = hasWindowQueue ? "queue" : "active";
+    const workflows = hasWindowQueue ? queuedWorkflows : activeWorkflow() ? [activeWorkflow()] : [];
+    if (!workflows.length) {
+      appendLog("warn", `${target.display} 没有可运行任务`);
+      continue;
+    }
+    const validation = validateWorkflowQueue(workflows);
+    if (validation.issues.length) {
+      appendLog("warn", `${target.display} 队列校验失败：${validation.issues.join("；")}`);
+      continue;
+    }
+    if (validation.warnings.length) {
+      appendLog("warn", `${target.display} 队列提醒：${validation.warnings.join("；")}`);
+    }
+    if (startRunForWindow(target, workflows, mode, source)) launched += 1;
   }
+  setStatus(launched ? `已启动 ${launched} 个窗口队列` : "没有启动任何窗口队列");
 }
 
-function startRunForWindow(target, workflow, mode) {
+function validateWorkflowQueue(workflows) {
+  const issues = [];
+  const warnings = [];
+  for (const [index, workflow] of workflows.entries()) {
+    const result = validateWorkflow(workflow);
+    for (const issue of result.issues) issues.push(`${index + 1}.${workflow.name}: ${issue}`);
+    for (const warning of result.warnings) warnings.push(`${index + 1}.${workflow.name}: ${warning}`);
+  }
+  return { issues, warnings };
+}
+
+function startRunForWindow(target, workflows, mode, source) {
   const key = String(target.hwnd);
   const running = state.sessions[key]?.status === "running";
   if (running) {
     appendLog("warn", `${target.display} 已有运行中的会话，同 hwnd 保持互斥`);
-    return;
+    return false;
+  }
+  const workflowCopies = JSON.parse(JSON.stringify(workflows));
+  const enabledStepTotal = workflowCopies.reduce(
+    (sum, workflow) => sum + workflow.steps.filter((item) => item.enabled !== false).length,
+    0,
+  );
+  if (!enabledStepTotal) {
+    appendLog("warn", `${target.display} 队列没有启用步骤`);
+    return false;
   }
   const session = {
     id: `run-${++state.sessionSerial}`,
     mode,
+    source,
     hwnd: target.hwnd,
     display: target.display,
     processId: target.processId,
-    workflowId: workflow.id,
-    workflowName: workflow.name,
+    workflowIds: workflowCopies.map((workflow) => workflow.id),
+    workflowNames: workflowCopies.map((workflow) => workflow.name),
+    workflowId: workflowCopies[0]?.id || "",
+    workflowName: workflowCopies.length === 1 ? workflowCopies[0].name : `${workflowCopies.length} 个任务`,
+    currentWorkflowName: "",
     status: "running",
     currentStep: 0,
-    totalSteps: workflow.steps.length,
+    totalSteps: enabledStepTotal,
     startedAt: new Date().toISOString(),
     logs: [],
     cancelRequested: false,
   };
   state.sessions[key] = session;
   setRunState("running");
-  appendLog("info", `${modeLabel(mode)} 启动：${target.display} -> ${workflow.name}`);
+  appendLog("info", `${modeLabel(mode)} 启动：${target.display} -> ${session.workflowNames.join(" / ")}`);
   renderSessions();
-  void runSession(session, JSON.parse(JSON.stringify(workflow)));
+  void runSession(session, workflowCopies);
+  return true;
 }
 
-async function runSession(session, workflow) {
-  for (const [index, item] of workflow.steps.entries()) {
-    if (session.cancelRequested) break;
-    session.currentStep = index + 1;
-    if (session.mode === "background") {
-      const result = await executeBackendStep(session, item).catch((error) => ({
-        status: "error",
-        action: "backend",
-        detail: String(error),
-        inputSent: false,
-        matched: false,
-      }));
-      session.logs.unshift(formatStepLog(index, item, result));
-      if (shouldStopAfterResult(item, result)) {
-        session.cancelRequested = true;
-        session.status = "failed";
-        break;
+async function runSession(session, workflows) {
+  for (const workflow of workflows) {
+    if (session.cancelRequested || session.status === "failed") break;
+    session.currentWorkflowName = workflow.name;
+    const steps = workflow.steps.filter((item) => item.enabled !== false);
+    for (const item of steps) {
+      if (session.cancelRequested) break;
+      session.currentStep += 1;
+      if (session.mode === "background") {
+        const result = await executeBackendStep(session, item).catch((error) => ({
+          status: "error",
+          action: "backend",
+          detail: String(error),
+          inputSent: false,
+          matched: false,
+        }));
+        session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
+        if (shouldStopAfterResult(item, result)) {
+          session.cancelRequested = true;
+          session.status = "failed";
+          break;
+        }
+      } else {
+        session.logs.unshift(
+          `${String(session.currentStep).padStart(2, "0")} ${workflow.name} / ${item.name} [${item.type}]`,
+        );
+        await sleep(dryRunDelay(item));
       }
-    } else {
-      session.logs.unshift(`${String(index + 1).padStart(2, "0")} ${item.name} [${item.type}]`);
-      await sleep(dryRunDelay(item));
+      renderSessions();
     }
-    renderSessions();
   }
   if (session.status !== "failed") {
     session.status = session.cancelRequested ? "stopped" : "done";
@@ -1426,10 +1641,14 @@ async function runSession(session, workflow) {
   state.workspace.runHistory.unshift({
     id: session.id,
     mode: session.mode,
+    source: session.source,
     hwnd: session.hwnd,
     display: session.display,
     workflowId: session.workflowId,
     workflowName: session.workflowName,
+    workflowIds: session.workflowIds,
+    workflowNames: session.workflowNames,
+    queueLength: session.workflowIds.length,
     status: session.status,
     totalSteps: session.totalSteps,
     startedAt: session.startedAt,
@@ -1468,11 +1687,11 @@ function backendStepPayload(item) {
   };
 }
 
-function formatStepLog(index, item, result) {
+function formatStepLog(index, workflow, item, result) {
   const point = result.x != null && result.y != null ? ` @${result.x},${result.y}` : "";
   const score = result.score != null ? ` score=${Number(result.score).toFixed(3)}` : "";
   const sent = result.inputSent ? " sent" : "";
-  return `${String(index + 1).padStart(2, "0")} ${item.name} [${item.type}] ${result.status}/${result.action}${point}${score}${sent} · ${result.detail}`;
+  return `${String(index + 1).padStart(2, "0")} ${workflow.name} / ${item.name} [${item.type}] ${result.status}/${result.action}${point}${score}${sent} · ${result.detail}`;
 }
 
 function shouldStopAfterResult(item, result) {
@@ -1484,7 +1703,7 @@ function shouldStopAfterResult(item, result) {
 }
 
 function modeLabel(mode) {
-  return mode === "background" ? "后台运行" : "dry-run";
+  return mode === "background" ? "后台运行" : "观察运行";
 }
 
 function dryRunDelay(item) {
@@ -1524,8 +1743,13 @@ function renderSessions() {
         <span>${escapeHtml(modeLabel(session.mode))} · ${escapeHtml(session.workflowName)} · ${session.currentStep}/${session.totalSteps}</span>
       </div>
       <progress max="${session.totalSteps}" value="${session.currentStep}"></progress>
-      <small>${escapeHtml(session.status)} · hwnd=${escapeHtml(session.hwnd)}</small>
+      <small>${escapeHtml(session.status)} · ${escapeHtml(session.currentWorkflowName || "等待")} · hwnd=${escapeHtml(session.hwnd)}</small>
     `;
+    if (session.logs.length) {
+      const latest = document.createElement("small");
+      latest.textContent = session.logs[0];
+      lane.append(latest);
+    }
     lanes.append(lane);
   }
 }

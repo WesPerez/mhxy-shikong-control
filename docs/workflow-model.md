@@ -1,16 +1,16 @@
 # 时空任务编排模型
 
-本文档记录当前重构方向：先把宏任务做成可保存、可分配、可 dry-run 的工作区模型，再逐步接入图片识别、OCR 和后台 hwnd 输入执行器。
+本文档记录当前重构方向：先把宏任务做成可保存、可排队、可观察运行的工作区模型，再逐步接入图片识别、OCR 和后台 hwnd 输入执行器。
 
 ## 结论
 
 用户提出的方向是对的：任务不应该写成一串彼此复制的图片点击脚本，而应该抽象成“任务库 + 步骤定义 + 识别目标 + 窗口分配 + 运行会话”。
 
-当前阶段已经落到 schema v2：
+当前阶段已经落到 schema v3：
 
 1. 一个工作区可以保存多个 `Workflow`。
-2. 每个窗口 hwnd 可以分配不同任务。
-3. 每个 hwnd 的 dry-run 会话独立，且同 hwnd 互斥。
+2. 每个窗口 hwnd 都有独立任务队列，队列内串行，不同窗口并行。
+3. 每个 hwnd 的运行会话独立，且同 hwnd 同时只允许一个 active session。
 4. `Asset` 先承接粘贴图片和 ROI 目标，后续升级成完整 `Target` 识别库。
 5. 后台运行 beta 已接入 `PostMessageW` 点击/热键和轻量图像匹配；OCR 仍是明确占位。
 
@@ -36,21 +36,30 @@
 - Robot Framework User Guide: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
 - XState states and transitions: https://stately.ai/docs/states
 
-## 工作区 schema v2
+## 工作区 schema v3
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "activeWorkflowId": "wf-daily-welfare",
   "workflows": [],
   "assignments": {
     "123456": {
-      "workflowId": "wf-daily-welfare",
       "hwnd": 123456,
       "title": "梦幻西游：时空",
       "processId": 1000,
       "display": "梦幻西游：时空 #1",
-      "assignedAt": "2026-07-09T00:00:00.000Z"
+      "queue": [
+        {
+          "id": "queue-daily",
+          "workflowId": "wf-daily-welfare",
+          "enabled": true,
+          "order": 1,
+          "addedAt": "2026-07-09T00:00:00.000Z"
+        }
+      ],
+      "assignedAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z"
     }
   },
   "assets": [],
@@ -61,17 +70,21 @@
 字段含义：
 
 - `workflows`: 用户创建和导入的任务库。
-- `assignments`: 窗口 hwnd 到任务的分配表。
+- `assignments`: 窗口 hwnd 到任务队列的分配表。旧版 `workflowId` 会在载入时迁移成单项 `queue`。
 - `assets`: 粘贴图片、ROI、后续模板图等识别资产。
-- `runHistory`: dry-run 或真实运行的最近结果摘要。
+- `runHistory`: 观察运行或真实运行的最近结果摘要。
 
 当前保存位置是 Tauri AppData 下的 `workspace.json`。第一阶段不用 SQLite，是为了让格式可读、易迁移、好调试；等任务历史、资产索引、运行日志变多后再迁移数据库。
+
+## WindowAssignment
+
+`assignments[hwnd].queue[]` 是窗口自己的任务队列。`queue[].enabled=false` 表示这个窗口暂时跳过该任务，不影响同一个 `Workflow` 在其它窗口里的启用状态。队列项可以追加、删除、上移、下移；运行时每个 hwnd 按自己的启用队列 FIFO 串行执行。
 
 ## Workflow
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "id": "wf-daily-welfare",
   "name": "每日福利领取",
   "category": "日常",
@@ -90,8 +103,8 @@
 
 关键策略：
 
-- `targetPolicy.inputMode` 固定表达“目标设计是 hwnd 后台消息”。dry-run 不发送输入，后台运行 beta 只投递 hwnd 消息。
-- `targetPolicy.concurrency=per-window-exclusive` 表示同 hwnd 互斥，不同 hwnd 可并行。
+- `targetPolicy.inputMode` 固定表达“目标设计是 hwnd 后台消息”。观察运行不发送输入，后台运行 beta 只投递 hwnd 消息。
+- `targetPolicy.concurrency=per-window-exclusive` 表示同 hwnd 只有一个 active session；窗口内任务队列串行消费，不同 hwnd 可并行。
 - `restorePolicy` 后续会引用共享恢复流程。
 
 ## Step
@@ -130,6 +143,8 @@
 - `restore`: 恢复到稳定页面。
 
 `branch` 目前仍是枚举占位，后续需要补 `targetStepId` 和 guard 表达式，才能成为完整状态机。
+
+`steps[].enabled=false` 表示该步骤不参与校验、观察运行和后台执行；运行进度的 `totalSteps` 只统计启用步骤。这样用户可以临时关闭某个点击或识图环节来调试任务。
 
 ## Asset 与 Target
 
@@ -171,17 +186,20 @@
 
 当前有两种运行策略：
 
-- 用户把任务分配给已选窗口。
-- 点击 dry-run 后，每个窗口生成独立 `RunSession`。
-- 同一个 hwnd 如果已有运行会话，会拒绝第二个 dry-run，保持互斥。
-- 不同 hwnd 的会话并行推进，各自记录步骤进度和日志。
-- dry-run 结束后写入 `runHistory`，并保存工作区。
-- dry-run 不截图、不点击、不发快捷键、不启动客户端、不请求管理员重启。
-- 点击后台运行 beta 后，每个窗口同样生成独立 `RunSession`。
+- 用户把当前任务追加到已选窗口的任务队列。
+- 点击观察运行后，每个已选窗口读取自己的启用队列，并生成独立 `RunSession`。
+- 如果某个窗口没有任何队列项，运行按钮会回退到当前 active workflow，便于快速调试单任务；如果已有队列但全部停用，则跳过该窗口。
+- 同一个 hwnd 如果已有 active session，会拒绝第二个 session，保持互斥。
+- 不同 hwnd 的会话并行推进，各自串行消费自己的队列、步骤进度和日志。
+- 观察运行结束后写入 `runHistory`，并保存工作区。
+- 观察运行不截图、不点击、不发快捷键、不启动客户端、不请求管理员重启。
+- 点击后台运行 beta 后，每个窗口同样按自己的队列生成独立 `RunSession`。
 - `hotkey` 通过 hwnd 投递 `WM_KEYDOWN/WM_KEYUP` 或 `WM_SYSKEYDOWN/WM_SYSKEYUP`。
 - `click` 通过 hwnd 投递 `WM_MOUSEMOVE`、`WM_LBUTTONDOWN/UP` 或 `WM_RBUTTONDOWN/UP`。
 - `image_click` 会截图、匹配模板图，达到阈值后点击匹配矩形中心。
 - `ocr_assert` 会明确记录 unsupported，不会把未识别当成功。
+
+`runHistory[]` 保存完成后的摘要：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/totalSteps/startedAt/endedAt`。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为事件流。
 
 后续真实执行层必须在每一步执行前重新校验 hwnd、标题、pid 和窗口尺寸，发现漂移就安全失败并记录日志。
 
@@ -191,7 +209,7 @@
 
 - 不调用 `SendInput`、`SetCursorPos`、`mouse_event`、`keybd_event`。
 - 不为了任务执行调用 `SetForegroundWindow` 或 `BringWindowToTop`。
-- dry-run 不发送任何游戏输入。
+- 观察运行不发送任何游戏输入。
 - 鼠标和键盘输入只能走目标 hwnd 的后台消息。
 - 同一个 hwnd 只能运行一个任务；不同 hwnd 可以并行。
 - 所有任务报告必须记录 hwnd、初始窗口身份、最终窗口身份、截图来源和失败原因。

@@ -479,6 +479,81 @@ h3 {
   padding: 9px;
 }
 
+.queue-window {
+  display: grid;
+  gap: 7px;
+}
+
+.queue-window-head {
+  min-height: 50px;
+}
+
+.queue-items {
+  display: grid;
+  gap: 6px;
+  padding-left: 10px;
+  border-left: 1px solid #30383d;
+}
+
+.queue-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  border: 1px solid #273035;
+  border-radius: 6px;
+  background: #12171a;
+  padding: 6px;
+}
+
+.queue-item.disabled {
+  opacity: 0.58;
+}
+
+.queue-item-title {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.queue-item-title:hover {
+  background: transparent;
+}
+
+.queue-item-title > span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 24px;
+  border-radius: 5px;
+  background: #20272b;
+  color: #d7a94b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.queue-item-title small {
+  color: #93a0a8;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.queue-item-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.queue-item-actions button {
+  min-height: 28px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
 .workflow-row.active {
   border-color: #d7a94b;
   background: #28271d;
@@ -603,6 +678,10 @@ h3 {
   background: #28271d;
 }
 
+.step-row.disabled {
+  opacity: 0.52;
+}
+
 .inspector-scroll {
   display: grid;
   align-content: start;
@@ -645,6 +724,22 @@ label {
   min-width: 0;
   color: #aeb8bf;
   font-size: 12px;
+}
+
+.check-line {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border: 1px solid #30383d;
+  border-radius: 6px;
+  background: #14181b;
+  padding: 0 10px;
+}
+
+.check-line input {
+  min-height: 0;
 }
 
 .wide {

@@ -45,11 +45,11 @@
             <div class="panel-title">
               <div>
                 <p class="eyebrow">Assign</p>
-                <h2>窗口分配</h2>
+                <h2>窗口任务队列</h2>
               </div>
               <span id="assignment-count" class="count">0</span>
             </div>
-            <button id="assign-selected" type="button">把当前任务分配给已选窗口</button>
+            <button id="assign-selected" type="button">追加当前任务到已选窗口</button>
             <div id="assignment-list" class="compact-list"></div>
           </section>
 
@@ -188,6 +188,10 @@
                     类型
                     <select id="step-type"></select>
                   </label>
+                  <label class="check-line">
+                    <input id="step-enabled" type="checkbox" />
+                    启用此步骤
+                  </label>
                   <label>
                     目标
                     <input id="step-target" type="text" />
@@ -259,8 +263,8 @@
             <div class="run-actions">
               <button id="validate-workflow" type="button">校验当前任务</button>
               <button id="validate-all-workflows" type="button">校验全部样例</button>
-              <button id="dry-run-selected" type="button">观察演练已选窗口</button>
-              <button id="background-run-selected" type="button">后台执行已选窗口</button>
+              <button id="dry-run-selected" type="button">观察运行窗口队列</button>
+              <button id="background-run-selected" type="button">后台执行窗口队列</button>
               <button id="stop-dry-run" type="button" class="danger">停止运行</button>
               <button id="export-workspace" type="button">导出工作区 JSON</button>
               <button id="import-workspace" type="button">载入工作区 JSON</button>
