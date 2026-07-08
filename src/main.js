@@ -36,7 +36,6 @@ const stepDefaults = {
     timeoutMs: 3000,
     retry: 2,
     onFail: "restore",
-    onSuccess: "next",
   },
   wait_image: {
     name: "等待图像",
@@ -46,7 +45,6 @@ const stepDefaults = {
     timeoutMs: 5000,
     retry: 2,
     onFail: "retry",
-    onSuccess: "next",
   },
   image_click: {
     name: "图像点击",
@@ -56,7 +54,6 @@ const stepDefaults = {
     timeoutMs: 2600,
     retry: 1,
     onFail: "retry",
-    onSuccess: "next",
   },
   ocr_assert: {
     name: "OCR 确认",
@@ -66,7 +63,6 @@ const stepDefaults = {
     timeoutMs: 4200,
     retry: 2,
     onFail: "restore",
-    onSuccess: "next",
   },
   click: {
     name: "后台点击",
@@ -76,7 +72,6 @@ const stepDefaults = {
     timeoutMs: 1300,
     retry: 0,
     onFail: "stop",
-    onSuccess: "next",
   },
   hotkey: {
     name: "快捷键",
@@ -86,7 +81,6 @@ const stepDefaults = {
     timeoutMs: 1200,
     retry: 0,
     onFail: "stop",
-    onSuccess: "next",
   },
   delay: {
     name: "延迟等待",
@@ -96,17 +90,15 @@ const stepDefaults = {
     timeoutMs: 800,
     retry: 0,
     onFail: "skip",
-    onSuccess: "next",
   },
   condition: {
     name: "条件判断",
     target: "state.flag",
     command: "guard=true",
-    expect: "branch.next",
+    expect: "condition.checked",
     timeoutMs: 1000,
     retry: 0,
-    onFail: "branch",
-    onSuccess: "next",
+    onFail: "skip",
   },
   retry_until: {
     name: "重试直到",
@@ -116,7 +108,6 @@ const stepDefaults = {
     timeoutMs: 8000,
     retry: 5,
     onFail: "restore",
-    onSuccess: "next",
   },
   snapshot: {
     name: "截图记录",
@@ -126,7 +117,6 @@ const stepDefaults = {
     timeoutMs: 1000,
     retry: 0,
     onFail: "skip",
-    onSuccess: "next",
   },
   restore: {
     name: "恢复状态",
@@ -136,7 +126,6 @@ const stepDefaults = {
     timeoutMs: 6000,
     retry: 1,
     onFail: "stop",
-    onSuccess: "next",
   },
 };
 
@@ -383,7 +372,6 @@ function step(
   timeoutMs = stepDefaults[type]?.timeoutMs ?? 3000,
   retry = stepDefaults[type]?.retry ?? 0,
   onFail = stepDefaults[type]?.onFail ?? "stop",
-  onSuccess = stepDefaults[type]?.onSuccess ?? "next",
 ) {
   return {
     id,
@@ -395,7 +383,6 @@ function step(
     timeoutMs,
     retry,
     onFail,
-    onSuccess,
     enabled: true,
     notes: "",
   };
@@ -486,7 +473,6 @@ function normalizeStep(value) {
     timeoutMs: Number(value?.timeoutMs ?? defaults.timeoutMs),
     retry: Number(value?.retry ?? defaults.retry),
     onFail: String(value?.onFail || defaults.onFail),
-    onSuccess: String(value?.onSuccess || defaults.onSuccess),
     enabled: value?.enabled !== false,
     targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
@@ -976,7 +962,6 @@ function createStep(type) {
     timeoutMs: defaults.timeoutMs,
     retry: defaults.retry,
     onFail: defaults.onFail,
-    onSuccess: defaults.onSuccess,
   });
 }
 
@@ -1424,7 +1409,6 @@ function renderStepEditor() {
   $("#step-timeout").value = String(item.timeoutMs ?? 0);
   $("#step-retry").value = String(item.retry ?? 0);
   $("#step-on-fail").value = item.onFail || "stop";
-  $("#step-on-success").value = item.onSuccess || "next";
   $("#step-notes").value = item.notes || "";
   renderStepParamPanel(item);
 }
@@ -1475,7 +1459,6 @@ function bindStepEditor() {
   $("#step-timeout").addEventListener("input", update("timeoutMs", (value) => Number(value) || 0));
   $("#step-retry").addEventListener("input", update("retry", (value) => Number(value) || 0));
   $("#step-on-fail").addEventListener("change", update("onFail"));
-  $("#step-on-success").addEventListener("change", update("onSuccess"));
   $("#step-notes").addEventListener("input", update("notes"));
   $("#step-type").addEventListener("change", (event) => {
     const item = selectedStep();
@@ -1489,7 +1472,6 @@ function bindStepEditor() {
     item.timeoutMs = defaults.timeoutMs;
     item.retry = defaults.retry;
     item.onFail = defaults.onFail;
-    item.onSuccess = defaults.onSuccess;
     if (!targetBackedStepTypes.has(item.type)) {
       item.targetId = "";
     }
@@ -2645,8 +2627,8 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
   if (item.type === "image_click" && !hasImage && (point || hasRoi)) {
     addWarning(`${prefix} 没有图片时会退化为直接点击坐标/ROI，请确认这是有意行为`, item);
   }
-  if (item.type === "ocr_assert" && mode === "background") {
-    addIssue(`${prefix} OCR 后端尚未实现，请先停用或替换为图像/点击步骤`, item);
+  if (item.type === "ocr_assert") {
+    validateOcrStepRuntimeFields(item, prefix, addIssue, addWarning, mode);
   }
   if (item.type === "delay" && durationMsFromText(item.target) == null && item.timeoutMs <= 0) {
     addIssue(`${prefix} 延迟步骤需要有效等待时长`, item);
@@ -2657,6 +2639,54 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
       addIssue(`${prefix} 重试间隔格式应为 800ms 或 1s`, item);
     }
   }
+}
+
+function validateOcrStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
+  const texts = ocrExpectedTextsForStep(item);
+  if (!texts.length) {
+    const message = `${prefix} OCR 需要目标文本，可在目标库 OCR 文本里填写或在步骤目标/expect/text 参数里填写`;
+    mode === "background" ? addIssue(message, item) : addWarning(message, item);
+  }
+  const lang = ocrLanguageForStep(item);
+  if (lang && !/^[a-z]{2,3}(-[a-z0-9]+)*$/i.test(lang)) {
+    addWarning(`${prefix} OCR 语言标记建议使用 zh、zh-Hans、en-US 这类格式`, item);
+  }
+  if (mode === "background" && !targetForStep(item)?.roi && !ocrRegionForStep(item)) {
+    addWarning(`${prefix} OCR 未限定 ROI，会识别整窗，建议绑定 ROI 或设置 roi=top/panel/dialog`, item);
+  }
+}
+
+function ocrExpectedTextsForStep(item, targetItem = targetForStep(item)) {
+  const texts = [];
+  const push = (value) => {
+    const text = String(value || "").trim();
+    if (!text || isGenericOcrExpectation(text)) return;
+    if (!texts.some((item) => item.toLowerCase() === text.toLowerCase())) texts.push(text);
+  };
+  for (const text of targetItem?.texts || []) push(text);
+  if (!texts.length) push(item?.target);
+  push(item?.expect);
+  push(commandValue(item?.command || "", "text"));
+  push(commandValue(item?.command || "", "contains"));
+  push(commandValue(item?.command || "", "expect"));
+  return texts;
+}
+
+function isGenericOcrExpectation(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return (
+    !normalized ||
+    normalized.startsWith("text.") ||
+    ["text_found", "text.visible", "found", "visible", "ready", "ready=true", "screen.changed", "panel.open"].includes(normalized)
+  );
+}
+
+function ocrLanguageForStep(item) {
+  return commandValue(item?.command || "", "lang") || commandValue(item?.command || "", "language") || "zh";
+}
+
+function ocrRegionForStep(item) {
+  return commandValue(item?.command || "", "roi") || "";
 }
 
 function validateActiveWorkflow() {
@@ -2968,8 +2998,8 @@ function retryUntilHasVisualTarget(item) {
 }
 
 function shouldRetryBackgroundStep(item, result) {
-  if (result.status !== "below_threshold") return false;
-  return item.onFail === "retry" || ["wait_image", "detect_page", "image_click"].includes(item.type);
+  if (!["below_threshold", "text_miss", "ocr_unavailable"].includes(result.status)) return false;
+  return item.onFail === "retry" || ["wait_image", "detect_page", "image_click", "ocr_assert"].includes(item.type);
 }
 
 function backgroundRetryDelay(item) {
@@ -3026,7 +3056,7 @@ function backendStepPayload(item) {
   const targetItem = targetForStep(item);
   const targetId = stepTargetId(item);
   const command = effectiveCommandForStep(item, targetItem);
-  return {
+  const payload = {
     type: item.type,
     target: item.target || "",
     command,
@@ -3039,6 +3069,12 @@ function backendStepPayload(item) {
     assetDataUrl: targetItem?.dataUrl || "",
     roi: targetItem?.roi || null,
   };
+  if (item.type === "ocr_assert") {
+    payload.targetTexts = ocrExpectedTextsForStep(item, targetItem);
+    payload.ocrLanguage = ocrLanguageForStep(item);
+    payload.ocrRegion = ocrRegionForStep(item);
+  }
+  return payload;
 }
 
 function effectiveCommandForStep(item, targetItem = targetForStep(item)) {
@@ -3065,7 +3101,7 @@ function formatStepLog(index, workflow, item, result) {
 
 function shouldStopAfterResult(item, result) {
   if (result.status === "error") return true;
-  if (["unsupported", "missing_asset", "below_threshold"].includes(result.status)) {
+  if (["unsupported", "missing_asset", "below_threshold", "text_miss", "ocr_unavailable", "missing_expect"].includes(result.status)) {
     return ["stop", "restore"].includes(item.onFail || "stop");
   }
   return false;

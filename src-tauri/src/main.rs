@@ -128,6 +128,12 @@ struct WorkflowStepInput {
     asset_data_url: Option<String>,
     #[serde(default)]
     roi: Option<RoiRect>,
+    #[serde(default)]
+    target_texts: Vec<String>,
+    #[serde(default)]
+    ocr_language: Option<String>,
+    #[serde(default)]
+    ocr_region: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -187,6 +193,7 @@ const DEFAULT_IMAGE_THRESHOLD: f32 = 0.86;
 const MAX_TEMPLATE_DATA_URL_CHARS: usize = 5 * 1024 * 1024;
 const MAX_TEMPLATE_BYTES: usize = 4 * 1024 * 1024;
 const MAX_TEMPLATE_PIXELS: u64 = 2_000_000;
+const MAX_OCR_PIXELS: u64 = 4_000_000;
 const WINDOW_CLIENT_SIZE_TOLERANCE: u32 = 2;
 
 #[tauri::command]
@@ -293,13 +300,7 @@ fn execute_workflow_step(
             "no_input",
             "step is represented in the runner but has no direct backend input in this build",
         )),
-        "ocr_assert" => Ok(step_result(
-            hwnd,
-            &step.step_type,
-            "unsupported",
-            "ocr",
-            "OCR is modeled but not implemented in this build",
-        )),
+        "ocr_assert" => dispatch_ocr_step(hwnd, &step),
         other => Ok(step_result(
             hwnd,
             other,
@@ -612,6 +613,340 @@ fn dispatch_image_step(
     ))
 }
 
+fn dispatch_ocr_step(hwnd: isize, step: &WorkflowStepInput) -> Result<StepDispatchResult, String> {
+    let expected_texts = expected_ocr_texts(step);
+    if expected_texts.is_empty() {
+        return Ok(step_result(
+            hwnd,
+            &step.step_type,
+            "missing_expect",
+            "ocr",
+            "OCR step requires targetTexts, target text, expect text, or command text=...",
+        ));
+    }
+
+    let frame = capture_client_rgb(hwnd)?;
+    let roi = ocr_search_roi(step, frame.width, frame.height);
+    let crop = crop_frame(&frame, roi)?;
+    let language = ocr_language_tag(step);
+    match recognize_ocr_text(&crop, language.as_deref()) {
+        Ok(recognized) => {
+            let matched_text = matched_ocr_text(&recognized, &expected_texts);
+            let mut output = step_result(
+                hwnd,
+                &step.step_type,
+                if matched_text.is_some() {
+                    "matched"
+                } else {
+                    "text_miss"
+                },
+                "ocr",
+                format!(
+                    "recognized=\"{}\"; expected={}; lang={}; roi={}",
+                    summarize_text(&recognized, 160),
+                    expected_texts.join("|"),
+                    language.as_deref().unwrap_or("user-profile"),
+                    roi_label(roi)
+                ),
+            );
+            output.matched = matched_text.is_some();
+            Ok(output)
+        }
+        Err(err) => {
+            let mut output = step_result(
+                hwnd,
+                &step.step_type,
+                "ocr_unavailable",
+                "ocr",
+                format!(
+                    "Windows OCR unavailable: {err}; expected={}; lang={}; roi={}",
+                    expected_texts.join("|"),
+                    language.as_deref().unwrap_or("user-profile"),
+                    roi_label(roi)
+                ),
+            );
+            output.matched = false;
+            Ok(output)
+        }
+    }
+}
+
+fn expected_ocr_texts(step: &WorkflowStepInput) -> Vec<String> {
+    let mut texts = Vec::new();
+    for value in &step.target_texts {
+        push_ocr_text_candidate(&mut texts, value);
+    }
+    if texts.is_empty() {
+        push_ocr_text_candidate(&mut texts, &step.target);
+    }
+    push_ocr_text_candidate(&mut texts, &step.expect);
+    if let Some(value) = command_value(&step.command, "text")
+        .or_else(|| command_value(&step.command, "contains"))
+        .or_else(|| command_value(&step.command, "expect"))
+    {
+        push_ocr_text_candidate(&mut texts, value);
+    }
+    texts
+}
+
+fn push_ocr_text_candidate(texts: &mut Vec<String>, value: &str) {
+    let value = value.trim();
+    if value.is_empty() || is_generic_ocr_expectation(value) {
+        return;
+    }
+    if !texts.iter().any(|item| item.eq_ignore_ascii_case(value)) {
+        texts.push(value.to_string());
+    }
+}
+
+fn is_generic_ocr_expectation(value: &str) -> bool {
+    let normalized = value.trim().to_ascii_lowercase();
+    normalized.is_empty()
+        || normalized.starts_with("text.")
+        || matches!(
+            normalized.as_str(),
+            "text_found"
+                | "text.visible"
+                | "found"
+                | "visible"
+                | "ready"
+                | "ready=true"
+                | "screen.changed"
+                | "panel.open"
+        )
+}
+
+fn ocr_language_tag(step: &WorkflowStepInput) -> Option<String> {
+    let raw = step
+        .ocr_language
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| command_value(&step.command, "lang"))
+        .or_else(|| command_value(&step.command, "language"))?
+        .trim();
+    if raw.is_empty() {
+        return None;
+    }
+    match raw.to_ascii_lowercase().as_str() {
+        "auto" | "profile" | "user" | "default" => None,
+        "zh" | "cn" | "chinese" | "zh-cn" => Some("zh-Hans".to_string()),
+        "zh-tw" | "zh-hant" => Some("zh-Hant".to_string()),
+        "en" => Some("en-US".to_string()),
+        other => Some(other.to_string()),
+    }
+}
+
+fn ocr_search_roi(step: &WorkflowStepInput, width: u32, height: u32) -> Option<RoiRect> {
+    scaled_roi(step.roi, width, height).or_else(|| {
+        let name = step
+            .ocr_region
+            .as_deref()
+            .filter(|value| !value.trim().is_empty())
+            .or_else(|| command_value(&step.command, "roi"))?;
+        named_ocr_roi(name, width, height)
+    })
+}
+
+fn named_ocr_roi(value: &str, width: u32, height: u32) -> Option<RoiRect> {
+    if width == 0 || height == 0 {
+        return None;
+    }
+    match value.trim().to_ascii_lowercase().as_str() {
+        "" | "auto" | "full" | "window" => None,
+        "top" | "title" => Some(RoiRect {
+            x: 0,
+            y: 0,
+            w: width,
+            h: (height / 4).max(1),
+        }),
+        "bottom" => Some(RoiRect {
+            x: 0,
+            y: height.saturating_mul(3) / 4,
+            w: width,
+            h: (height / 4).max(1),
+        }),
+        "left" => Some(RoiRect {
+            x: 0,
+            y: 0,
+            w: (width / 3).max(1),
+            h: height,
+        }),
+        "right" => Some(RoiRect {
+            x: width.saturating_mul(2) / 3,
+            y: 0,
+            w: (width / 3).max(1),
+            h: height,
+        }),
+        "center" | "panel" => Some(centered_roi(width, height, 80, 80)),
+        "dialog" => Some(centered_roi(width, height, 64, 64)),
+        _ => None,
+    }
+}
+
+fn centered_roi(width: u32, height: u32, width_percent: u32, height_percent: u32) -> RoiRect {
+    let w = (width.saturating_mul(width_percent) / 100).max(1);
+    let h = (height.saturating_mul(height_percent) / 100).max(1);
+    RoiRect {
+        x: width.saturating_sub(w) / 2,
+        y: height.saturating_sub(h) / 2,
+        w,
+        h,
+    }
+}
+
+fn crop_frame(frame: &RgbFrame, roi: Option<RoiRect>) -> Result<RgbFrame, String> {
+    let Some(roi) = scaled_roi(roi, frame.width, frame.height) else {
+        return Ok(frame.clone());
+    };
+    let pixels = u64::from(roi.w) * u64::from(roi.h);
+    if pixels > MAX_OCR_PIXELS {
+        return Err(format!("OCR ROI is too large: {}x{}", roi.w, roi.h));
+    }
+    let mut cropped = Vec::with_capacity((pixels * 3) as usize);
+    for y in roi.y..roi.y + roi.h {
+        let start = ((y * frame.width + roi.x) as usize) * 3;
+        let end = start + roi.w as usize * 3;
+        cropped.extend_from_slice(&frame.pixels[start..end]);
+    }
+    Ok(RgbFrame {
+        width: roi.w,
+        height: roi.h,
+        pixels: cropped,
+    })
+}
+
+fn matched_ocr_text(recognized: &str, expected_texts: &[String]) -> Option<String> {
+    let recognized = normalize_ocr_text(recognized);
+    if recognized.is_empty() {
+        return None;
+    }
+    expected_texts
+        .iter()
+        .find(|expected| {
+            let expected = normalize_ocr_text(expected);
+            !expected.is_empty()
+                && (recognized.contains(&expected) || expected.contains(&recognized))
+        })
+        .cloned()
+}
+
+fn normalize_ocr_text(value: &str) -> String {
+    value
+        .chars()
+        .filter(|ch| !ch.is_whitespace() && !ch.is_ascii_punctuation())
+        .flat_map(char::to_lowercase)
+        .collect()
+}
+
+fn summarize_text(value: &str, max_chars: usize) -> String {
+    let compact = value.split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut summary: String = compact.chars().take(max_chars).collect();
+    if compact.chars().count() > max_chars {
+        summary.push('…');
+    }
+    summary
+}
+
+fn roi_label(roi: Option<RoiRect>) -> String {
+    roi.map(|value| format!("{},{},{}x{}", value.x, value.y, value.w, value.h))
+        .unwrap_or_else(|| "full".to_string())
+}
+
+#[cfg(windows)]
+fn recognize_ocr_text(frame: &RgbFrame, language: Option<&str>) -> Result<String, String> {
+    use windows::{
+        Graphics::Imaging::{BitmapAlphaMode, BitmapPixelFormat, SoftwareBitmap},
+        Media::Ocr::OcrEngine,
+    };
+
+    if frame.width == 0 || frame.height == 0 {
+        return Err("OCR frame is empty".to_string());
+    }
+    let pixels = u64::from(frame.width) * u64::from(frame.height);
+    if pixels > MAX_OCR_PIXELS {
+        return Err(format!(
+            "OCR frame is too large: {}x{}",
+            frame.width, frame.height
+        ));
+    }
+    let max_dim = OcrEngine::MaxImageDimension().map_err(|err| err.to_string())?;
+    if frame.width > max_dim || frame.height > max_dim {
+        return Err(format!(
+            "OCR frame exceeds Windows max dimension {max_dim}: {}x{}",
+            frame.width, frame.height
+        ));
+    }
+    let bgra = rgb_to_bgra(&frame.pixels);
+    let buffer = bytes_to_ibuffer(&bgra)?;
+    let width =
+        i32::try_from(frame.width).map_err(|_| "OCR frame width is too large".to_string())?;
+    let height =
+        i32::try_from(frame.height).map_err(|_| "OCR frame height is too large".to_string())?;
+    let bitmap = SoftwareBitmap::CreateCopyWithAlphaFromBuffer(
+        &buffer,
+        BitmapPixelFormat::Bgra8,
+        width,
+        height,
+        BitmapAlphaMode::Ignore,
+    )
+    .map_err(|err| err.to_string())?;
+    let engine = create_ocr_engine(language)?;
+    let result = engine
+        .RecognizeAsync(&bitmap)
+        .map_err(|err| err.to_string())?
+        .get()
+        .map_err(|err| err.to_string())?;
+    result
+        .Text()
+        .map(|text| text.to_string_lossy())
+        .map_err(|err| err.to_string())
+}
+
+#[cfg(windows)]
+fn create_ocr_engine(language: Option<&str>) -> Result<windows::Media::Ocr::OcrEngine, String> {
+    use windows::{core::HSTRING, Globalization::Language, Media::Ocr::OcrEngine};
+
+    let Some(language) = language.filter(|value| !value.trim().is_empty()) else {
+        return OcrEngine::TryCreateFromUserProfileLanguages().map_err(|err| err.to_string());
+    };
+    let language =
+        Language::CreateLanguage(&HSTRING::from(language)).map_err(|err| err.to_string())?;
+    let supported = OcrEngine::IsLanguageSupported(&language).map_err(|err| err.to_string())?;
+    if !supported {
+        return Err(format!(
+            "OCR language {} is not installed or supported",
+            language
+                .LanguageTag()
+                .map(|tag| tag.to_string_lossy())
+                .unwrap_or_default()
+        ));
+    }
+    OcrEngine::TryCreateFromLanguage(&language).map_err(|err| err.to_string())
+}
+
+#[cfg(windows)]
+fn bytes_to_ibuffer(bytes: &[u8]) -> Result<windows::Storage::Streams::IBuffer, String> {
+    use windows::Storage::Streams::DataWriter;
+
+    let writer = DataWriter::new().map_err(|err| err.to_string())?;
+    writer.WriteBytes(bytes).map_err(|err| err.to_string())?;
+    writer.DetachBuffer().map_err(|err| err.to_string())
+}
+
+#[cfg(windows)]
+fn rgb_to_bgra(rgb: &[u8]) -> Vec<u8> {
+    let mut bgra = Vec::with_capacity(rgb.len() / 3 * 4);
+    for px in rgb.chunks_exact(3) {
+        bgra.extend_from_slice(&[px[2], px[1], px[0], 0xff]);
+    }
+    bgra
+}
+
+#[cfg(not(windows))]
+fn recognize_ocr_text(_frame: &RgbFrame, _language: Option<&str>) -> Result<String, String> {
+    Err("Windows OCR is only available on Windows".to_string())
+}
+
 fn step_result(
     hwnd: isize,
     step_type: &str,
@@ -677,6 +1012,23 @@ fn append_step_metadata(result: &mut StepDispatchResult, step: &WorkflowStepInpu
         .filter(|value| !value.trim().is_empty())
     {
         parts.push(format!("targetKind={}", target_kind.trim()));
+    }
+    if !step.target_texts.is_empty() {
+        parts.push(format!("targetTexts={}", step.target_texts.len()));
+    }
+    if let Some(language) = step
+        .ocr_language
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("ocrLanguage={}", language.trim()));
+    }
+    if let Some(region) = step
+        .ocr_region
+        .as_deref()
+        .filter(|value| !value.trim().is_empty())
+    {
+        parts.push(format!("ocrRegion={}", region.trim()));
     }
     if !parts.is_empty() {
         result.detail = format!("{}; {}", result.detail, parts.join("; "));
@@ -1105,6 +1457,9 @@ mod tests {
             asset_kind: None,
             asset_data_url: None,
             roi: None,
+            target_texts: Vec::new(),
+            ocr_language: None,
+            ocr_region: None,
         }
     }
 
@@ -1253,6 +1608,66 @@ mod tests {
         ] {
             assert!(image_threshold(&image_step(raw)).is_err(), "{raw}");
         }
+    }
+
+    #[test]
+    fn collects_ocr_expected_texts_without_generic_markers() {
+        let mut step = image_step("text=藏宝图; contains=should_not_duplicate");
+        step.step_type = "ocr_assert".to_string();
+        step.target = "藏宝图".to_string();
+        step.expect = "text_found".to_string();
+        step.target_texts = vec!["帮派福利".to_string(), "藏宝图".to_string()];
+        assert_eq!(expected_ocr_texts(&step), vec!["帮派福利", "藏宝图"]);
+    }
+
+    #[test]
+    fn normalizes_common_ocr_language_tags() {
+        assert_eq!(
+            ocr_language_tag(&image_step("lang=zh")),
+            Some("zh-Hans".to_string())
+        );
+        assert_eq!(
+            ocr_language_tag(&image_step("lang=en")),
+            Some("en-US".to_string())
+        );
+        assert_eq!(ocr_language_tag(&image_step("lang=auto")), None);
+    }
+
+    #[test]
+    fn matches_ocr_texts_ignoring_spacing_and_case() {
+        let expected = vec!["Bang Pai 福利".to_string()];
+        assert_eq!(
+            matched_ocr_text("bangpai福利", &expected),
+            Some("Bang Pai 福利".to_string())
+        );
+        assert!(matched_ocr_text("完全不同", &expected).is_none());
+    }
+
+    #[test]
+    fn crops_rgb_frame_to_roi() {
+        let frame = RgbFrame {
+            width: 3,
+            height: 2,
+            pixels: vec![
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+            ],
+        };
+        let cropped = crop_frame(
+            &frame,
+            Some(RoiRect {
+                x: 1,
+                y: 0,
+                w: 2,
+                h: 2,
+            }),
+        )
+        .unwrap();
+        assert_eq!(cropped.width, 2);
+        assert_eq!(cropped.height, 2);
+        assert_eq!(
+            cropped.pixels,
+            vec![4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18]
+        );
     }
 
     #[test]

@@ -292,7 +292,8 @@
                         <input id="param-retry-interval" type="number" min="0" step="100" />
                       </label>
                     </div>
-                    <p class="hint" data-step-types="snapshot restore ocr_assert">此类型当前没有可直接投递的后台输入；会保留在任务编排和日志中。</p>
+                    <p class="hint" data-step-types="ocr_assert">OCR 会截图识别目标文字，不发送鼠标或键盘输入。</p>
+                    <p class="hint" data-step-types="snapshot restore">此类型当前没有可直接投递的后台输入；会保留在任务编排和日志中。</p>
                   </section>
                   <label>
                     成功确认
@@ -316,15 +317,6 @@
                         <option value="retry">retry</option>
                         <option value="skip">skip</option>
                         <option value="restore">restore</option>
-                        <option value="branch">branch</option>
-                      </select>
-                    </label>
-                    <label>
-                      成功后
-                      <select id="step-on-success">
-                        <option value="next">next</option>
-                        <option value="finish">finish</option>
-                        <option value="branch">branch</option>
                       </select>
                     </label>
                   </div>

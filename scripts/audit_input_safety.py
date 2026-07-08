@@ -116,6 +116,18 @@ RUNNER_SEMANTIC_TOKENS = [
     "retryUntilHasVisualTarget",
     "type: \"wait_image\"",
 ]
+OCR_CONTRACT_TOKENS = [
+    "dispatch_ocr_step",
+    "recognize_ocr_text",
+    "OcrEngine",
+    "RecognizeAsync",
+    "target_texts",
+    "targetTexts",
+    "ocrExpectedTextsForStep",
+    "validateOcrStepRuntimeFields",
+    "ocr_unavailable",
+    "text_miss",
+]
 UI_STABILITY_TOKENS = [
     "MAX_LOG_ROWS",
     "log.children.length > MAX_LOG_ROWS",
@@ -144,6 +156,7 @@ def main() -> int:
     step_validation = scan_tokens(files, STEP_VALIDATION_TOKENS)
     paste_auto_step = scan_tokens(files, PASTE_AUTO_STEP_TOKENS)
     runner_semantics = scan_tokens(files, RUNNER_SEMANTIC_TOKENS)
+    ocr_contract = scan_tokens(files, OCR_CONTRACT_TOKENS)
     ui_stability = scan_tokens(files, UI_STABILITY_TOKENS)
     identity_required = bool(hwnd)
     identity_seen = {hit["token"] for hit in identity}
@@ -174,6 +187,10 @@ def main() -> int:
     runner_semantics_missing = [
         token for token in RUNNER_SEMANTIC_TOKENS if token not in runner_semantics_seen
     ]
+    ocr_contract_seen = {hit["token"] for hit in ocr_contract}
+    ocr_contract_missing = [
+        token for token in OCR_CONTRACT_TOKENS if token not in ocr_contract_seen
+    ]
     ui_stability_seen = {hit["token"] for hit in ui_stability}
     ui_stability_missing = [
         token for token in UI_STABILITY_TOKENS if token not in ui_stability_seen
@@ -201,6 +218,8 @@ def main() -> int:
         "pasteAutoStepMissing": paste_auto_step_missing,
         "runnerSemanticEvidence": runner_semantics,
         "runnerSemanticMissing": runner_semantics_missing,
+        "ocrContractEvidence": ocr_contract,
+        "ocrContractMissing": ocr_contract_missing,
         "uiStabilityEvidence": ui_stability,
         "uiStabilityMissing": ui_stability_missing,
         "passed": (
@@ -213,6 +232,7 @@ def main() -> int:
             and not step_validation_missing
             and not paste_auto_step_missing
             and not runner_semantics_missing
+            and not ocr_contract_missing
             and not ui_stability_missing
         ),
         "note": (
@@ -245,6 +265,8 @@ def main() -> int:
         print(f"pasteAutoStepMissing={len(paste_auto_step_missing)}")
         print(f"runnerSemanticEvidence={len(runner_semantics)}")
         print(f"runnerSemanticMissing={len(runner_semantics_missing)}")
+        print(f"ocrContractEvidence={len(ocr_contract)}")
+        print(f"ocrContractMissing={len(ocr_contract_missing)}")
         print(f"uiStabilityEvidence={len(ui_stability)}")
         print(f"uiStabilityMissing={len(ui_stability_missing)}")
         if forbidden:
@@ -274,6 +296,9 @@ def main() -> int:
         if runner_semantics_missing:
             for token in runner_semantics_missing:
                 print(f"MISSING_RUNNER_SEMANTIC {token}")
+        if ocr_contract_missing:
+            for token in ocr_contract_missing:
+                print(f"MISSING_OCR_CONTRACT {token}")
         if ui_stability_missing:
             for token in ui_stability_missing:
                 print(f"MISSING_UI_STABILITY {token}")
