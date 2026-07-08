@@ -7,6 +7,7 @@ const WORKSPACE_SCHEMA_VERSION = 4;
 const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page", "click", "ocr_assert"]);
+const capturedImageStepTypes = new Set(["image_click", "wait_image", "detect_page"]);
 const targetKindOptions = ["image", "roi", "page", "ocr", "click_target", "state", "unknown"];
 
 const stepTypes = [
@@ -154,6 +155,7 @@ const state = {
   selectedTargetId: "",
   targetSearch: "",
   targetKindFilter: "all",
+  stepValidation: {},
   saveTimer: null,
   sessions: {},
   sessionSerial: 0,
@@ -615,6 +617,7 @@ async function saveWorkspaceNow() {
 function markDirty(reason = "draft") {
   const workflow = activeWorkflow();
   if (workflow) workflow.updatedAt = new Date().toISOString();
+  if (reason !== "run logged") state.stepValidation = {};
   $("#task-model-state").textContent = reason;
   $("#task-model-state").classList.remove("ok");
   $("#workspace-state").textContent = "dirty";
@@ -850,16 +853,28 @@ function renderSteps() {
   if (!state.selectedStepId || !workflow.steps.some((item) => item.id === state.selectedStepId)) {
     state.selectedStepId = workflow.steps[0]?.id || null;
   }
+  const validation = validateWorkflow(workflow);
+  state.stepValidation = buildStepValidationIndex(workflow, validation);
   workflow.steps.forEach((item, index) => {
     const row = document.createElement("button");
+    const stepMessages = state.stepValidation[item.id] || { issues: [], warnings: [] };
+    const badgeClass = stepMessages.issues.length ? "issue" : stepMessages.warnings.length ? "warning" : "";
+    const badgeText = stepMessages.issues.length
+      ? `问题 ${stepMessages.issues.length}`
+      : stepMessages.warnings.length
+        ? `提醒 ${stepMessages.warnings.length}`
+        : "";
     row.type = "button";
     row.className = "step-row";
     row.classList.toggle("active", item.id === state.selectedStepId);
     row.classList.toggle("disabled", item.enabled === false);
+    row.classList.toggle("has-issue", stepMessages.issues.length > 0);
+    row.classList.toggle("has-warning", !stepMessages.issues.length && stepMessages.warnings.length > 0);
     row.innerHTML = `
       <span>${String(index + 1).padStart(2, "0")}</span>
       <strong>${escapeHtml(item.name || stepLabels[item.type] || item.type)}</strong>
       <small>${item.enabled === false ? "停用 · " : ""}${escapeHtml(stepLabels[item.type] || item.type)} · ${escapeHtml(item.target || "target: none")}</small>
+      ${badgeText ? `<em class="step-badge ${badgeClass}" title="${escapeHtml([...stepMessages.issues, ...stepMessages.warnings].join(" / "))}">${badgeText}</em>` : ""}
     `;
     row.addEventListener("click", () => {
       state.selectedStepId = item.id;
@@ -889,17 +904,66 @@ function createStep(type) {
   });
 }
 
-function addStep() {
+function selectedStepIndex(workflow = activeWorkflow()) {
+  return workflow?.steps.findIndex((item) => item.id === state.selectedStepId) ?? -1;
+}
+
+function insertStepAt(item, index) {
   const workflow = activeWorkflow();
-  if (!workflow) return;
-  const item = createStep($("#new-step-type").value);
-  workflow.steps.push(item);
+  if (!workflow) return null;
+  const safeIndex = Math.max(0, Math.min(index, workflow.steps.length));
+  workflow.steps.splice(safeIndex, 0, item);
   state.selectedStepId = item.id;
   markDirty("draft");
   renderSteps();
   renderStepEditor();
   renderTargets();
+  return item;
+}
+
+function addStep() {
+  const workflow = activeWorkflow();
+  if (!workflow) return;
+  const item = createStep($("#new-step-type").value);
+  insertStepAt(item, workflow.steps.length);
   appendLog("info", `添加步骤：${item.name}`);
+}
+
+function insertStepBelowSelected() {
+  const workflow = activeWorkflow();
+  if (!workflow) return;
+  const item = createStep($("#new-step-type").value);
+  const index = selectedStepIndex(workflow);
+  insertStepAt(item, index >= 0 ? index + 1 : workflow.steps.length);
+  appendLog("info", `插入步骤：${item.name}`);
+}
+
+function cloneStepForInsert(source) {
+  if (!source) return null;
+  const item = normalizeStep({
+    ...JSON.parse(JSON.stringify(source)),
+    id: randomId("step"),
+    name: `${source.name || stepLabels[source.type] || "步骤"} 副本`,
+  });
+  item.target = String(source.target ?? "");
+  item.command = String(source.command ?? "");
+  item.expect = String(source.expect ?? "");
+  item.targetId = source.targetId ? String(source.targetId) : "";
+  item.notes = String(source.notes ?? "");
+  item.enabled = source.enabled !== false;
+  return item;
+}
+
+function duplicateSelectedStep() {
+  const workflow = activeWorkflow();
+  const index = selectedStepIndex(workflow);
+  if (!workflow || index < 0) {
+    setStatus("需要先选择步骤");
+    return;
+  }
+  const item = cloneStepForInsert(workflow.steps[index]);
+  insertStepAt(item, index + 1);
+  appendLog("info", `复制步骤：${item.name}`);
 }
 
 function moveSelectedStep(direction) {
@@ -2009,6 +2073,39 @@ function roiText(roi) {
   return `${roi.x},${roi.y},${roi.w},${roi.h}`;
 }
 
+function roiCenterPoint(roi) {
+  if (!roi) return null;
+  return {
+    x: Math.round(Number(roi.x || 0) + Number(roi.w || 0) / 2),
+    y: Math.round(Number(roi.y || 0) + Number(roi.h || 0) / 2),
+  };
+}
+
+function ensureCapturedTargetStep(targetItem) {
+  const current = selectedStep();
+  const hasTemplateImage = Boolean(targetItem?.dataUrl);
+  if (hasTemplateImage && current && capturedImageStepTypes.has(current.type)) {
+    return { step: current, created: false };
+  }
+  if (!hasTemplateImage && current?.type === "click") {
+    return { step: current, created: false };
+  }
+  const workflow = activeWorkflow();
+  if (!workflow) return { step: null, created: false };
+  const item = createStep(hasTemplateImage ? "image_click" : "click");
+  if (!hasTemplateImage) {
+    const point = roiCenterPoint(targetItem?.roi);
+    if (point) item.target = `x=${point.x},y=${point.y}`;
+    item.command = commandWithValues(item.command, {
+      button: targetItem?.click?.button || "left",
+      mode: "hwnd-message",
+    });
+  }
+  const index = selectedStepIndex(workflow);
+  const inserted = insertStepAt(item, index >= 0 ? index + 1 : workflow.steps.length);
+  return { step: inserted, created: true };
+}
+
 async function targetFromRoi() {
   const roi = state.roiSelection;
   if (!roi || !state.preview) {
@@ -2038,13 +2135,19 @@ async function targetFromRoi() {
     height: state.preview.height,
     note: "由预览框选生成",
   });
-  const savedTarget = saveTargetForSelectedStep(targetItem);
+  const destination = ensureCapturedTargetStep(targetItem);
+  if (!destination.step) {
+    setStatus("需要先创建任务步骤");
+    return;
+  }
+  const savedTarget = saveTargetForStep(targetItem, destination.step, { allowReplace: !destination.created });
   state.selectedTargetId = savedTarget.id;
-  bindTargetToSelectedStep(savedTarget, { preserveClick: true });
+  bindTargetToStep(destination.step, savedTarget, { preserveClick: !targetItem.dataUrl });
   markDirty("target");
   renderTargets();
+  renderSteps();
   renderStepEditor();
-  setStatus(`已保存 ROI 目标：${savedTarget.name}`);
+  setStatus(`${destination.created ? "已自动新增步骤并保存" : "已保存"} ROI 目标：${savedTarget.name}`);
 }
 
 async function cropPreviewRoiDataUrl(roi) {
@@ -2081,14 +2184,19 @@ async function handlePasteImage(event) {
     height: size.height,
     note: "由 Ctrl+V 粘贴创建",
   });
-  const savedTarget = saveTargetForSelectedStep(targetItem);
+  const destination = ensureCapturedTargetStep(targetItem);
+  if (!destination.step) {
+    setStatus("需要先创建任务步骤");
+    return;
+  }
+  const savedTarget = saveTargetForStep(targetItem, destination.step, { allowReplace: !destination.created });
   state.selectedTargetId = savedTarget.id;
-  bindTargetToSelectedStep(savedTarget);
+  bindTargetToStep(destination.step, savedTarget);
   markDirty("target");
   renderTargets();
   renderSteps();
   renderStepEditor();
-  appendLog("info", `已粘贴图片目标：${savedTarget.name}`);
+  appendLog("info", `${destination.created ? "已自动新增图像点击步骤并" : "已"}粘贴图片目标：${savedTarget.name}`);
 }
 
 function isEditablePasteTarget(target) {
@@ -2129,9 +2237,9 @@ function bindTargetToStep(item, targetItem, options = {}) {
   item.command = commandWithValues(item.command, commandDefaults);
 }
 
-function saveTargetForSelectedStep(incomingTarget) {
-  const item = selectedStep();
-  const existing = item ? targetForStep(item) : null;
+function saveTargetForStep(incomingTarget, item, options = {}) {
+  const allowReplace = options.allowReplace !== false;
+  const existing = allowReplace && item ? targetForStep(item) : null;
   const existingUsages = existing ? targetUsages(existing.id) : [];
   if (!existing || existingUsages.length > 1) {
     state.workspace.targets.unshift(incomingTarget);
@@ -2217,44 +2325,77 @@ function renderTargets(options = {}) {
 }
 
 function validateWorkflow(workflow = activeWorkflow(), mode = "definition") {
-  const issues = [];
-  const warnings = [];
-  if (!workflow) issues.push("没有当前任务");
-  if (workflow && !workflow.name.trim()) issues.push("任务名称为空");
-  if (workflow && workflow.steps.length === 0) issues.push("步骤为空");
+  const result = {
+    issues: [],
+    warnings: [],
+    stepIssues: {},
+    stepWarnings: {},
+    firstIssueStepId: "",
+  };
+  const addStepMessage = (bucket, item, message) => {
+    if (!item?.id) return;
+    const group = bucket === "issues" ? result.stepIssues : result.stepWarnings;
+    (group[item.id] ||= []).push(message);
+    if (bucket === "issues" && !result.firstIssueStepId) result.firstIssueStepId = item.id;
+  };
+  const addIssue = (message, item = null) => {
+    result.issues.push(message);
+    addStepMessage("issues", item, message);
+  };
+  const addWarning = (message, item = null) => {
+    result.warnings.push(message);
+    addStepMessage("warnings", item, message);
+  };
+  if (!workflow) addIssue("没有当前任务");
+  if (workflow && !workflow.name.trim()) addIssue("任务名称为空");
+  if (workflow && workflow.steps.length === 0) addIssue("步骤为空");
   const enabledSteps = workflow?.steps.filter((item) => item.enabled !== false) || [];
   if (workflow && workflow.steps.length > 0 && !enabledSteps.length) {
-    issues.push("没有启用步骤");
+    addIssue("没有启用步骤");
   }
   if (workflow && enabledSteps.length > 0 && enabledSteps.length < 10) {
-    warnings.push("少于 10 步，作为完整样例覆盖不足");
+    addWarning("少于 10 步，作为完整样例覆盖不足");
   }
   for (const [index, item] of workflow?.steps.entries() || []) {
     const prefix = `第 ${index + 1} 步`;
-    if (!stepLabels[item.type]) issues.push(`${prefix} 类型未知`);
+    if (!stepLabels[item.type]) addIssue(`${prefix} 类型未知`, item);
     if (item.enabled === false) continue;
-    if (!item.name.trim()) issues.push(`${prefix} 名称为空`);
+    if (!item.name.trim()) addIssue(`${prefix} 名称为空`, item);
     if (!item.target.trim() && !["delay", "snapshot"].includes(item.type)) {
-      issues.push(`${prefix} 缺少目标`);
+      addIssue(`${prefix} 缺少目标`, item);
     }
-    if (!Number.isFinite(item.timeoutMs) || item.timeoutMs < 0) issues.push(`${prefix} 超时必须是非负数`);
-    if (!Number.isFinite(item.retry) || item.retry < 0) issues.push(`${prefix} 重试必须是非负数`);
-    if (item.type === "hotkey" && !/[+]/.test(item.target)) warnings.push(`${prefix} 快捷键建议使用 ALT+N 这类组合格式`);
-    validateStepRuntimeFields(item, prefix, issues, warnings, mode);
+    if (!Number.isFinite(item.timeoutMs) || item.timeoutMs < 0) addIssue(`${prefix} 超时必须是非负数`, item);
+    if (!Number.isFinite(item.retry) || item.retry < 0) addIssue(`${prefix} 重试必须是非负数`, item);
+    if (item.type === "hotkey" && !/[+]/.test(item.target)) {
+      addWarning(`${prefix} 快捷键建议使用 ALT+N 这类组合格式`, item);
+    }
+    validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode);
   }
-  return { issues, warnings };
+  return result;
 }
 
-function validateStepRuntimeFields(item, prefix, issues, warnings, mode) {
+function buildStepValidationIndex(workflow, validation) {
+  const byId = {};
+  const steps = workflow?.steps || [];
+  for (const item of steps) {
+    byId[item.id] = {
+      issues: [...(validation.stepIssues?.[item.id] || [])],
+      warnings: [...(validation.stepWarnings?.[item.id] || [])],
+    };
+  }
+  return byId;
+}
+
+function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
   const button = commandValue(item.command, "button");
   if (button && !["left", "l", "primary", "right", "r", "secondary"].includes(button.toLowerCase())) {
-    issues.push(`${prefix} 鼠标键只支持 left/right`);
+    addIssue(`${prefix} 鼠标键只支持 left/right`, item);
   }
   const threshold = commandValue(item.command, "threshold");
   if (threshold) {
     const value = Number(threshold);
     if (!Number.isFinite(value) || value < 0 || value > 1) {
-      issues.push(`${prefix} 匹配阈值必须在 0 到 1 之间`);
+      addIssue(`${prefix} 匹配阈值必须在 0 到 1 之间`, item);
     }
   }
   const point = parsePointText(item.target) || parsePointText(item.command);
@@ -2263,29 +2404,29 @@ function validateStepRuntimeFields(item, prefix, issues, warnings, mode) {
   const hasRoi = Boolean(targetItem?.roi);
   const hasImage = Boolean(targetItem?.dataUrl);
   if (targetId && !targetItem) {
-    issues.push(`${prefix} 绑定的识别目标已不存在`);
+    addIssue(`${prefix} 绑定的识别目标已不存在`, item);
   }
   if (item.type === "click" && !point && !hasRoi) {
     const message = `${prefix} 后台点击需要 x/y 坐标或绑定 ROI 目标`;
-    mode === "background" ? issues.push(message) : warnings.push(message);
+    mode === "background" ? addIssue(message, item) : addWarning(message, item);
   }
   if (["image_click", "wait_image", "detect_page"].includes(item.type) && !hasImage) {
     const message = `${prefix} 图像步骤需要 Ctrl+V 图片或 ROI 裁剪图`;
-    mode === "background" ? issues.push(message) : warnings.push(message);
+    mode === "background" ? addIssue(message, item) : addWarning(message, item);
   }
   if (item.type === "image_click" && !hasImage && (point || hasRoi)) {
-    warnings.push(`${prefix} 没有图片时会退化为直接点击坐标/ROI，请确认这是有意行为`);
+    addWarning(`${prefix} 没有图片时会退化为直接点击坐标/ROI，请确认这是有意行为`, item);
   }
   if (item.type === "ocr_assert" && mode === "background") {
-    issues.push(`${prefix} OCR 后端尚未实现，请先停用或替换为图像/点击步骤`);
+    addIssue(`${prefix} OCR 后端尚未实现，请先停用或替换为图像/点击步骤`, item);
   }
   if (item.type === "delay" && durationMsFromText(item.target) == null && item.timeoutMs <= 0) {
-    issues.push(`${prefix} 延迟步骤需要有效等待时长`);
+    addIssue(`${prefix} 延迟步骤需要有效等待时长`, item);
   }
   if (item.type === "retry_until") {
     const interval = commandValue(item.command, "interval");
     if (interval && durationMsFromText(interval) == null) {
-      issues.push(`${prefix} 重试间隔格式应为 800ms 或 1s`);
+      addIssue(`${prefix} 重试间隔格式应为 800ms 或 1s`, item);
     }
   }
 }
@@ -2294,20 +2435,26 @@ function validateActiveWorkflow() {
   const workflow = activeWorkflow();
   const result = validateWorkflow(workflow);
   if (result.issues.length) {
+    if (result.firstIssueStepId) state.selectedStepId = result.firstIssueStepId;
     $("#task-model-state").textContent = "invalid";
     $("#task-model-state").classList.remove("ok");
     setRunState("blocked");
     $("#run-summary").textContent = result.issues.join(" / ");
     appendLog("warn", `定义校验未通过：${result.issues.join("；")}`);
     setStatus("任务定义需要补全");
+    renderSteps();
+    renderStepEditor();
+    renderTargets();
     return false;
   }
+  state.stepValidation = buildStepValidationIndex(workflow, result);
   $("#task-model-state").textContent = result.warnings.length ? "ready with warnings" : "ready";
   $("#task-model-state").classList.add("ok");
   setRunState("ready");
   const enabledSteps = workflow.steps.filter((item) => item.enabled !== false).length;
   $("#run-summary").textContent = `${workflow.name} · 启用 ${enabledSteps}/${workflow.steps.length} 步 · ${result.warnings.join(" / ") || "可运行"}`;
   appendLog("info", `定义校验通过：启用 ${enabledSteps}/${workflow.steps.length} 步`);
+  renderSteps();
   return true;
 }
 
@@ -2513,7 +2660,7 @@ async function executeBackgroundStepWithRetries(session, item) {
 
 async function executeBackgroundStep(session, item) {
   if (item.type === "delay") {
-    const ms = dryRunDelay(item);
+    const ms = backgroundStepDelay(item);
     await sleep(ms);
     return {
       status: "ok",
@@ -2523,7 +2670,42 @@ async function executeBackgroundStep(session, item) {
       matched: false,
     };
   }
+  if (item.type === "retry_until") {
+    return executeRetryUntilStep(session, item);
+  }
   return executeBackendStep(session, item);
+}
+
+async function executeRetryUntilStep(session, item) {
+  const timeoutMs = Math.max(0, Number(item.timeoutMs) || 0);
+  const intervalMs = backgroundRetryDelay(item);
+  const deadline = Date.now() + timeoutMs;
+  const probe = { ...item, type: "wait_image" };
+  let attempt = 0;
+  let result = null;
+  do {
+    attempt += 1;
+    result = await executeBackendStep(session, probe);
+    if (result.matched || result.status === "matched" || result.status === "sent") {
+      return {
+        ...result,
+        status: "ok",
+        action: "retry_until",
+        detail: `${result.detail} (ready after ${attempt} attempt${attempt === 1 ? "" : "s"})`,
+      };
+    }
+    if (!["below_threshold", "planned"].includes(result.status)) return result;
+    if (Date.now() >= deadline) break;
+    await sleep(Math.min(intervalMs, Math.max(0, deadline - Date.now())));
+  } while (timeoutMs > 0);
+  return {
+    ...(result || {}),
+    status: "below_threshold",
+    action: "retry_until",
+    detail: `retry_until timeout after ${timeoutMs}ms${result?.detail ? `; ${result.detail}` : ""}`,
+    inputSent: false,
+    matched: false,
+  };
 }
 
 function shouldRetryBackgroundStep(item, result) {
@@ -2532,7 +2714,11 @@ function shouldRetryBackgroundStep(item, result) {
 }
 
 function backgroundRetryDelay(item) {
-  return durationMsFromText(commandValue(item.command, "interval")) ?? 300;
+  return Math.max(50, durationMsFromText(commandValue(item.command, "interval")) ?? 300);
+}
+
+function backgroundStepDelay(item) {
+  return Math.max(0, durationMsFromText(item.target) ?? item.timeoutMs ?? 0);
 }
 
 async function executeBackendStep(session, item) {
@@ -2754,6 +2940,8 @@ $("#new-workflow").addEventListener("click", newWorkflow);
 $("#duplicate-workflow").addEventListener("click", duplicateWorkflow);
 $("#delete-workflow").addEventListener("click", deleteWorkflow);
 $("#add-step").addEventListener("click", addStep);
+$("#insert-step-below").addEventListener("click", insertStepBelowSelected);
+$("#duplicate-step").addEventListener("click", duplicateSelectedStep);
 $("#move-step-up").addEventListener("click", () => moveSelectedStep(-1));
 $("#move-step-down").addEventListener("click", () => moveSelectedStep(1));
 $("#delete-step").addEventListener("click", deleteSelectedStep);

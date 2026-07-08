@@ -69,6 +69,34 @@ TARGET_CRUD_TOKENS = [
     "deleteSelectedTarget",
     "unbindCurrentStepTarget",
 ]
+STEP_EDIT_TOKENS = [
+    "insert-step-below",
+    "duplicate-step",
+    "$(\"#insert-step-below\").addEventListener",
+    "$(\"#duplicate-step\").addEventListener",
+    "insertStepBelowSelected",
+    "duplicateSelectedStep",
+    "cloneStepForInsert",
+]
+STEP_VALIDATION_TOKENS = [
+    "stepValidation",
+    "buildStepValidationIndex",
+    "firstIssueStepId",
+    "step-badge",
+    ".step-badge.issue",
+]
+PASTE_AUTO_STEP_TOKENS = [
+    "capturedImageStepTypes",
+    "ensureCapturedTargetStep",
+    "saveTargetForStep",
+    "insertStepAt",
+    "bindTargetToStep(destination.step",
+]
+RUNNER_SEMANTIC_TOKENS = [
+    "backgroundStepDelay",
+    "executeRetryUntilStep",
+    "type: \"wait_image\"",
+]
 
 
 def main() -> int:
@@ -85,6 +113,10 @@ def main() -> int:
     identity = scan_tokens(files, IDENTITY_TOKENS)
     targets = scan_tokens(files, TARGET_TOKENS)
     target_crud = scan_tokens(files, TARGET_CRUD_TOKENS)
+    step_edit = scan_tokens(files, STEP_EDIT_TOKENS)
+    step_validation = scan_tokens(files, STEP_VALIDATION_TOKENS)
+    paste_auto_step = scan_tokens(files, PASTE_AUTO_STEP_TOKENS)
+    runner_semantics = scan_tokens(files, RUNNER_SEMANTIC_TOKENS)
     identity_required = bool(hwnd)
     identity_seen = {hit["token"] for hit in identity}
     identity_missing = [
@@ -93,6 +125,22 @@ def main() -> int:
     target_crud_seen = {hit["token"] for hit in target_crud}
     target_crud_missing = [
         token for token in TARGET_CRUD_TOKENS if token not in target_crud_seen
+    ]
+    step_edit_seen = {hit["token"] for hit in step_edit}
+    step_edit_missing = [
+        token for token in STEP_EDIT_TOKENS if token not in step_edit_seen
+    ]
+    step_validation_seen = {hit["token"] for hit in step_validation}
+    step_validation_missing = [
+        token for token in STEP_VALIDATION_TOKENS if token not in step_validation_seen
+    ]
+    paste_auto_step_seen = {hit["token"] for hit in paste_auto_step}
+    paste_auto_step_missing = [
+        token for token in PASTE_AUTO_STEP_TOKENS if token not in paste_auto_step_seen
+    ]
+    runner_semantics_seen = {hit["token"] for hit in runner_semantics}
+    runner_semantics_missing = [
+        token for token in RUNNER_SEMANTIC_TOKENS if token not in runner_semantics_seen
     ]
     report = {
         "version": 1,
@@ -107,12 +155,30 @@ def main() -> int:
         "targetLibraryEvidence": targets,
         "targetCrudEvidence": target_crud,
         "targetCrudMissing": target_crud_missing,
-        "passed": not forbidden and not focus and not identity_missing and not target_crud_missing,
+        "stepEditEvidence": step_edit,
+        "stepEditMissing": step_edit_missing,
+        "stepValidationEvidence": step_validation,
+        "stepValidationMissing": step_validation_missing,
+        "pasteAutoStepEvidence": paste_auto_step,
+        "pasteAutoStepMissing": paste_auto_step_missing,
+        "runnerSemanticEvidence": runner_semantics,
+        "runnerSemanticMissing": runner_semantics_missing,
+        "passed": (
+            not forbidden
+            and not focus
+            and not identity_missing
+            and not target_crud_missing
+            and not step_edit_missing
+            and not step_validation_missing
+            and not paste_auto_step_missing
+            and not runner_semantics_missing
+        ),
         "note": (
             "Forbidden tokens indicate real cursor/keyboard injection risk. "
             "Focus-affecting APIs indicate foreground-control risk. "
             "hwndInputEvidence may be empty when this build has no runtime input dispatcher. "
-            "When hwnd input exists, expectedWindow identity evidence must also be present."
+            "When hwnd input exists, expectedWindow identity evidence must also be present. "
+            "Step editing, validation badge, paste-to-step, and runner semantic tokens catch visible UI or modeled-step regressions."
         ),
     }
     if args.json:
@@ -127,6 +193,14 @@ def main() -> int:
         print(f"targetLibraryEvidence={len(targets)}")
         print(f"targetCrudEvidence={len(target_crud)}")
         print(f"targetCrudMissing={len(target_crud_missing)}")
+        print(f"stepEditEvidence={len(step_edit)}")
+        print(f"stepEditMissing={len(step_edit_missing)}")
+        print(f"stepValidationEvidence={len(step_validation)}")
+        print(f"stepValidationMissing={len(step_validation_missing)}")
+        print(f"pasteAutoStepEvidence={len(paste_auto_step)}")
+        print(f"pasteAutoStepMissing={len(paste_auto_step_missing)}")
+        print(f"runnerSemanticEvidence={len(runner_semantics)}")
+        print(f"runnerSemanticMissing={len(runner_semantics_missing)}")
         if forbidden:
             for hit in forbidden:
                 print(f"FORBIDDEN {hit['path']}:{hit['line']} {hit['token']}")
@@ -139,6 +213,18 @@ def main() -> int:
         if target_crud_missing:
             for token in target_crud_missing:
                 print(f"MISSING_TARGET_CRUD {token}")
+        if step_edit_missing:
+            for token in step_edit_missing:
+                print(f"MISSING_STEP_EDIT {token}")
+        if step_validation_missing:
+            for token in step_validation_missing:
+                print(f"MISSING_STEP_VALIDATION {token}")
+        if paste_auto_step_missing:
+            for token in paste_auto_step_missing:
+                print(f"MISSING_PASTE_AUTO_STEP {token}")
+        if runner_semantics_missing:
+            for token in runner_semantics_missing:
+                print(f"MISSING_RUNNER_SEMANTIC {token}")
     return 0 if report["passed"] else 2
 
 
