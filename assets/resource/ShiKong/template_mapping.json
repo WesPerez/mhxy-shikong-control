@@ -1,0 +1,2269 @@
+{
+  "version": 1,
+  "templates": {
+    "zonghe/jiahao.png": {
+      "sourcePipeline": "manual/reference-image-1",
+      "sourceNode": "manual crop from 梦幻西游：时空 reference image",
+      "sourceRoi": [
+        780,
+        556,
+        45,
+        46
+      ],
+      "sourceSpace": "imageManual",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/jiahao.png",
+      "width": 45,
+      "height": 46,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/5R_duiyuan.json",
+          "sourceNode": "队员过渡",
+          "sourceRoi": [
+            718,
+            515,
+            41,
+            43
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/jiahao-home-763x573.png",
+          "width": 41,
+          "height": 43,
+          "matchScore": 0.98136,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "zonghe/baoguo.png": {
+      "sourcePipeline": "manual/reference-image-1",
+      "sourceNode": "manual crop from 梦幻西游：时空 reference image",
+      "sourceRoi": [
+        780,
+        500,
+        45,
+        50
+      ],
+      "sourceSpace": "imageManual",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/baoguo.png",
+      "width": 45,
+      "height": 50,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/baotu_renwu.json",
+          "sourceNode": "主界面-宝图任务",
+          "sourceRoi": [
+            718,
+            464,
+            41,
+            46
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/baoguo-home-763x573.png",
+          "width": 41,
+          "height": 46,
+          "matchScore": 0.96976,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "zonghe/huodong1.png": {
+      "sourcePipeline": "manual/reference-image-1",
+      "sourceNode": "manual crop from 梦幻西游：时空 reference image",
+      "sourceRoi": [
+        238,
+        1,
+        51,
+        62
+      ],
+      "sourceSpace": "imageManual",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/huodong1.png",
+      "width": 51,
+      "height": 62,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/sanjieqiyuan.json",
+          "sourceNode": "活动-界面-打开失败-点击活动图片",
+          "sourceRoi": [
+            216,
+            2,
+            47,
+            57
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/huodong1-home-763x573.png",
+          "width": 47,
+          "height": 57,
+          "matchScore": 0.97723,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "zonghe/xiaoditu_yueliang.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        65,
+        21,
+        16,
+        17
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/xiaoditu_yueliang.png",
+      "width": 16,
+      "height": 17,
+      "matchScore": 0.93391,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/chongwuqifu.json",
+          "sourceNode": "小地图-按键打开失败-点击小地图图标",
+          "sourceRoi": [
+            55,
+            20,
+            15,
+            16
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/xiaoditu_yueliang-home-763x573.png",
+          "width": 15,
+          "height": 16,
+          "matchScore": 0.96358,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        },
+        {
+          "name": "world-map-changan-click-state-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/chongwuqifu.json",
+          "sourceNode": "小地图-按键打开失败-点击小地图图标",
+          "sourceRoi": [
+            55,
+            20,
+            15,
+            16
+          ],
+          "sourceSpace": "manifestProbeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397365496425500/world-map-changan-click-state.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/xiaoditu_yueliang-world-map-changan-click-state-763x573.png",
+          "width": 15,
+          "height": 16,
+          "matchScore": 0.99585,
+          "threshold": 0.85,
+          "manifestReport": "assets/resource/ShiKong/reports/latest-manifest-probe.json",
+          "manifest": "assets/resource/ShiKong/captures/combined-latest-verified-panels/capture-manifest.json",
+          "probeReport": "assets/resource/ShiKong/reports/latest-manifest-probe-world-map-changan-click-state.json",
+          "captureName": "world-map-changan-click-state"
+        }
+      ]
+    },
+    "zonghe/xiaoditu_taiyang.png": {
+      "sourcePipeline": "manual/day-night-minimap-equivalent",
+      "sourceNode": "小地图入口昼夜图标等价复用",
+      "sourceRoi": [
+        65,
+        21,
+        16,
+        17
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/xiaoditu_yueliang.png",
+      "width": 16,
+      "height": 17,
+      "matchScore": 0.93391,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/chongwuqifu.json",
+          "sourceNode": "小地图-按键打开失败-点击小地图图标",
+          "sourceRoi": [
+            55,
+            20,
+            15,
+            16
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/xiaoditu_yueliang-home-763x573.png",
+          "width": 15,
+          "height": 16,
+          "matchScore": 0.96358,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json",
+          "note": "ShiKong only exposed the moon-style minimap entrance in captured states; reuse it for Maa sun/moon minimap variants."
+        }
+      ],
+      "note": "ShiKong only exposed the moon-style minimap entrance in captured states; reuse it for Maa sun/moon minimap variants."
+    },
+    "zonghe/huodong2.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        236,
+        16,
+        37,
+        37
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/huodong2.png",
+      "width": 37,
+      "height": 37,
+      "matchScore": 0.80388,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/sanjieqiyuan.json",
+          "sourceNode": "活动-界面-打开失败-点击活动图片",
+          "sourceRoi": [
+            214,
+            16,
+            34,
+            34
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/zonghe/huodong2-home-763x573.png",
+          "width": 34,
+          "height": 34,
+          "matchScore": 0.9739,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "zonghe/baoguo_man.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        782,
+        502,
+        39,
+        40
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/baoguo_man.png",
+      "width": 39,
+      "height": 40,
+      "matchScore": 0.70661,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46
+    },
+    "dati/liaotian.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        18,
+        460,
+        32,
+        32
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/dati/liaotian.png",
+      "width": 32,
+      "height": 32,
+      "matchScore": 0.90946,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/bangpai_wanjiandati.json",
+          "sourceNode": "帮派答题-展开聊天窗口",
+          "sourceRoi": [
+            12,
+            427,
+            29,
+            30
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/dati/liaotian-home-763x573.png",
+          "width": 29,
+          "height": 30,
+          "matchScore": 0.95715,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "shangcheng/shangcheng.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        16,
+        134,
+        34,
+        29
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/shangcheng/shangcheng.png",
+      "width": 34,
+      "height": 29,
+      "matchScore": 0.90615,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/chushoushanghui.json",
+          "sourceNode": "摆摊界面-按键打开失败-点击摆摊图标",
+          "sourceRoi": [
+            10,
+            125,
+            31,
+            27
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/shangcheng/shangcheng-home-763x573.png",
+          "width": 31,
+          "height": 27,
+          "matchScore": 0.95448,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "r5/haoyou1.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        21,
+        406,
+        26,
+        22
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/r5/haoyou1.png",
+      "width": 26,
+      "height": 22,
+      "matchScore": 0.83924,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/5R_duizhang.json",
+          "sourceNode": "好友界面-按键打开失败-点击好友图标",
+          "sourceRoi": [
+            15,
+            377,
+            24,
+            20
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/r5/haoyou1-home-763x573.png",
+          "width": 24,
+          "height": 20,
+          "matchScore": 0.97096,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "r5/haoyou2.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        19,
+        409,
+        30,
+        32
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/r5/haoyou2.png",
+      "width": 30,
+      "height": 32,
+      "matchScore": 0.83452,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46
+    },
+    "r5/haoyou_zhujiemian.png": {
+      "replacementPath": "assets/resource/ShiKong/image/r5/haoyou_zhujiemian.png",
+      "sourceRoi": [
+        211,
+        59,
+        320,
+        34
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783390388348062900/friend-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.86536,
+      "note": "ShiKong friend panel title strip, replacing Maa r5/haoyou_zhujiemian.png."
+    },
+    "r5/zhankai_renyuanxinxi.png": {
+      "replacementPath": "assets/resource/ShiKong/image/r5/zhankai_renyuanxinxi.png",
+      "sourceRoi": [
+        287,
+        372,
+        31,
+        32
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783390388348062900/friend-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.90172,
+      "note": "ShiKong friend list row expand button, replacing Maa r5/zhankai_renyuanxinxi.png."
+    },
+    "jiayuan/dali.png": {
+      "sourcePipeline": "suggest_templates.py/reference-image",
+      "sourceNode": "offline template suggestion",
+      "sourceRoi": [
+        667,
+        569,
+        40,
+        22
+      ],
+      "sourceSpace": "imageSuggested",
+      "coordinateMode": "image",
+      "replacementPath": "assets/resource/ShiKong/image/jiayuan/dali.png",
+      "width": 40,
+      "height": 22,
+      "matchScore": 0.96232,
+      "matchScale": 0.75,
+      "sourceImage": "assets/resource/ShiKong/captures/reference-image-1-client.png",
+      "sourceFrameWidth": 828,
+      "sourceFrameHeight": 620,
+      "sourceClientTop": 46,
+      "variants": [
+        {
+          "name": "home-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/jiayuan_zhengli.json",
+          "sourceNode": "点击打理",
+          "sourceRoi": [
+            613,
+            528,
+            37,
+            20
+          ],
+          "sourceSpace": "probeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/script-home-2.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/jiayuan/dali-home-763x573.png",
+          "width": 37,
+          "height": 20,
+          "matchScore": 0.99042,
+          "probeReport": "assets/resource/ShiKong/crop_plans/template-probe-1783373413418202900.json"
+        }
+      ]
+    },
+    "zonghe/chenghao.png": {
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/chenghao.png",
+      "sourceRoi": [
+        721,
+        522,
+        42,
+        51
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783380245005196500/bottom-plus-expanded.png",
+      "sourceSpace": "client",
+      "note": "ShiKong lower-right plus menu collapse/close button, replacing Maa zonghe/chenghao.png"
+    },
+    "beibao/beibao_jiemian_panduan.png": {
+      "replacementPath": "assets/resource/ShiKong/image/beibao/beibao_jiemian_panduan.png",
+      "sourceRoi": [
+        185,
+        52,
+        397,
+        57
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783381372983924600/bag-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong backpack top title strip, replacing Maa beibao/beibao_jiemian_panduan.png"
+    },
+    "beibao/bailianjingtie.png": {
+      "replacementPath": "assets/resource/ShiKong/image/beibao/bailianjingtie.png",
+      "sourceRoi": [
+        386,
+        253,
+        48,
+        49
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bag-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong backpack item grid blue refined iron/crystal icon, replacing Maa beibao/bailianjingtie.png."
+    },
+    "beibao/beibao_diduan.png": {
+      "replacementPath": "assets/resource/ShiKong/image/beibao/beibao_diduan.png",
+      "sourceRoi": [
+        535,
+        462,
+        147,
+        36
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bag-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong backpack lower-right organize button and bottom frame, replacing Maa beibao/beibao_diduan.png completion-state check."
+    },
+    "beibao/beibao_konggezi.png": {
+      "replacementPath": "assets/resource/ShiKong/image/beibao/beibao_diduan.png",
+      "sourceRoi": [
+        535,
+        462,
+        147,
+        36
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bag-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong backpack completion-state bottom frame reused for Maa beibao/beibao_konggezi.png because original pipelines pair it with beibao/beibao_diduan.png as equivalent alternatives."
+    },
+    "duiwu/duiwu-zudui.png": {
+      "replacementPath": "assets/resource/ShiKong/image/duiwu/duiwu-zudui.png",
+      "sourceRoi": [
+        8,
+        73,
+        116,
+        36
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783391246865347800/team-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.73882,
+      "note": "ShiKong team panel top-left 组队 title, replacing Maa duiwu/duiwu-zudui.png."
+    },
+    "duiwu/duiwu-duiwu.png": {
+      "replacementPath": "assets/resource/ShiKong/image/duiwu/duiwu-duiwu.png",
+      "sourceRoi": [
+        706,
+        132,
+        51,
+        67
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783391246865347800/team-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong team panel right-side 队伍 tab, replacing Maa duiwu/duiwu-duiwu.png."
+    },
+    "duiwu/duiwu-guanbi.png": {
+      "replacementPath": "assets/resource/ShiKong/image/duiwu/duiwu-guanbi.png",
+      "sourceRoi": [
+        702,
+        75,
+        32,
+        31
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783391246865347800/team-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.95722,
+      "note": "ShiKong team panel close button, replacing Maa duiwu/duiwu-guanbi.png."
+    },
+    "zonghe/huodong_jiemian_panduan.png": {
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/huodong_jiemian_panduan.png",
+      "sourceRoi": [
+        172,
+        59,
+        410,
+        48
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity panel title strip, replacing Maa zonghe/huodong_jiemian_panduan.png used by daily activity pipelines."
+    },
+    "richangdati/kejuxiangshi_weikaishi.png": {
+      "replacementPath": "assets/resource/ShiKong/image/richangdati/kejuxiangshi_weikaishi.png",
+      "sourceRoi": [
+        207,
+        114,
+        229,
+        59
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list Keju Xiangshi not-started text/time strip."
+    },
+    "richangdati/kejuxiangshi_weikaishi2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/richangdati/kejuxiangshi_weikaishi2.png",
+      "sourceRoi": [
+        176,
+        111,
+        263,
+        70
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list Keju Xiangshi not-started row with icon."
+    },
+    "baotu/baotu2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/baotu/baotu2.png",
+      "sourceRoi": [
+        176,
+        258,
+        263,
+        70
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list treasure map task row, available with 0/10 count."
+    },
+    "baotu/baotu3.png": {
+      "replacementPath": "assets/resource/ShiKong/image/baotu/baotu3.png",
+      "sourceRoi": [
+        184,
+        264,
+        252,
+        59
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list treasure map task row inner strip, available with 0/10 count."
+    },
+    "yunbiao/yunbiao_cishu0.png": {
+      "replacementPath": "assets/resource/ShiKong/image/yunbiao/yunbiao_cishu0.png",
+      "sourceRoi": [
+        447,
+        258,
+        265,
+        70
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list escort task row, 0/3 count."
+    },
+    "yunbiao/yunbiao_cishu0_2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/yunbiao/yunbiao_cishu0_2.png",
+      "sourceRoi": [
+        481,
+        263,
+        229,
+        59
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong activity-list escort task row inner strip, 0/3 count."
+    },
+    "zonghe/ditu_jiemian_panduan.png": {
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/ditu_jiemian_panduan.png",
+      "sourceRoi": [
+        169,
+        111,
+        50,
+        47
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783385104021129100/map-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong map panel selected map-tab icon, replacing Maa zonghe/ditu_jiemian_panduan.png."
+    },
+    "zonghe/ditu_jiemian_panduan2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/ditu_jiemian_panduan2.png",
+      "sourceRoi": [
+        173,
+        116,
+        42,
+        39
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783385104021129100/map-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong map panel inner map-tab icon, replacing Maa zonghe/ditu_jiemian_panduan2.png."
+    },
+    "qiandao/fuli.png": {
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/fuli.png",
+      "sourceRoi": [
+        254,
+        83,
+        430,
+        43
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783380479552798800/welfare-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong welfare panel title strip, replacing Maa qiandao/fuli.png."
+    },
+    "shangcheng/baitan_zhujiemian.png": {
+      "replacementPath": "assets/resource/ShiKong/image/shangcheng/baitan_zhujiemian.png",
+      "sourceRoi": [
+        264,
+        54,
+        216,
+        45
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388309486115600/mall-stall-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.88181,
+      "note": "ShiKong stall tab title strip, replacing Maa shangcheng/baitan_zhujiemian.png."
+    },
+    "shangcheng/baitan_zhujiemian2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/shangcheng/baitan_zhujiemian2.png",
+      "sourceRoi": [
+        277,
+        54,
+        191,
+        45
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388309486115600/mall-stall-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.87758,
+      "note": "ShiKong stall tab inner title strip, replacing Maa shangcheng/baitan_zhujiemian2.png."
+    },
+    "shangcheng/baitan_zhujiemian3.png": {
+      "replacementPath": "assets/resource/ShiKong/image/shangcheng/baitan_zhujiemian3.png",
+      "sourceRoi": [
+        255,
+        52,
+        310,
+        55
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783387205283376100/mall-commerce-panel.png",
+      "sourceSpace": "client",
+      "note": "ShiKong commerce tab title strip, replacing Maa shangcheng/baitan_zhujiemian3.png."
+    },
+    "jineng/renwujineng.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/renwujineng.png",
+      "sourceRoi": [
+        208,
+        54,
+        324,
+        35
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388309486115600/skill-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.90474,
+      "note": "ShiKong character skill title strip, replacing Maa jineng/renwujineng.png."
+    },
+    "jineng/bangpaijineng.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/bangpaijineng.png",
+      "sourceRoi": [
+        208,
+        54,
+        324,
+        35
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388754871331400/skill-gang-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.90236,
+      "note": "ShiKong gang skill title strip, replacing Maa jineng/bangpaijineng.png."
+    },
+    "jineng/xiulianjineng.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/xiulianjineng.png",
+      "sourceRoi": [
+        208,
+        54,
+        324,
+        35
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783389033793579600/skill-practice-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.89872,
+      "note": "ShiKong cultivation skill title strip, replacing Maa jineng/xiulianjineng.png."
+    },
+    "jineng/fuzhujineng.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/fuzhujineng.png",
+      "sourceRoi": [
+        208,
+        54,
+        324,
+        35
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388754871331400/skill-aux-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.90077,
+      "note": "ShiKong auxiliary skill title strip, replacing Maa jineng/fuzhujineng.png."
+    },
+    "jineng/fuzhu.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/fuzhu.png",
+      "sourceRoi": [
+        703,
+        398,
+        30,
+        68
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388309486115600/skill-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.96435,
+      "note": "ShiKong skill panel auxiliary tab, replacing Maa jineng/fuzhu.png."
+    },
+    "jineng/fuzhu2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/fuzhu2.png",
+      "sourceRoi": [
+        703,
+        398,
+        30,
+        68
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783388309486115600/skill-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.88323,
+      "note": "ShiKong skill panel auxiliary tab, replacing Maa jineng/fuzhu2.png."
+    },
+    "jineng/kaogu_ZJM.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/kaogu_ZJM.png",
+      "sourceRoi": [
+        282,
+        65,
+        203,
+        44
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783392114282259500/skill-aux-kaogu-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.94498,
+      "note": "ShiKong workshop archaeology title strip, replacing Maa jineng/kaogu_ZJM.png."
+    },
+    "jineng/jinengshengchan.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/jinengshengchan.png",
+      "sourceRoi": [
+        704,
+        232,
+        30,
+        84
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783392114282259500/skill-aux-yaoshu-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.88537,
+      "note": "ShiKong workshop skill production tab, replacing Maa jineng/jinengshengchan.png."
+    },
+    "jineng/jinengshengchan2.png": {
+      "replacementPath": "assets/resource/ShiKong/image/jineng/jinengshengchan2.png",
+      "sourceRoi": [
+        704,
+        232,
+        30,
+        84
+      ],
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783392114282259500/skill-aux-kaogu-panel.png",
+      "sourceSpace": "client",
+      "matchScore": 0.88969,
+      "note": "ShiKong workshop skill production tab, replacing Maa jineng/jinengshengchan2.png.",
+      "variants": [
+        {
+          "name": "skill-aux-yaoshu-panel-763x573",
+          "sourcePipeline": "assets/resource/base/pipeline/gongfang_kaogu.json",
+          "sourceNode": "工坊考古-界面-切换技能生产",
+          "sourceRoi": [
+            704,
+            232,
+            30,
+            84
+          ],
+          "sourceSpace": "manifestProbeVariant",
+          "coordinateMode": "image",
+          "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783392114282259500/skill-aux-yaoshu-panel.png",
+          "sourceFrameWidth": 763,
+          "sourceFrameHeight": 573,
+          "replacementPath": "assets/resource/ShiKong/image_variants/jineng/jinengshengchan2-skill-aux-yaoshu-panel-763x573.png",
+          "width": 30,
+          "height": 84,
+          "matchScore": 0.99999,
+          "threshold": 0.9,
+          "manifestReport": "assets/resource/ShiKong/reports/latest-manifest-probe.json",
+          "manifest": "assets/resource/ShiKong/captures/combined-latest-verified-panels/capture-manifest.json",
+          "probeReport": "assets/resource/ShiKong/reports/latest-manifest-probe-skill-aux-yaoshu-panel.json",
+          "captureName": "skill-aux-yaoshu-panel"
+        }
+      ]
+    },
+    "qiandao/bangpai_jiemian_panduan2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "打开帮派界面成功",
+      "sourceRoi": [
+        270,
+        51,
+        210,
+        43
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394401605732500/gang-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/bangpai_jiemian_panduan2.png",
+      "width": 210,
+      "height": 43,
+      "matchScore": 0.96346,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-gang-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/bangpai_qiandao.json"
+      ],
+      "matchedNodes": [
+        "打开帮派界面成功"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qiandao/bangpai_jiemian_panduan2.png."
+    },
+    "qiandao/bangpai_jiemian_panduan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "打开帮派界面成功",
+      "sourceRoi": [
+        267,
+        52,
+        205,
+        46
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394401605732500/gang-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/bangpai_jiemian_panduan.png",
+      "width": 205,
+      "height": 46,
+      "matchScore": 0.94005,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-gang-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/bangpai_qiandao.json"
+      ],
+      "matchedNodes": [
+        "打开帮派界面成功"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qiandao/bangpai_jiemian_panduan.png."
+    },
+    "qiandao/bangpaifuli.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "帮派签到-点击福利",
+      "sourceRoi": [
+        700,
+        323,
+        41,
+        62
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394401605732500/gang-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/bangpaifuli.png",
+      "width": 41,
+      "height": 62,
+      "matchScore": 0.9107,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-gang-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/bangpai_qiandao.json"
+      ],
+      "matchedNodes": [
+        "帮派签到-点击福利"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qiandao/bangpaifuli.png."
+    },
+    "zonghe/zhujiemian_shiyong_cha.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "清理主界面使用-关闭",
+      "sourceRoi": [
+        626,
+        155,
+        26,
+        23
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783385104021129100/map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/zhujiemian_shiyong_cha.png",
+      "width": 26,
+      "height": 23,
+      "matchScore": 0.97184,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/wabaotu.json"
+      ],
+      "matchedNodes": [
+        "清理主界面使用-关闭",
+        "清理主界面使用-关闭完成"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/zhujiemian_shiyong_cha.png."
+    },
+    "zonghe/rwl_suojin2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "展开-首页任务栏",
+      "sourceRoi": [
+        729,
+        80,
+        20,
+        23
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/home.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/rwl_suojin2.png",
+      "width": 20,
+      "height": 23,
+      "matchScore": 0.95367,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "展开-首页任务栏"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/rwl_suojin2.png."
+    },
+    "zonghe/renwu_tanchuang.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "关闭整点活动弹窗",
+      "sourceRoi": [
+        712,
+        85,
+        22,
+        25
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783380479552798800/welfare-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/renwu_tanchuang.png",
+      "width": 22,
+      "height": 25,
+      "matchScore": 0.9022,
+      "matchScale": 0.75,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/my_task.json"
+      ],
+      "matchedNodes": [
+        "关闭整点活动弹窗"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/renwu_tanchuang.png."
+    },
+    "zonghe/rwl_suojin.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "展开-首页任务栏",
+      "sourceRoi": [
+        714,
+        72,
+        45,
+        40
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/home.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/rwl_suojin.png",
+      "width": 45,
+      "height": 40,
+      "matchScore": 0.76226,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "展开-首页任务栏"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/rwl_suojin.png."
+    },
+    "jineng/gongfang_jiahao.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-界面-二阶点击加号",
+      "sourceRoi": [
+        433,
+        250,
+        39,
+        39
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394963568166300/skill-aux-kaogu-production-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/gongfang_jiahao.png",
+      "width": 39,
+      "height": 39,
+      "matchScore": 0.98545,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-production-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-界面-二阶点击加号"
+      ],
+      "note": "ShiKong manual-approved crop for Maa jineng/gongfang_jiahao.png."
+    },
+    "jineng/wujie.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-界面-切换二阶/一阶",
+      "sourceRoi": [
+        52,
+        122,
+        153,
+        213
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394963568166300/skill-aux-kaogu-production-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/wujie.png",
+      "width": 153,
+      "height": 213,
+      "matchScore": 0.74302,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-production-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-界面-切换二阶/一阶"
+      ],
+      "note": "ShiKong manual-approved crop for Maa jineng/wujie.png."
+    },
+    "jineng/kaogu_rukou.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-点击考古入口",
+      "sourceRoi": [
+        338,
+        295,
+        153,
+        177
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783394963568166300/skill-aux-kaogu-production-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/kaogu_rukou.png",
+      "width": 153,
+      "height": 177,
+      "matchScore": 0.59053,
+      "matchScale": 0.85,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-production-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-点击考古入口"
+      ],
+      "note": "ShiKong manual-approved crop for Maa jineng/kaogu_rukou.png."
+    },
+    "qiandao/bangpai2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "帮派界面-按键打开失败-点击帮派图标",
+      "sourceRoi": [
+        467,
+        523,
+        27,
+        25
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bottom-plus-expanded.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/bangpai2.png",
+      "width": 27,
+      "height": 25,
+      "matchScore": 0.98336,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-bottom-plus-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/bangpai_qiandao.json"
+      ],
+      "matchedNodes": [
+        "帮派界面-按键打开失败-点击帮派图标"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qiandao/bangpai2.png."
+    },
+    "qiandao/bangpai.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "帮派界面-按键打开失败-点击帮派图标",
+      "sourceRoi": [
+        461,
+        519,
+        38,
+        31
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bottom-plus-expanded.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/bangpai.png",
+      "width": 38,
+      "height": 31,
+      "matchScore": 0.75402,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-bottom-plus-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/bangpai_qiandao.json"
+      ],
+      "matchedNodes": [
+        "帮派界面-按键打开失败-点击帮派图标"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qiandao/bangpai.png."
+    },
+    "qifu/qifu_tab.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "祈福-打开小地图成功-开始移动",
+      "sourceRoi": [
+        170,
+        111,
+        44,
+        44
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783385104021129100/map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qifu/qifu_tab.png",
+      "width": 44,
+      "height": 44,
+      "matchScore": 0.98405,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qifu-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/chongwuqifu.json"
+      ],
+      "matchedNodes": [
+        "祈福-打开小地图成功-开始移动"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qifu/qifu_tab.png."
+    },
+    "qifu/qifu_tab_cha.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "祈福-关闭祈福庭院小地图",
+      "sourceRoi": [
+        621,
+        151,
+        38,
+        32
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783385104021129100/map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qifu/qifu_tab_cha.png",
+      "width": 38,
+      "height": 32,
+      "matchScore": 0.95593,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qifu-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/chongwuqifu.json"
+      ],
+      "matchedNodes": [
+        "祈福-关闭祈福庭院小地图"
+      ],
+      "note": "ShiKong manual-approved crop for Maa qifu/qifu_tab_cha.png."
+    },
+    "mijing_cailiao/nanshanyu.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "使用秘境材料",
+      "sourceRoi": [
+        512,
+        218,
+        42,
+        29
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bag-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing_cailiao/nanshanyu.png",
+      "width": 42,
+      "height": 29,
+      "matchScore": 0.67522,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-cailiao-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/zhengli_baibao.json"
+      ],
+      "matchedNodes": [
+        "使用秘境材料"
+      ],
+      "note": "ShiKong manual-approved crop for Maa mijing_cailiao/nanshanyu.png."
+    },
+    "zonghe/tab_changancheng.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "传送长安城_69副本",
+      "sourceRoi": [
+        313,
+        321,
+        91,
+        23
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/tab_changancheng.png",
+      "width": 91,
+      "height": 23,
+      "matchScore": 0.51406,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-world-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben69.json",
+        "assets/resource/base/pipeline/xuanxiangceshi.json",
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "传送长安城_69副本",
+        "传送长安城_捉鬼",
+        "跳转地图选择"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/tab_changancheng.png."
+    },
+    "zonghe/tab_changancheng2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "传送长安城_69副本",
+      "sourceRoi": [
+        314,
+        286,
+        25,
+        61
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/tab_changancheng2.png",
+      "width": 25,
+      "height": 61,
+      "matchScore": 0.82363,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-world-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben69.json",
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "传送长安城_69副本",
+        "传送长安城_捉鬼"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/tab_changancheng2.png."
+    },
+    "zonghe/tab_changancheng3.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "传送长安城_69副本",
+      "sourceRoi": [
+        315,
+        285,
+        24,
+        60
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/tab_changancheng3.png",
+      "width": 24,
+      "height": 60,
+      "matchScore": 0.82206,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-world-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben69.json",
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "传送长安城_69副本",
+        "传送长安城_捉鬼"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/tab_changancheng3.png."
+    },
+    "zonghe/tab_liangjieshan1.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "大地图_传送两界山",
+      "sourceRoi": [
+        162,
+        308,
+        60,
+        31
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/tab_liangjieshan1.png",
+      "width": 60,
+      "height": 31,
+      "matchScore": 0.88251,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-world-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/TS_zhuzhan.json"
+      ],
+      "matchedNodes": [
+        "大地图_传送两界山"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/tab_liangjieshan1.png."
+    },
+    "zonghe/tab_liangjieshan2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "大地图_传送两界山",
+      "sourceRoi": [
+        162,
+        307,
+        17,
+        31
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/tab_liangjieshan2.png",
+      "width": 17,
+      "height": 31,
+      "matchScore": 0.82625,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-world-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/TS_zhuzhan.json"
+      ],
+      "matchedNodes": [
+        "大地图_传送两界山"
+      ],
+      "note": "ShiKong manual-approved crop for Maa zonghe/tab_liangjieshan2.png."
+    },
+    "baotu/cac_tab_panduan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "两界山小地图_打开成功",
+      "sourceRoi": [
+        35,
+        73,
+        46,
+        42
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/baotu/cac_tab_panduan.png",
+      "width": 46,
+      "height": 42,
+      "matchScore": 0.61658,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-baotu-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/TS_zhuzhan.json",
+        "assets/resource/base/pipeline/fuben69.json"
+      ],
+      "matchedNodes": [
+        "两界山小地图_打开成功",
+        "长安城地图打开成功"
+      ],
+      "note": "ShiKong manual-approved crop for Maa baotu/cac_tab_panduan.png."
+    },
+    "baotu/cangbaotu.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "点击藏宝图",
+      "sourceRoi": [
+        185,
+        272,
+        46,
+        30
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/baotu/cangbaotu.png",
+      "width": 46,
+      "height": 30,
+      "matchScore": 0.88076,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-baotu-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/wabaotu.json"
+      ],
+      "matchedNodes": [
+        "点击藏宝图"
+      ],
+      "note": "ShiKong manual-approved crop for Maa baotu/cangbaotu.png."
+    },
+    "baotu/baotu1.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "活动-宝图任务-开始",
+      "sourceRoi": [
+        207,
+        267,
+        228,
+        57
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783383603852496400/activity-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/baotu/baotu1.png",
+      "width": 228,
+      "height": 57,
+      "matchScore": 0.60488,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-baotu-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/baotu_renwu.json"
+      ],
+      "matchedNodes": [
+        "活动-宝图任务-开始"
+      ],
+      "note": "ShiKong manual-approved crop for Maa baotu/baotu1.png."
+    },
+    "zonghe/xiaoditu_CA.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "再次点击地图百晓仙子",
+      "sourceRoi": [
+        57,
+        96,
+        644,
+        377
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397365496425500/changan-local-map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/xiaoditu_CA.png",
+      "width": 644,
+      "height": 377,
+      "matchScore": 0.53334,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-changan-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben115.json",
+        "assets/resource/base/pipeline/fuben69.json",
+        "assets/resource/base/pipeline/zhuoguirenwu.json"
+      ],
+      "matchedNodes": [
+        "再次点击地图百晓仙子",
+        "捉鬼-领取任务失败-再次尝试领取-点击钟馗",
+        "日常抓鬼-点击钟馗",
+        "点击钟馗"
+      ],
+      "note": "Real ShiKong 长安城 local-map crop replacing Maa 长安城小地图 template."
+    },
+    "fuben/baixiao3.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "115点击地图-百晓仙子",
+      "sourceRoi": [
+        421,
+        258,
+        14,
+        16
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397365496425500/changan-local-map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/fuben/baixiao3.png",
+      "width": 14,
+      "height": 16,
+      "matchScore": 0.85319,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-fuben-changan-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben115.json",
+        "assets/resource/base/pipeline/fuben69.json"
+      ],
+      "matchedNodes": [
+        "115点击地图-百晓仙子",
+        "115点击地图-百晓仙子-50侠士(第二次进入)",
+        "115点击地图-百晓仙子-50普通-1",
+        "115点击地图-百晓仙子-50普通-2",
+        "115点击地图-百晓仙子-70普通-3",
+        "115返回长安城-点击地图-百晓仙子",
+        "点击地图-百晓仙子",
+        "点击地图-百晓仙子-50普通-1",
+        "点击地图-百晓仙子-50普通-2"
+      ],
+      "note": "Real ShiKong 长安城小地图 NPC name crop replacing Maa 百晓仙子 templates."
+    },
+    "fuben/baixiao2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "115点击地图-百晓仙子",
+      "sourceRoi": [
+        276,
+        273,
+        26,
+        14
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397365496425500/changan-local-map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/fuben/baixiao2.png",
+      "width": 26,
+      "height": 14,
+      "matchScore": 0.78111,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-fuben-changan-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben115.json",
+        "assets/resource/base/pipeline/fuben69.json"
+      ],
+      "matchedNodes": [
+        "115点击地图-百晓仙子",
+        "115点击地图-百晓仙子-50侠士(第二次进入)",
+        "115点击地图-百晓仙子-50普通-1",
+        "115点击地图-百晓仙子-50普通-2",
+        "115点击地图-百晓仙子-70普通-3",
+        "115返回长安城-点击地图-百晓仙子",
+        "点击地图-百晓仙子",
+        "点击地图-百晓仙子-50普通-1",
+        "点击地图-百晓仙子-50普通-2"
+      ],
+      "note": "Real ShiKong 长安城小地图 NPC name crop replacing Maa 百晓仙子 templates."
+    },
+    "fuben/baixiao.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "115点击地图-百晓仙子",
+      "sourceRoi": [
+        243,
+        273,
+        30,
+        16
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397365496425500/changan-local-map-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/fuben/baixiao.png",
+      "width": 30,
+      "height": 16,
+      "matchScore": 0.72549,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-fuben-changan-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuben115.json",
+        "assets/resource/base/pipeline/fuben69.json"
+      ],
+      "matchedNodes": [
+        "115点击地图-百晓仙子",
+        "115点击地图-百晓仙子-50侠士(第二次进入)",
+        "115点击地图-百晓仙子-50普通-1",
+        "115点击地图-百晓仙子-50普通-2",
+        "115点击地图-百晓仙子-70普通-3",
+        "115返回长安城-点击地图-百晓仙子",
+        "点击地图-百晓仙子",
+        "点击地图-百晓仙子-50普通-1",
+        "点击地图-百晓仙子-50普通-2"
+      ],
+      "note": "Real ShiKong 长安城小地图 NPC name crop replacing Maa 百晓仙子 templates."
+    },
+    "jineng/kaogu_goumai.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-工具-购买洛阳铲",
+      "sourceRoi": [
+        198,
+        180,
+        177,
+        64
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397831834878300/skill-aux-kaogu-tool-select-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/kaogu_goumai.png",
+      "width": 177,
+      "height": 64,
+      "matchScore": 0.92645,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-tool-select-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-工具-购买洛阳铲"
+      ],
+      "note": "Real ShiKong archaeology tool-selection purchase/add slot replacing Maa kaogu_goumai template."
+    },
+    "jineng/luoyangchan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-工具-洛阳铲",
+      "sourceRoi": [
+        74,
+        260,
+        49,
+        51
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397995556971500/skill-aux-kaogu-tool-shop-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/luoyangchan.png",
+      "width": 49,
+      "height": 51,
+      "matchScore": 0.46116,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-tool-shop-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-工具-洛阳铲",
+        "工坊考古-洛阳铲-单次挖掘",
+        "工坊考古-洛阳铲挖掘",
+        "考古一轮结束"
+      ],
+      "note": "Real ShiKong archaeology shop item/close crop replacing Maa archaeology tool templates."
+    },
+    "jineng/zahuopu_guanbi.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "古董售卖-返回主界面",
+      "sourceRoi": [
+        706,
+        139,
+        31,
+        28
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397995556971500/skill-aux-kaogu-tool-shop-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/zahuopu_guanbi.png",
+      "width": 31,
+      "height": 28,
+      "matchScore": 0.98685,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-tool-shop-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "古董售卖-返回主界面",
+        "工坊考古-工具-购买洛阳铲-关闭杂货铺界面"
+      ],
+      "note": "Real ShiKong archaeology shop item/close crop replacing Maa archaeology tool templates."
+    },
+    "jineng/luoyangchan2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "工坊考古-工具-洛阳铲",
+      "sourceRoi": [
+        72,
+        261,
+        51,
+        50
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783397995556971500/skill-aux-kaogu-tool-shop-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/jineng/luoyangchan2.png",
+      "width": 51,
+      "height": 50,
+      "matchScore": 0.46282,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-jineng-kaogu-tool-shop-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/gongfang_kaogu.json"
+      ],
+      "matchedNodes": [
+        "工坊考古-工具-洛阳铲"
+      ],
+      "note": "Real ShiKong archaeology shop item/close crop replacing Maa archaeology tool templates."
+    },
+    "qiandao/liaotian_guanbi.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "关闭聊天窗口",
+      "sourceRoi": [
+        396,
+        255,
+        21,
+        49
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783399415823027800/chat-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/liaotian_guanbi.png",
+      "width": 21,
+      "height": 49,
+      "matchScore": 0.98985,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-chat-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/quweijianshang.json"
+      ],
+      "matchedNodes": [
+        "关闭聊天窗口",
+        "趣味鉴赏-进入界面成功"
+      ],
+      "note": "Real ShiKong chat-panel collapse arrow replacing Maa chat-close template."
+    },
+    "qiandao/leiji2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "click_fuli_leiji1",
+      "sourceRoi": [
+        484,
+        474,
+        57,
+        22
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783400791134649800/welfare-scratch-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/leiji2.png",
+      "width": 57,
+      "height": 22,
+      "matchScore": 0.90454,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-welfare-scratch-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuli_qiandao.json"
+      ],
+      "matchedNodes": [
+        "click_fuli_leiji1"
+      ],
+      "note": "Real ShiKong welfare scratch cumulative reward label replacing Maa welfare cumulative templates."
+    },
+    "qiandao/leiji5.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "click_fuli_leiji2",
+      "sourceRoi": [
+        560,
+        475,
+        58,
+        20
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783400791134649800/welfare-scratch-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/leiji5.png",
+      "width": 58,
+      "height": 20,
+      "matchScore": 0.86846,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-qiandao-welfare-scratch-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/fuli_qiandao.json"
+      ],
+      "matchedNodes": [
+        "click_fuli_leiji2"
+      ],
+      "note": "Real ShiKong welfare scratch cumulative reward label replacing Maa welfare cumulative templates."
+    },
+    "qiandao/leiji7.png": {
+      "sourcePipeline": "apply_manual_crop.py/manual-reviewed",
+      "sourceNode": "click_fuli_leiji3",
+      "sourceRoi": [
+        635,
+        475,
+        58,
+        20
+      ],
+      "sourceSpace": "manualCrop",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783400791134649800/welfare-scratch-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/qiandao/leiji7.png",
+      "width": 58,
+      "height": 20,
+      "note": "Real ShiKong welfare scratch cumulative 7-times label."
+    },
+    "mijing/donghaiwan_tab_panduan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "东海湾小地图打开成功",
+      "sourceRoi": [
+        44,
+        77,
+        32,
+        35
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing/donghaiwan_tab_panduan.png",
+      "width": 32,
+      "height": 35,
+      "matchScore": 0.90418,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/mijing_renwu.json"
+      ],
+      "matchedNodes": [
+        "东海湾小地图打开成功"
+      ],
+      "note": "Real ShiKong world-map crop replacing Maa 东海湾 map/location templates."
+    },
+    "mijing/ditu_donghaiwan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "chuansong_donghaiwan",
+      "sourceRoi": [
+        581,
+        302,
+        62,
+        53
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing/ditu_donghaiwan.png",
+      "width": 62,
+      "height": 53,
+      "matchScore": 0.92022,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/mijing_renwu.json"
+      ],
+      "matchedNodes": [
+        "chuansong_donghaiwan"
+      ],
+      "note": "Real ShiKong world-map crop replacing Maa 东海湾 map/location templates."
+    },
+    "mijing/ditu_donghaiwan1.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "chuansong_donghaiwan",
+      "sourceRoi": [
+        584,
+        302,
+        17,
+        45
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing/ditu_donghaiwan1.png",
+      "width": 17,
+      "height": 45,
+      "matchScore": 0.88921,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/mijing_renwu.json"
+      ],
+      "matchedNodes": [
+        "chuansong_donghaiwan"
+      ],
+      "note": "Real ShiKong world-map crop replacing Maa 东海湾 map/location templates."
+    },
+    "mijing/ditu_donghaiwan2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "chuansong_donghaiwan",
+      "sourceRoi": [
+        604,
+        320,
+        36,
+        31
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783396189864896700/world-map-top-left-icon-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing/ditu_donghaiwan2.png",
+      "width": 36,
+      "height": 31,
+      "matchScore": 0.77359,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-map-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/mijing_renwu.json"
+      ],
+      "matchedNodes": [
+        "chuansong_donghaiwan"
+      ],
+      "note": "Real ShiKong world-map crop replacing Maa 东海湾 map/location templates."
+    },
+    "mijing/mijing_moshi.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "秘境降妖-选择模式",
+      "sourceRoi": [
+        121,
+        109,
+        497,
+        62
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783403403202827200/mijing-mode-select-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/mijing/mijing_moshi.png",
+      "width": 497,
+      "height": 62,
+      "matchScore": 0.8948,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-mijing-mode-select-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/mijing_renwu.json"
+      ],
+      "matchedNodes": [
+        "秘境降妖-选择模式"
+      ],
+      "note": "Mapped ShiKong mijing mode selection headers from verified mode-select panel."
+    },
+    "r5/sousuo_qingchu.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "邀请队员-清除搜索信息",
+      "sourceRoi": [
+        702,
+        69,
+        25,
+        23
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783390388348062900/friend-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/r5/sousuo_qingchu.png",
+      "width": 25,
+      "height": 23,
+      "matchScore": 0.95881,
+      "matchScale": 0.75,
+      "triageReport": "assets/resource/ShiKong/reports/latest-r5-friend-team-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/5R_duizhang.json"
+      ],
+      "matchedNodes": [
+        "邀请队员-清除搜索信息"
+      ],
+      "note": "Mapped ShiKong friend search clear button from verified friend panel."
+    },
+    "zonghe/shouye_huodong_zedang2.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "关闭X9联赛弹窗",
+      "sourceRoi": [
+        723,
+        529,
+        27,
+        27
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bottom-plus-expanded.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/shouye_huodong_zedang2.png",
+      "width": 27,
+      "height": 27,
+      "matchScore": 0.87478,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/my_task.json"
+      ],
+      "matchedNodes": [
+        "关闭X9联赛弹窗"
+      ],
+      "note": "Mapped ShiKong compact activity-overlay close icon variant."
+    },
+    "beibao/zhenfajuan.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "合成阵法",
+      "sourceRoi": [
+        417,
+        300,
+        15,
+        20
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bag-panel.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/beibao/zhenfajuan.png",
+      "width": 15,
+      "height": 20,
+      "matchScore": 0.76945,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-beibao-bag-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/zhengli_baibao.json"
+      ],
+      "matchedNodes": [
+        "合成阵法"
+      ],
+      "note": "Mapped ShiKong formation scroll item from verified bag panel; quantity marker is part of current capture."
+    },
+    "zonghe/shouye_huodong_zedang.png": {
+      "sourcePipeline": "template_triage_report.py/manual-approved",
+      "sourceNode": "关闭X9联赛弹窗",
+      "sourceRoi": [
+        720,
+        523,
+        36,
+        35
+      ],
+      "sourceSpace": "triageCandidate",
+      "coordinateMode": "image",
+      "sourceImage": "assets/resource/ShiKong/captures/playbook-main-panels-1783382458160053000/bottom-plus-expanded.png",
+      "sourceFrameWidth": 763,
+      "sourceFrameHeight": 573,
+      "replacementPath": "assets/resource/ShiKong/image/zonghe/shouye_huodong_zedang.png",
+      "width": 36,
+      "height": 35,
+      "matchScore": 0.86989,
+      "matchScale": 0.65,
+      "triageReport": "assets/resource/ShiKong/reports/latest-zonghe-combined-triage.json",
+      "matchedPipelines": [
+        "assets/resource/base/pipeline/my_task.json"
+      ],
+      "matchedNodes": [
+        "关闭X9联赛弹窗"
+      ],
+      "note": "Mapped ShiKong bottom-plus expanded activity-overlay close icon."
+    }
+  }
+}

@@ -1,0 +1,868 @@
+{
+  "version": 1,
+  "defaultRoi": [316, 76, 834, 433],
+  "templates": {
+    "baotu/baotu1.png": {
+      "activity": ["宝图任务"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "baotu/baotu2.png": {
+      "activity": ["宝图任务"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "baotu/baotu3.png": {
+      "activity": ["宝图任务"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "baotu/hd_baotu_wancheng.png": {
+      "activity": ["宝图任务"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "baotu/hd_baotu_wancheng2.png": {
+      "activity": ["宝图任务"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "richangdati/kejuxiangshi.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/kejuxiangshi2.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/kejuxiangshi3.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/kejuxiangshi4.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/kejuxiangshi_weikaishi.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "richangdati/kejuxiangshi_weikaishi2.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "richangdati/kejuxiangshi_yiwancheng.png": {
+      "activity": ["科举乡试"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "richangdati/sanjieqiyuan.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/sanjieqiyuan2.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/sanjieqiyuan3.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/sanjieqiyuan4.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "richangdati/sanjieqiyuan_weikaishi.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "richangdati/sanjieqiyuan_weikaishi2.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "richangdati/sanjieqiyuan_weikaishi3.png": {
+      "activity": ["三界奇缘"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "qiandao/quwenjianshang1.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "qiandao/quwenjianshang2.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "qiandao/quwenjianshang3.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "qiandao/quwenjianshang4.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "qiandao/quwenjianshang_yiwancheng1.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "qiandao/quwenjianshang_yiwancheng2.png": {
+      "activity": ["趣闻鉴赏", "趣味鉴赏"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "qiandao/kongjian_jianshang.png": {
+      "defaultRoi": [120, 95, 468, 592],
+      "colors": [
+        {
+          "lower": [115, 55, 15],
+          "upper": [195, 135, 90],
+          "count": 18
+        },
+        {
+          "lower": [0, 220, 0],
+          "upper": [80, 255, 80],
+          "count": 28
+        }
+      ]
+    },
+    "qiandao/kongjian_jianshang3.png": {
+      "defaultRoi": [120, 95, 468, 592],
+      "colors": [
+        {
+          "lower": [115, 55, 15],
+          "upper": [195, 135, 90],
+          "count": 18
+        },
+        {
+          "lower": [0, 220, 0],
+          "upper": [80, 255, 80],
+          "count": 24
+        }
+      ]
+    },
+    "wanjian/mihunta_kaishi1.png": {
+      "activity": ["迷魂塔"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mihunta_kaishi2.png": {
+      "activity": ["迷魂塔"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mihunta_weikais1.png": {
+      "activity": ["迷魂塔"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mihunta_weikais2.png": {
+      "activity": ["迷魂塔"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_kaishi1.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_kaishi2.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_kaishi3.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_kaishi4.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_weikaishi.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_weikaishi2.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/mp/menpaizhengba_weikaishi3.png": {
+      "activity": ["门派闯关", "门派争霸"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_jieshu1.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["已完成", "完成", "已结束", "结束"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_kaishi1.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_kaishi2.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_kaishi3.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_kaishi4.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["参加", "前往", "开始", "领取"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_weikaishi1.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_weikaishi2.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_weikaishi3.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wanjian/zhl/zhaohuanling_weikaishi4.png": {
+      "activity": ["召唤灵梦境", "召唤灵海底"],
+      "statusAny": ["开启", "未开始", "未开启"],
+      "defaultRoi": [313, 69, 840, 447]
+    },
+    "wujian/bcg/baicaogu.png": {
+      "activity": ["百草谷"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "wujian/bcg/baicaogu_weikaishi.png": {
+      "activity": ["百草谷"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "wujian/bcg/baicaogu_yiwancheng.png": {
+      "activity": ["百草谷"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "wujian/jiuli_weikaishi1.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "wujian/jiuli_yiwancheng1.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "wujian/jiuli_yiwancheng2.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "wujian/jiuliyanwu1.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "wujian/jiuliyanwu2.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "wujian/jiuliyanwu3.png": {
+      "activity": ["九黎演武"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "wujian/mz/bangpaimizhen_weikaishi.png": {
+      "activity": ["帮派迷阵"],
+      "statusAny": ["开启", "未开始", "未开启"]
+    },
+    "wujian/mz/bangpaimizhen_yiwancheng.png": {
+      "activity": ["帮派迷阵"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "wuxing/wuxing_yiwancheng1.png": {
+      "activity": ["五行修业"],
+      "statusAny": ["已完成", "完成"]
+    },
+    "wuxing/wuxingxiuye1.png": {
+      "activity": ["五行修业"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu0.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu0_2.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu1.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu1_2.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu2.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "yunbiao/yunbiao_cishu2_2.png": {
+      "activity": ["运镖"],
+      "statusAny": ["参加", "前往", "开始", "领取"]
+    },
+    "zonghe/zidongxunlu1.png": {
+      "textAny": ["自动寻路", "寻路中"],
+      "defaultRoi": [257, 133, 770, 461]
+    },
+    "zonghe/zidongxunlu2.png": {
+      "textAny": ["自动寻路", "寻路中"],
+      "defaultRoi": [257, 133, 770, 461]
+    },
+    "zonghe/zidongxunlu3.png": {
+      "textAny": ["自动寻路", "寻路中"],
+      "defaultRoi": [257, 133, 770, 461]
+    },
+    "zonghe/zidongxunlu4.png": {
+      "textAny": ["自动寻路", "寻路中"],
+      "defaultRoi": [257, 133, 770, 461]
+    },
+    "richangdati/kjxs_datijiemian.png": {
+      "textAll": ["第", "题"],
+      "textAny": ["科举乡试", "答题", "题"],
+      "defaultRoi": [528, 65, 244, 67]
+    },
+    "richangdati/sjqy_datijiemian.png": {
+      "textAll": ["第", "题"],
+      "textAny": ["三界奇缘", "答题", "题"],
+      "defaultRoi": [130, 211, 60, 213]
+    },
+    "richangdati/sjqy_daan.png": {
+      "textAny": ["开始答题", "我要答题", "答题"],
+      "defaultRoi": [450, 340, 227, 92],
+      "hitRoi": [450, 340, 227, 92]
+    },
+    "richangdati/sjqy_daan1.png": {
+      "textAny": ["开始答题", "我要答题", "答题"],
+      "defaultRoi": [450, 340, 227, 92],
+      "hitRoi": [450, 340, 227, 92]
+    },
+    "shimen/shimenwancheng2.png": {
+      "textAll": ["师门", "完成"],
+      "defaultRoi": [404, 181, 444, 80]
+    },
+    "zhuagui/buzu5ren.png": {
+      "textAny": ["不足五人", "至少五人", "人数不足", "组队人数"],
+      "defaultRoi": [384, 224, 502, 280]
+    },
+    "zhuagui/zhuagui_shuangbei.png": {
+      "textAny": ["双倍", "领取双倍", "抓鬼"],
+      "defaultRoi": [402, 263, 475, 196]
+    },
+    "zhuagui/zhuaguijiesu.png": {
+      "textAny": ["抓鬼", "一轮", "完成"],
+      "defaultRoi": [401, 254, 475, 214]
+    },
+    "zhuagui/zhuaguijiesu2.png": {
+      "textAny": ["抓鬼", "一轮", "完成"],
+      "defaultRoi": [401, 254, 475, 214]
+    },
+    "zhuagui/zhuaguijiesu3.png": {
+      "textAny": ["确定", "完成"],
+      "defaultRoi": [654, 370, 180, 96]
+    },
+    "zonghe/jiuyoudiyu.png": {
+      "textAll": ["九幽"],
+      "textAny": ["地狱", "九幽地狱"],
+      "defaultRoi": [805, 108, 360, 430],
+      "hitRoi": [1085, 128, 64, 71]
+    },
+    "zonghe/jiuyoudiyu2.png": {
+      "textAll": ["九幽"],
+      "textAny": ["地狱", "九幽地狱"],
+      "defaultRoi": [805, 108, 360, 430],
+      "hitRoi": [1085, 128, 64, 71]
+    },
+    "zonghe/shimen_GB.png": {
+      "textAll": ["师门"],
+      "textAny": ["任务", "师门任务"],
+      "defaultRoi": [890, 95, 285, 170],
+      "hitRoi": [1097, 121, 30, 53]
+    },
+    "zonghe/zhandoupingheng_guanbi1.png": {
+      "textAll": ["战斗", "平衡"],
+      "defaultRoi": [865, 0, 415, 180],
+      "hitRoi": [1215, 4, 48, 51]
+    },
+    "zhandou/quxiao.png": {
+      "textAll": ["取消"],
+      "defaultRoi": [1175, 549, 103, 159]
+    },
+    "zhandou/zhandou1.png": {
+      "textAny": ["自动", "取消"],
+      "defaultRoi": [1175, 549, 103, 159]
+    },
+    "zhandou/zhandou2.png": {
+      "textAny": ["自动", "取消"],
+      "defaultRoi": [1175, 549, 103, 159]
+    },
+    "zhandou/zhandou3.png": {
+      "textAny": ["自动", "取消"],
+      "defaultRoi": [1175, 549, 103, 159]
+    },
+    "zhandou/zidong.png": {
+      "textAll": ["自动"],
+      "defaultRoi": [1175, 549, 103, 159]
+    },
+    "beibao/shanghui_chushou.png": {
+      "textAny": ["出售"],
+      "defaultRoi": [190, 279, 52, 47]
+    },
+    "beibao/guoqi.png": {
+      "inventoryName": {
+        "aliases": ["已过期", "过期"],
+        "minScore": 0.68,
+        "slotDelayMs": 320
+      }
+    },
+    "beibao/hongluogeng.png": {
+      "inventoryName": {
+        "aliases": ["红罗羹"],
+        "minScore": 0.68,
+        "slotDelayMs": 320
+      }
+    },
+    "beibao/lvlugeng.png": {
+      "inventoryName": {
+        "aliases": ["绿芦羹", "绿芦"],
+        "minScore": 0.68,
+        "slotDelayMs": 320
+      }
+    },
+    "beibao/xinmobaozhu.png": {
+      "inventoryName": {
+        "aliases": ["心魔宝珠"],
+        "minScore": 0.68,
+        "slotDelayMs": 320
+      }
+    },
+    "beibao/zhenfa.png": {
+      "inventoryName": {
+        "aliases": ["阵法书", "阵法", "天覆阵", "地载阵", "风扬阵", "云垂阵", "龙飞阵", "虎翼阵", "鸟翔阵", "蛇蟠阵", "鹰啸阵", "雷绝阵"],
+        "minScore": 0.78,
+        "slotDelayMs": 320
+      }
+    },
+    "duiwu/duiwu.png": {
+      "textAny": ["队伍"],
+      "defaultRoi": [1161, 104, 119, 65]
+    },
+    "duiwu/duiwu-mubiao.png": {
+      "textAny": ["目标", "调整目标"],
+      "defaultRoi": [730, 35, 150, 100]
+    },
+    "fuben/fubentiaoguo1.png": {
+      "textAll": ["跳过剧情动画"],
+      "defaultRoi": [1029, 240, 251, 110]
+    },
+    "fuben/fubentiaoguo2.png": {
+      "textAll": ["跳过剧情动画"],
+      "defaultRoi": [1029, 240, 251, 110]
+    },
+    "fuben/fubentiaoguo3.png": {
+      "textAll": ["跳过剧情动画"],
+      "defaultRoi": [1029, 240, 251, 110]
+    },
+    "fuben/fubentiaoguo4.png": {
+      "textAll": ["跳过剧情动画"],
+      "defaultRoi": [1029, 240, 251, 110]
+    },
+    "fuben/fubenzhandou.png": {
+      "textAll": ["战"],
+      "defaultRoi": [1240, 225, 39, 48]
+    },
+    "fuben/fubenzhandou2.png": {
+      "textAll": ["战"],
+      "defaultRoi": [1240, 225, 39, 48]
+    },
+    "jiayuan/jiayuan.png": {
+      "textAll": ["家园"],
+      "defaultRoi": [965, 630, 110, 78]
+    },
+    "jiayuan/shiyongjiaju.png": {
+      "textAll": ["使用家具"],
+      "defaultRoi": [260, 420, 390, 100]
+    },
+    "jiayuan/weikaiqi.png": {
+      "textAll": ["未开启"],
+      "defaultRoi": [260, 420, 390, 100]
+    },
+    "jiayuan/xunlu.png": {
+      "textAny": ["寻路", "管家"],
+      "defaultRoi": [680, 185, 90, 90]
+    },
+    "jiayuan/yongrenguanli.png": {
+      "textAll": ["佣人管理"],
+      "defaultRoi": [1010, 450, 115, 185]
+    },
+    "jineng/erjie.png": {
+      "textAny": ["二阶"],
+      "defaultRoi": [113, 79, 289, 374]
+    },
+    "jineng/gudongshoumai.png": {
+      "textAll": ["古董"],
+      "textAny": ["售卖", "出售"],
+      "defaultRoi": [420, 0, 440, 140]
+    },
+    "jineng/shoumai_wancheng.png": {
+      "textAny": ["没有可以售卖", "没有可售卖", "商品哦"],
+      "defaultRoi": [766, 66, 368, 382],
+      "hitRoi": [766, 66, 368, 382]
+    },
+    "jineng/shoumai_wancheng2.png": {
+      "textAny": ["没有可以售卖", "没有可售卖", "商品哦"],
+      "defaultRoi": [766, 66, 368, 382],
+      "hitRoi": [766, 66, 368, 382]
+    },
+    "jineng/gd": {
+      "textAny": ["高仿", "赝品"],
+      "defaultRoi": [616, 139, 493, 514]
+    },
+    "jineng/jineng.png": {
+      "textAny": ["技能"],
+      "defaultRoi": [1038, 620, 94, 89]
+    },
+    "jineng/sanjie.png": {
+      "textAny": ["三阶"],
+      "defaultRoi": [115, 83, 286, 378]
+    },
+    "jineng/sijie.png": {
+      "textAny": ["四阶"],
+      "defaultRoi": [115, 83, 286, 378]
+    },
+    "jineng/yijie.png": {
+      "textAny": ["一阶"],
+      "defaultRoi": [113, 79, 289, 374]
+    },
+    "jineng/yixuan_luoyangchan.png": {
+      "textAny": ["洛阳铲"],
+      "defaultRoi": [650, 190, 160, 95]
+    },
+    "mijing/mijing_riyue_shibai.png": {
+      "textAny": ["失败", "挑战失败", "战斗失败"],
+      "defaultRoi": [304, 130, 654, 375]
+    },
+    "mijing/mijing_shibai.png": {
+      "textAny": ["失败", "挑战失败", "战斗失败"],
+      "defaultRoi": [304, 130, 654, 375]
+    },
+    "mijing/mijing_shibai2.png": {
+      "textAny": ["失败", "挑战失败", "战斗失败"],
+      "defaultRoi": [304, 130, 654, 375]
+    },
+    "mijing/moshi_queding.png": {
+      "textAny": ["确定", "确认"],
+      "defaultRoi": [671, 405, 149, 59]
+    },
+    "mijing_cailiao/bulaogen.png": {
+      "inventoryName": {
+        "aliases": ["不老根"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/chilongjiao.png": {
+      "inventoryName": {
+        "aliases": ["赤龙角", "螭龙角"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/danzhusha.png": {
+      "inventoryName": {
+        "aliases": ["丹朱砂"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/donghuangjiuge.png": {
+      "inventoryName": {
+        "aliases": ["东皇旧歌", "东皇九歌"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/dushengyupo.png": {
+      "inventoryName": {
+        "aliases": ["独圣玉魄", "独生玉魄", "毒圣玉魄"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/jiangmulingzhong.png": {
+      "inventoryName": {
+        "aliases": ["降魔铃钟", "降魔铃"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/jiaorenzhu.png": {
+      "inventoryName": {
+        "aliases": ["鲛人珠"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/jinwuzhi.png": {
+      "inventoryName": {
+        "aliases": ["金乌枝"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/qimingzhiyao.png": {
+      "inventoryName": {
+        "aliases": ["启明之曜", "启明之耀"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/wangchuanshi.png": {
+      "inventoryName": {
+        "aliases": ["忘川石"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/wutongshenmu.png": {
+      "inventoryName": {
+        "aliases": ["梧桐神木"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/xiaochunlan.png": {
+      "inventoryName": {
+        "aliases": ["晓春兰"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/xitianqueling.png": {
+      "inventoryName": {
+        "aliases": ["西天雀翎"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/xuannvlei.png": {
+      "inventoryName": {
+        "aliases": ["玄女泪"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/yinyangcao.png": {
+      "inventoryName": {
+        "aliases": ["阴阳草"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/yueguilu.png": {
+      "inventoryName": {
+        "aliases": ["月桂露"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "mijing_cailiao/zhurongguo.png": {
+      "inventoryName": {
+        "aliases": ["祝融果"],
+        "minScore": 0.62,
+        "slotDelayMs": 320
+      }
+    },
+    "qifu/qifuONE.png": {
+      "textAll": ["选择召唤灵"],
+      "textAny": ["确定", "祈福"],
+      "defaultRoi": [339, 75, 620, 546],
+      "hitRoi": [473, 163, 94, 100]
+    },
+    "qifu/duihao1.png": {
+      "textAll": ["选择召唤灵"],
+      "textAny": ["确定", "祈福"],
+      "defaultRoi": [339, 75, 620, 546]
+    },
+    "qifu/duihao2.png": {
+      "textAll": ["选择召唤灵"],
+      "textAny": ["确定", "祈福"],
+      "defaultRoi": [339, 75, 620, 546]
+    },
+    "qifu/fenghuangjiyi.png": {
+      "textAll": ["凤凰记忆"],
+      "defaultRoi": [86, 223, 85, 161]
+    },
+    "qifu/qifutingyuan.png": {
+      "textAll": ["祈福庭院"],
+      "defaultRoi": [102, 533, 126, 97]
+    },
+    "qifu/qifuwancheng.png": {
+      "textAll": ["祈福"],
+      "textAny": ["完成", "领取", "成功"],
+      "defaultRoi": [672, 147, 132, 398]
+    },
+    "qifu/qifuwancheng2.png": {
+      "textAll": ["祈福"],
+      "textAny": ["完成", "领取", "成功"],
+      "defaultRoi": [672, 147, 132, 398]
+    },
+    "qifu/qifuwancheng3.png": {
+      "textAll": ["祈福"],
+      "textAny": ["完成", "领取", "成功"],
+      "defaultRoi": [672, 147, 132, 398]
+    },
+    "r5/yaoqing1.png": {
+      "textAny": ["邀请", "入队", "队长"],
+      "defaultRoi": [0, 109, 495, 295]
+    },
+    "r5/yaoqing_wancheng.png": {
+      "textAll": ["联系人"],
+      "defaultRoi": [147, 87, 415, 160],
+      "hitRoi": [147, 87, 415, 160]
+    },
+    "r5/duiwu_xuetiao.png": {
+      "textAny": ["退出队伍", "暂离队伍", "离开队伍"],
+      "defaultRoi": [1000, 80, 280, 580],
+      "hitRoi": [1036, 166, 239, 333]
+    },
+    "r5/weizaiduiwu.png": {
+      "textAll": ["请组建或加入队伍"],
+      "defaultRoi": [1051, 293, 212, 129]
+    },
+    "zhanghao/xitong.png": {
+      "textAll": ["系统"],
+      "defaultRoi": [748, 640, 56, 48]
+    },
+    "zhanghao/yonghuxieyi.png": {
+      "textAny": ["用户协议", "协议"],
+      "defaultRoi": [430, 510, 90, 70]
+    },
+    "zhanghao/hong_fwq.png": {
+      "defaultRoi": [476, 402, 40, 35],
+      "hitRoi": [476, 402, 40, 35],
+      "color": {
+        "lower": [180, 30, 0],
+        "upper": [255, 95, 70],
+        "count": 8
+      }
+    },
+    "zhanghao/huang_fwq.png": {
+      "defaultRoi": [476, 402, 40, 35],
+      "hitRoi": [476, 402, 40, 35],
+      "color": {
+        "lower": [215, 75, 0],
+        "upper": [255, 155, 45],
+        "count": 10
+      }
+    },
+    "zhanghao/lv_fwq.png": {
+      "defaultRoi": [476, 402, 40, 35],
+      "hitRoi": [476, 402, 40, 35],
+      "color": {
+        "lower": [0, 105, 0],
+        "upper": [95, 225, 75],
+        "count": 6
+      }
+    },
+    "dati/bangpaidati_gth.png": {
+      "textAll": ["帮派答题"],
+      "defaultRoi": [114, 531, 371, 60],
+      "hitRoi": [200, 565, 85, 81]
+    },
+    "zhuagui/zhongkui.png": {
+      "textAny": ["钟馗", "钟道"],
+      "defaultRoi": [294, 102, 583, 386]
+    },
+    "zhuagui/zhuagui_yilingqurenwu1.png": {
+      "textAll": ["捉鬼任务"],
+      "defaultRoi": [872, 94, 355, 441]
+    },
+    "zhuagui/zhuagui_yilingqurenwu2.png": {
+      "textAll": ["捉鬼任务"],
+      "defaultRoi": [872, 94, 355, 441]
+    },
+    "wanjian/mihunta_zhujiemian.png": {
+      "textAll": ["迷魂塔"],
+      "defaultRoi": [4, 5, 75, 78]
+    },
+    "wanjian/mihunta_wanchengjiemian.png": {
+      "textAll": ["迷魂塔"],
+      "textAny": ["完成", "通关", "离开"],
+      "defaultRoi": [3, 5, 74, 75]
+    },
+    "wujian/buhuodejingyan.png": {
+      "textAny": ["获得经验", "不获得经验", "演武"],
+      "defaultRoi": [411, 280, 449, 111]
+    },
+    "wujian/shengdao10ji.png": {
+      "textAll": ["10级"],
+      "textAny": ["升级", "确定", "演武"],
+      "defaultRoi": [409, 288, 444, 94]
+    },
+    "wujian/shengji.png": {
+      "textAny": ["升级", "等级提升", "升到"],
+      "defaultRoi": [414, 45, 424, 554]
+    },
+    "wujian/shengji2.png": {
+      "textAny": ["升级", "等级提升", "升到"],
+      "defaultRoi": [414, 45, 424, 554]
+    },
+    "wujian/shibai3ci.png": {
+      "textAny": ["失败", "挑战失败", "战斗失败", "演武失败"],
+      "defaultRoi": [304, 130, 654, 375],
+      "hitRoi": [1039, 534, 51, 49]
+    },
+    "wujian/mz/wanc.png": {
+      "textAny": ["完成", "到达终点", "终点"],
+      "defaultRoi": [396, 242, 490, 234]
+    },
+    "wujian/mz/wancheng2.png": {
+      "textAny": ["完成", "到达终点", "终点"],
+      "defaultRoi": [396, 242, 490, 234]
+    },
+    "wujian/mz/mizhenjiemmian.png": {
+      "textAll": ["帮派迷阵"],
+      "defaultRoi": [552, 0, 178, 76]
+    },
+    "wujian/mz/mizhen_chuansongren.png": {
+      "textAll": ["迷阵", "传送人"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/mz/mizhen_chuansongren2.png": {
+      "textAll": ["迷阵", "传送人"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/mz/mizhen_chuansongren3.png": {
+      "textAll": ["迷阵", "传送人"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/mz/mizhen_chuansongren4.png": {
+      "textAll": ["迷阵", "传送人"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/yanwushi1.png": {
+      "textAll": ["九黎演武使"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/yanwushi2.png": {
+      "textAll": ["九黎演武使"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/yanwushi3.png": {
+      "textAll": ["九黎演武使"],
+      "defaultRoi": [0, 0, 1280, 720]
+    },
+    "wujian/yanwushi4.png": {
+      "textAll": ["九黎演武使"],
+      "defaultRoi": [0, 0, 1280, 720]
+    }
+  }
+}

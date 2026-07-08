@@ -1,0 +1,42 @@
+{
+  "name": "mhxy-shikong-control",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "capture:playbook:dry": "python scripts/capture_playbook.py --dry-run",
+    "capture:playbook:steps": "python scripts/capture_playbook.py --list-steps",
+    "capture:playbook:admin": "powershell -ExecutionPolicy Bypass -File scripts/run_capture_playbook_admin.ps1 -ContinueOnError -Probe -Status",
+    "capture:inventory:scan": "python scripts/capture_inventory_items_by_name.py",
+    "capture:inventory:admin": "powershell -ExecutionPolicy Bypass -File scripts/run_inventory_item_capture_admin.ps1",
+    "capture:scene:missing": "python scripts/capture_scene_templates.py",
+    "capture:scene:admin": "powershell -ExecutionPolicy Bypass -File scripts/run_scene_template_capture_admin.ps1 -Preview",
+    "probe:manifest": "python scripts/probe_capture_manifest.py --preview --report-name latest-manifest-probe",
+    "probe:verified": "python scripts/probe_capture_manifest.py --manifest assets/resource/ShiKong/captures/combined-latest-verified-panels/capture-manifest.json --preview --report-name latest-manifest-probe",
+    "apply:manifest-variants:dry": "python scripts/apply_manifest_variants.py --report assets/resource/ShiKong/reports/latest-manifest-probe.json --dry-run",
+    "apply:manifest-variants": "python scripts/apply_manifest_variants.py --report assets/resource/ShiKong/reports/latest-manifest-probe.json --apply",
+    "status:migration": "python scripts/migration_status.py",
+    "status:migration:gate": "python scripts/migration_status.py --fail-on-incomplete",
+    "audit:input-safety": "python scripts/audit_input_safety.py",
+    "audit:runtime-surface": "python scripts/runtime_surface_audit.py",
+    "audit:live-acceptance": "python scripts/live_acceptance.py",
+    "audit:acceptance-plan": "python scripts/acceptance_plan.py",
+    "audit:goal-readiness": "python scripts/goal_readiness.py",
+    "acceptance:options:validate": "python scripts/validate_headless_options.py --option-values assets/resource/ShiKong/headless_options.example.json",
+    "acceptance:release:admin": "powershell -ExecutionPolicy Bypass -File scripts/run_release_acceptance_admin.ps1 -MissingOnly -AllWindows",
+    "acceptance:release:admin:dry": "powershell -ExecutionPolicy Bypass -File scripts/run_release_acceptance_admin.ps1 -DryRun -AllWindows",
+    "triage:templates": "python scripts/template_triage_report.py --top 120 --candidate-min-score 0.62 --report-name latest-unmapped-triage",
+    "tauri:dev": "tauri dev",
+    "tauri:dev:admin": "powershell -ExecutionPolicy Bypass -File scripts/run_tauri_dev_admin.ps1",
+    "tauri:build": "tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.0",
+    "vite": "^7.0.0"
+  }
+}

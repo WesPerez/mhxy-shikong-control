@@ -1,0 +1,1659 @@
+{
+  "version": 1,
+  "name": "main-panels",
+  "title": "梦幻西游：时空",
+  "description": "Normalized 4:3 client-coordinate capture path for visible home-screen panels. Run scripts/capture_playbook.py from an elevated terminal when the game is elevated.",
+  "beforeEach": [
+    {
+      "closePanel": true,
+      "wait": 0.2
+    },
+    {
+      "closePanel": true,
+      "wait": 0.2
+    },
+    {
+      "key": "ESC",
+      "wait": 0.2
+    },
+    {
+      "collapsePlusMenu": true,
+      "wait": 0.15
+    }
+  ],
+  "steps": [
+    {
+      "name": "home",
+      "note": "Baseline home state before opening panels.",
+      "capture": true
+    },
+    {
+      "name": "bottom-plus-expanded",
+      "note": "Home state after opening the lower-right plus menu; used for the shared close/收起 button.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "chat-panel",
+      "note": "Lower-left chat panel opened from the home chat button.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.772
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "task-panel",
+      "note": "Top guide/task entry opened from the visible home guide button.",
+      "actions": [
+        {
+          "click": [
+            0.265,
+            0.055
+          ],
+          "wait": 0.35
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "team-panel",
+      "note": "Team panel opened with the PC Alt+T shortcut.",
+      "actions": [
+        {
+          "scancode": [
+            56,
+            20
+          ],
+          "wait": 0.8
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "bag-panel",
+      "note": "Backpack panel opened from the lower-right bag button.",
+      "actions": [
+        {
+          "click": [
+            0.958,
+            0.846
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "welfare-panel",
+      "note": "Welfare/sign-in entry from the left-side home icon.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.19
+          ],
+          "wait": 0.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "welfare-daily-panel",
+      "note": "Welfare panel switched to the daily welfare/sign-in area.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.19
+          ],
+          "wait": 0.5
+        },
+        {
+          "click": [
+            0.2,
+            0.345
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "welfare-scratch-panel",
+      "note": "Welfare scratch/sign-in panel opened from 打开刮刮乐 without claiming rewards.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.19
+          ],
+          "wait": 0.5
+        },
+        {
+          "click": [
+            0.805,
+            0.82
+          ],
+          "wait": 1.0
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "mall-panel",
+      "note": "Mall entry from the left-side home icon.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.235
+          ],
+          "wait": 0.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "mall-commerce-panel",
+      "note": "Mall panel switched to the commerce tab used by merchant/sell flows.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.235
+          ],
+          "wait": 0.5
+        },
+        {
+          "click": [
+            0.946,
+            0.365
+          ],
+          "wait": 0.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "mall-stall-panel",
+      "note": "Mall panel switched to the stall tab used by摆摊 flows.",
+      "actions": [
+        {
+          "click": [
+            0.035,
+            0.235
+          ],
+          "wait": 0.5
+        },
+        {
+          "click": [
+            0.946,
+            0.475
+          ],
+          "wait": 0.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel",
+      "note": "Top activity entry used by many daily-task pipelines.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel-scroll-down",
+      "note": "Activity panel after scrolling the daily activity list down; used for lower activity entries.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "wheel": -9,
+          "at": [
+            0.56,
+            0.48
+          ],
+          "wait": 0.45
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel-scroll-deep",
+      "note": "Activity panel after a deeper daily-list scroll; candidate source for hidden daily quiz/event entries.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "wheel": -18,
+          "at": [
+            0.56,
+            0.48
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel-scroll-deepest",
+      "note": "Activity panel after the deepest daily-list scroll currently used for migration triage.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "wheel": -27,
+          "at": [
+            0.56,
+            0.48
+          ],
+          "wait": 0.7
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel-drag-scroll-down",
+      "note": "Activity panel after dragging the daily activity list upward once; wheel fallback does not always move this panel.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "drag": [
+            [
+              0.56,
+              0.66
+            ],
+            [
+              0.56,
+              0.24
+            ]
+          ],
+          "steps": 16,
+          "duration": 0.55,
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-panel-drag-scroll-deep",
+      "note": "Activity panel after two upward drags through the daily activity list.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "drag": [
+            [
+              0.56,
+              0.66
+            ],
+            [
+              0.56,
+              0.24
+            ]
+          ],
+          "steps": 16,
+          "duration": 0.55,
+          "wait": 0.45
+        },
+        {
+          "drag": [
+            [
+              0.56,
+              0.66
+            ],
+            [
+              0.56,
+              0.24
+            ]
+          ],
+          "steps": 16,
+          "duration": 0.55,
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-challenge-panel",
+      "note": "Activity panel switched to the challenge activity list.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "click": [
+            0.13,
+            0.315
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-challenge-scroll-down-panel",
+      "note": "Challenge activity list after scrolling down.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "click": [
+            0.13,
+            0.315
+          ],
+          "wait": 0.55
+        },
+        {
+          "wheel": -9,
+          "at": [
+            0.56,
+            0.48
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-leisure-panel",
+      "note": "Activity panel switched to the competitive/leisure activity list.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "click": [
+            0.13,
+            0.405
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "activity-leisure-scroll-down-panel",
+      "note": "Competitive/leisure activity list after scrolling down.",
+      "actions": [
+        {
+          "click": [
+            0.305,
+            0.055
+          ],
+          "wait": 0.6
+        },
+        {
+          "click": [
+            0.13,
+            0.405
+          ],
+          "wait": 0.55
+        },
+        {
+          "wheel": -9,
+          "at": [
+            0.56,
+            0.48
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "community-panel",
+      "note": "Top community/social entry, candidate source for gang/sign-in workflows.",
+      "actions": [
+        {
+          "click": [
+            0.51,
+            0.055
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "community-social-panel",
+      "note": "Community dropdown switched into the 社区 panel.",
+      "actions": [
+        {
+          "click": [
+            0.51,
+            0.055
+          ],
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.545,
+            0.17
+          ],
+          "wait": 0.75
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "gang-panel",
+      "note": "Bottom-right expanded menu gang entry used by gang sign-in workflows.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.628,
+            0.935
+          ],
+          "wait": 0.75
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "map-panel",
+      "note": "Small-map entry opened from the upper-left location widget.",
+      "actions": [
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "world-map-key-panel",
+      "note": "Attempt to open the large world map with the Maa PC shortcut.",
+      "actions": [
+        {
+          "scancode": [
+            57,
+            41
+          ],
+          "wait": 0.9
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "world-map-m-key-panel",
+      "note": "Attempt to open the large world map with the PC M key.",
+      "actions": [
+        {
+          "key": "M",
+          "wait": 0.9
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "world-map-top-left-icon-panel",
+      "note": "Attempt to open the large world map by clicking the upper-left map icon.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "world-map-changan-click-state",
+      "note": "State after opening the large world map and clicking 长安城.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.47,
+            0.565
+          ],
+          "wait": 2.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "changan-local-map-panel",
+      "note": "Local map after selecting 长安城 from the large world map.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.47,
+            0.565
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "world-map-donghaiwan-click-state",
+      "note": "State after opening the large world map and clicking 东海湾.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.805,
+            0.575
+          ],
+          "wait": 2.5
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "donghaiwan-local-map-panel",
+      "note": "Local map after selecting 东海湾 from the large world map.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.805,
+            0.575
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "donghaiwan-yunleyou-state",
+      "note": "State after selecting 云乐游 from the 东海湾 local map; intended to expose the Secret Realm entry without confirming battle.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.805,
+            0.575
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        },
+        {
+          "click": [
+            0.405,
+            0.555
+          ],
+          "wait": 3.2
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "mijing-mode-select-panel",
+      "note": "Secret Realm mode-selection panel opened from 云乐游 without confirming entry.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.805,
+            0.575
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        },
+        {
+          "click": [
+            0.405,
+            0.555
+          ],
+          "wait": 3.2
+        },
+        {
+          "click": [
+            0.82,
+            0.475
+          ],
+          "wait": 1.0
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "changan-autopath-baixiao-state",
+      "note": "Auto-pathing state after selecting 百晓仙子 from the 长安城 local map.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.47,
+            0.565
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        },
+        {
+          "click": [
+            0.383,
+            0.452
+          ],
+          "wait": 1.0
+        },
+        {
+          "closePanel": true,
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "changan-autopath-zhongkui-state",
+      "note": "Auto-pathing state after selecting 钟馗 from the 长安城 local map.",
+      "actions": [
+        {
+          "click": [
+            0.03,
+            0.04
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.47,
+            0.565
+          ],
+          "wait": 2.5
+        },
+        {
+          "click": [
+            0.105,
+            0.07
+          ],
+          "wait": 0.8
+        },
+        {
+          "click": [
+            0.372,
+            0.576
+          ],
+          "wait": 1.0
+        },
+        {
+          "closePanel": true,
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "companion-panel",
+      "note": "Bottom companion/partner entry.",
+      "actions": [
+        {
+          "click": [
+            0.12,
+            0.68
+          ],
+          "wait": 0.45
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "friend-panel",
+      "note": "Lower-left friend entry used by r5/team invitation flows.",
+      "actions": [
+        {
+          "click": [
+            0.055,
+            0.647
+          ],
+          "wait": 0.55
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-panel",
+      "note": "Bottom-right expanded menu skill entry used by skill/material pipelines.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.65
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-gang-panel",
+      "note": "Skill panel switched to the gang skill tab.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.445
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-practice-panel",
+      "note": "Skill panel switched to the cultivation/practice tab.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.595
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-panel",
+      "note": "Skill panel switched to the auxiliary skill tab.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.6
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-yaoshu-panel",
+      "note": "Auxiliary skill panel after opening the medicine craft entry.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.6,
+            0.47
+          ],
+          "wait": 0.75
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-kaogu-panel",
+      "note": "Auxiliary skill panel after opening the archaeology craft entry.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.795,
+            0.47
+          ],
+          "wait": 0.75
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-kaogu-production-panel",
+      "note": "Archaeology workshop switched to the skill production tab.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.795,
+            0.47
+          ],
+          "wait": 0.75
+        },
+        {
+          "click": [
+            0.943,
+            0.505
+          ],
+          "wait": 0.75
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-kaogu-tool-select-panel",
+      "note": "Archaeology skill-production tool selection panel after clicking the central plus.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.795,
+            0.47
+          ],
+          "wait": 0.75
+        },
+        {
+          "click": [
+            0.943,
+            0.505
+          ],
+          "wait": 0.75
+        },
+        {
+          "click": [
+            0.592,
+            0.475
+          ],
+          "wait": 0.9
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "skill-aux-kaogu-tool-shop-panel",
+      "note": "Archaeology tool purchase/shop panel opened from the tool selection add slot; no purchase confirmation is clicked.",
+      "actions": [
+        {
+          "ensurePlusExpanded": true,
+          "wait": 0.35
+        },
+        {
+          "click": [
+            0.83,
+            0.935
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.943,
+            0.755
+          ],
+          "wait": 0.55
+        },
+        {
+          "click": [
+            0.795,
+            0.47
+          ],
+          "wait": 0.75
+        },
+        {
+          "click": [
+            0.943,
+            0.505
+          ],
+          "wait": 0.75
+        },
+        {
+          "click": [
+            0.592,
+            0.475
+          ],
+          "wait": 0.9
+        },
+        {
+          "click": [
+            0.301,
+            0.369
+          ],
+          "wait": 1.0
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "pet-panel",
+      "note": "Bottom pet entry.",
+      "actions": [
+        {
+          "click": [
+            0.845,
+            0.955
+          ],
+          "wait": 0.45
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    },
+    {
+      "name": "home-manage-panel",
+      "note": "Bottom home management / 打理 entry.",
+      "actions": [
+        {
+          "click": [
+            0.92,
+            0.955
+          ],
+          "wait": 0.45
+        }
+      ],
+      "capture": true,
+      "after": [
+        {
+          "closePanel": true,
+          "wait": 0.2
+        },
+        {
+          "key": "ESC",
+          "wait": 0.2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "百草谷-帮派-向下移动": {
+    "pre_delay": 1000,
+    "action": "Click",
+    "target": [600, 525, 80, 70],
+    "post_delay": 6000,
+    "next": [
+      "百草谷-点击神树"
+    ],
+    "note": "ShiKong override: after OCR confirms 帮派地图, click the lower-center movement point by scaled client coordinates instead of matching legacy movement ground templates."
+  },
+  "九黎-帮派-向下移动": {
+    "pre_delay": 1000,
+    "action": "Click",
+    "target": [600, 525, 80, 70],
+    "post_delay": 1000,
+    "next": [
+      "点击九黎演武使-图片"
+    ],
+    "note": "ShiKong override: after OCR confirms 帮派地图, click the lower-center movement point by scaled client coordinates instead of matching legacy movement ground templates."
+  },
+  "百草谷-神树消失": {
+    "enabled": false,
+    "note": "ShiKong override: legacy Maa contains this isolated completion-state template, but no interface task reaches it and original docs mark 百草谷 as paused. Disable the unused image dependency instead of inventing a low-confidence scene crop."
+  },
+  "迷阵到达终点地板": {
+    "enabled": false,
+    "note": "ShiKong override: legacy Maa references endpoint floor templates, but 帮派迷阵 is not exposed in interface.json and the referenced 迷阵走路agent is empty in the original project. Completion remains covered by the existing end-popup OCR/template path when the flow is made reachable."
+  }
+}

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+src-tauri/target/
+*.log
+__pycache__/
+scripts/__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+assets/resource/ShiKong/captures/
+assets/resource/ShiKong/reports/
+assets/resource/ShiKong/crop_plans/
+assets/resource/ShiKong/logs/
+Thumbs.db
+.DS_Store

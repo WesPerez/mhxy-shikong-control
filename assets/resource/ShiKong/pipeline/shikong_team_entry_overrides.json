@@ -1,0 +1,525 @@
+{
+  "fuben69": {
+    "next": [
+      "副本-关闭队伍面板",
+      "副本列表-已打开",
+      "识别位置-长安城-副本-过渡",
+      "[JumpBack]panduan_zhujiemian"
+    ]
+  },
+  "副本-关闭队伍面板": {
+    "recognition": "TemplateMatch",
+    "template": [
+      "duiwu/duiwu-guanbi.png"
+    ],
+    "roi": [
+      1040,
+      80,
+      80,
+      90
+    ],
+    "threshold": 0.82,
+    "pre_delay": 300,
+    "action": "Click",
+    "target": [
+      1050,
+      90,
+      65,
+      70
+    ],
+    "post_delay": 1000,
+    "next": [
+      "副本列表-已打开",
+      "识别位置-长安城-副本-过渡"
+    ]
+  },
+  "队伍-打开界面": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "ClickKey",
+    "post_delay": 1000,
+    "key": [
+      56,
+      20
+    ],
+    "next": [
+      "队伍-进入主界面",
+      "[JumpBack]队伍界面-按键打开失败-点击队伍图标"
+    ]
+  },
+  "队伍界面-按键打开失败-点击队伍图标": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      1020,
+      50,
+      105,
+      95
+    ],
+    "post_delay": 1200,
+    "next": [
+      "队伍-进入主界面"
+    ]
+  },
+  "队伍-进入主界面": {
+    "recognition": "And",
+    "all_of": [
+      {
+        "recognition": "TemplateMatch",
+        "template": [
+          "duiwu/duiwu-zudui.png"
+        ],
+        "roi": [
+          160,
+          45,
+          190,
+          115
+        ],
+        "threshold": 0.9
+      },
+      {
+        "recognition": "TemplateMatch",
+        "template": [
+          "duiwu/duiwu-duiwu.png"
+        ],
+        "roi": [
+          1000,
+          120,
+          120,
+          150
+        ],
+        "threshold": 0.9
+      }
+    ],
+    "next": [
+      "队伍-点击创建队伍",
+      "队伍-已创建队伍"
+    ]
+  },
+  "队伍-点击创建队伍": {
+    "recognition": "OCR",
+    "expected": [
+      "创建队伍"
+    ],
+    "roi": [
+      220,
+      560,
+      150,
+      55
+    ],
+    "target": [
+      220,
+      560,
+      150,
+      55
+    ],
+    "pre_delay": 500,
+    "action": "Click",
+    "post_delay": 1000,
+    "next": [
+      "队伍-目标已设置",
+      "[JumpBack]队伍-设置目标"
+    ]
+  },
+  "队伍-已创建队伍": {
+    "recognition": "OCR",
+    "expected": [
+      "退出队伍"
+    ],
+    "roi": [
+      220,
+      560,
+      150,
+      55
+    ],
+    "next": [
+      "队伍-目标已设置",
+      "[JumpBack]队伍-设置目标"
+    ]
+  },
+  "队伍-目标已设置": {
+    "recognition": "OCR",
+    "expected": [
+      "目标",
+      "抓鬼",
+      "副本"
+    ],
+    "roi": [
+      420,
+      120,
+      310,
+      55
+    ],
+    "next": [
+      "队伍-点击自动匹配"
+    ]
+  },
+  "队伍-设置目标": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      725,
+      118,
+      90,
+      70
+    ],
+    "post_delay": 1200,
+    "next": [
+      "队伍-目标-主界面"
+    ]
+  },
+  "队伍-点击自动匹配": {
+    "recognition": "OCR",
+    "expected": "自动匹配",
+    "roi": [
+      925,
+      120,
+      155,
+      65
+    ],
+    "pre_delay": 500,
+    "action": "Click",
+    "post_delay": 1500,
+    "next": [
+      "队伍-点击一键喊话-当前"
+    ]
+  },
+  "队伍-点击一键喊话-当前": {
+    "recognition": "OCR",
+    "expected": [
+      "键喊话",
+      "一键喊话"
+    ],
+    "roi": [
+      900,
+      555,
+      175,
+      70
+    ],
+    "pre_delay": 500,
+    "action": "Click",
+    "post_delay": 1000,
+    "next": [
+      "队伍-点击-当前频道"
+    ]
+  },
+  "队伍-点击-当前频道": {
+    "recognition": "OCR",
+    "expected": "当前频道",
+    "roi": [
+      890,
+      290,
+      220,
+      330
+    ],
+    "action": "Click",
+    "post_delay": 3000
+  },
+  "主界面": {
+    "recognition": "TemplateMatch",
+    "template": [
+      "zonghe/jiahao.png",
+      "zonghe/chenghao.png",
+      "zonghe/baoguo.png",
+      "zonghe/baoguo_man.png"
+    ],
+    "roi": [
+      1045,
+      555,
+      75,
+      160
+    ]
+  },
+  "panduan_zhujiemian_ks": {
+    "inverse": true,
+    "recognition": "TemplateMatch",
+    "template": [
+      "zonghe/jiahao.png",
+      "zonghe/chenghao.png",
+      "zonghe/baoguo.png",
+      "zonghe/baoguo_man.png"
+    ],
+    "roi": [
+      1045,
+      555,
+      75,
+      160
+    ],
+    "pre_delay": 1000,
+    "action": "Click",
+    "target": [
+      1025,
+      70,
+      70,
+      60
+    ],
+    "post_wait_freezes": 100,
+    "post_delay": 800
+  },
+  "识别位置-长安城-副本-过渡": {
+    "recognition": "TemplateMatch",
+    "template": [
+      "zonghe/jiahao.png",
+      "zonghe/chenghao.png",
+      "zonghe/baoguo.png",
+      "zonghe/baoguo_man.png"
+    ],
+    "roi": [
+      1045,
+      555,
+      75,
+      160
+    ],
+    "post_delay": 3000,
+    "next": [
+      "识别位置-长安城-副本",
+      "[JumpBack]打开大地图_69副本"
+    ]
+  },
+  "打开大地图_69副本": {
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      165,
+      5,
+      50,
+      50
+    ],
+    "post_delay": 1200,
+    "next": [
+      "传送长安城_69副本"
+    ]
+  },
+  "传送长安城_69副本": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      570,
+      380,
+      80,
+      60
+    ],
+    "post_delay": 5000,
+    "next": [
+      "打开小地图_百晓仙子"
+    ]
+  },
+  "识别位置-长安城-副本": {
+    "recognition": "OCR",
+    "expected": [
+      "长安城"
+    ],
+    "roi": [
+      210,
+      10,
+      160,
+      50
+    ],
+    "post_delay": 3000,
+    "next": [
+      "打开小地图_百晓仙子"
+    ]
+  },
+  "打开小地图_百晓仙子": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      220,
+      42,
+      150,
+      42
+    ],
+    "post_delay": 1200,
+    "next": [
+      "点击地图-百晓仙子"
+    ]
+  },
+  "点击地图-百晓仙子": {
+    "recognition": "Or",
+    "any_of": [
+      {
+        "recognition": "OCR",
+        "expected": [
+          "百晓",
+          "仙子",
+          "百晓仙子"
+        ],
+        "roi": [
+          420,
+          315,
+          200,
+          90
+        ]
+      },
+      {
+        "recognition": "TemplateMatch",
+        "template": [
+          "fuben/baixiao.png",
+          "fuben/baixiao2.png",
+          "fuben/baixiao3.png"
+        ],
+        "roi": [
+          420,
+          315,
+          200,
+          90
+        ],
+        "threshold": 0.7
+      }
+    ],
+    "pre_delay": 600,
+    "action": "Click",
+    "target": [
+      435,
+      330,
+      100,
+      50
+    ],
+    "post_delay": 3000,
+    "timeout": 12000,
+    "rate_limit": 1500,
+    "next": [
+      "副本列表-已打开",
+      "百晓仙子-选择副本"
+    ]
+  },
+  "副本列表-已打开": {
+    "recognition": "OCR",
+    "expected": [
+      "普通副本",
+      "侠士副本"
+    ],
+    "roi": [
+      285,
+      130,
+      330,
+      80
+    ],
+    "post_delay": 200,
+    "next": [
+      "选择侠士副本"
+    ]
+  },
+  "百晓仙子-选择副本": {
+    "recognition": "OCR",
+    "expected": [
+      "选择副本"
+    ],
+    "roi": [
+      790,
+      230,
+      360,
+      330
+    ],
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      840,
+      315,
+      240,
+      55
+    ],
+    "post_delay": 800,
+    "next": [
+      "副本列表-已打开",
+      "选择侠士副本"
+    ]
+  },
+  "选择侠士副本": {
+    "recognition": "DirectHit",
+    "pre_delay": 300,
+    "action": "Click",
+    "target": [
+      425,
+      140,
+      165,
+      65
+    ],
+    "post_delay": 800,
+    "next": [
+      "进入50级侠士副本"
+    ]
+  },
+  "进入50级侠士副本": {
+    "recognition": "DirectHit",
+    "pre_delay": 500,
+    "action": "Click",
+    "target": [
+      360,
+      520,
+      175,
+      70
+    ],
+    "post_capture_sequence": {
+      "delays_ms": [
+        0,
+        250,
+        500,
+        1000,
+        1500,
+        2500,
+        3500,
+        5000
+      ]
+    },
+    "post_delay": 1500,
+    "next": [
+      "进入50级侠士副本-成功",
+      "[JumpBack]115进入侠士副本-等待队员同意",
+      "[JumpBack]进入50级侠士副本-失败-再次进入"
+    ]
+  },
+  "进入50级侠士副本-失败-再次进入": {
+    "max_hit": 2,
+    "recognition": "OCR",
+    "expected": [
+      "进入"
+    ],
+    "roi": [
+      360,
+      520,
+      175,
+      70
+    ],
+    "pre_delay": 1000,
+    "action": "Click",
+    "target": [
+      360,
+      520,
+      175,
+      70
+    ],
+    "post_delay": 1500
+  },
+  "进入50级侠士副本-成功": {
+    "focus": {
+      "Node.Recognition.Succeeded": "进入50级侠士副本成功"
+    },
+    "inverse": true,
+    "recognition": "OCR",
+    "expected": [
+      "进入"
+    ],
+    "roi": [
+      360,
+      520,
+      175,
+      70
+    ],
+    "pre_delay": 1500,
+    "next": [
+      "50侠士-副本完成-退出",
+      "[JumpBack]点击副本-跳过剧情动画",
+      "[JumpBack]战斗中-等待10秒",
+      "[JumpBack]点击副本-开始战斗",
+      "[JumpBack]跳过剧情动画-快进键",
+      "[JumpBack]推荐好友信息",
+      "[JumpBack]关闭福利弹窗",
+      "[JumpBack]关闭师门弹窗"
+    ]
+  }
+}
