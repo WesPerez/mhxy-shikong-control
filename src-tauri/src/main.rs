@@ -606,7 +606,8 @@ fn validate_expected_window(
     };
     validate_expected_window_argument(hwnd, expected)?;
     let current = target_window_for_hwnd(hwnd)?;
-    compare_expected_window(&current, expected)
+    compare_expected_window(&current, expected)?;
+    validate_dispatch_privilege(&current)
 }
 
 fn validate_expected_window_argument(
@@ -727,6 +728,16 @@ fn validate_target_window_record(window: &platform::AppWindow) -> Result<(), Str
         return Err(format!(
             "target window rejected: title {:?} does not contain {:?}",
             window.title, TARGET_TITLE_NEEDLE
+        ));
+    }
+    Ok(())
+}
+
+fn validate_dispatch_privilege(window: &platform::AppWindow) -> Result<(), String> {
+    if window.elevated == Some(true) && !current_process_elevated() {
+        return Err(format!(
+            "administrator privileges required: target hwnd {} is elevated but this process is not",
+            window.hwnd
         ));
     }
     Ok(())
@@ -1998,6 +2009,17 @@ mod tests {
         changed as f64 / compared as f64
     }
 
+    fn live_windows_are_accessible(windows: &[platform::AppWindow]) -> bool {
+        if windows.iter().any(|window| window.elevated == Some(true)) && !current_process_elevated()
+        {
+            eprintln!(
+                "skip live background input test: at least one target window is elevated but the test process is not"
+            );
+            return false;
+        }
+        true
+    }
+
     fn image_step(command: &str) -> WorkflowStepInput {
         WorkflowStepInput {
             step_type: "image_click".to_string(),
@@ -2054,6 +2076,9 @@ mod tests {
             "expected at least two live game windows, got {}",
             windows.len()
         );
+        if !live_windows_are_accessible(&windows) {
+            return;
+        }
         for window in windows.iter().take(2) {
             let before = capture_client_rgb(window.hwnd).expect("capture before hotkey");
             let step = WorkflowStepInput {
@@ -2100,6 +2125,9 @@ mod tests {
             "expected at least two live game windows, got {}",
             windows.len()
         );
+        if !live_windows_are_accessible(&windows) {
+            return;
+        }
         let windows: Vec<_> = windows.into_iter().take(2).collect();
         let before_frames: Vec<_> = windows
             .iter()
