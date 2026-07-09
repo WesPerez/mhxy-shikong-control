@@ -623,8 +623,9 @@ function setStatus(message) {
 function setRunState(value) {
   const element = $("#run-state");
   element.textContent = value;
-  element.classList.remove("idle", "ready", "running", "blocked");
+  element.classList.remove("idle", "ready", "running", "paused", "blocked", "failed");
   element.classList.add(value);
+  syncRunActionButtons();
   renderOpsDashboard();
 }
 
@@ -1211,8 +1212,34 @@ function selectedWindows() {
   return state.windows.filter((item) => state.selected.has(String(item.hwnd)));
 }
 
+function isActiveSession(session) {
+  return Boolean(session && ["running", "paused"].includes(session.status));
+}
+
+function activeRunSessions() {
+  return Object.values(state.sessions || {}).filter((session) => isActiveSession(session));
+}
+
+function runningSessions() {
+  return Object.values(state.sessions || {}).filter((session) => session.status === "running");
+}
+
+function pausedSessions() {
+  return Object.values(state.sessions || {}).filter((session) => session.status === "paused" || session.pauseRequested);
+}
+
+function currentRunState() {
+  if (runningSessions().length) return "running";
+  if (pausedSessions().length) return "paused";
+  return "idle";
+}
+
+function syncRunState() {
+  setRunState(currentRunState());
+}
+
 function isQueueLocked(hwnd) {
-  return state.sessions[String(hwnd)]?.status === "running";
+  return isActiveSession(state.sessions[String(hwnd)]);
 }
 
 function selectedEditableWindows() {
@@ -1391,7 +1418,11 @@ function renderOpsDashboard() {
   ).length;
   const queueTotal = totalQueuedWorkflows();
   const sessions = Object.values(state.sessions || {});
-  const runningSessions = sessions.filter((session) => session.status === "running");
+  const currentRunningSessions = sessions.filter((session) => session.status === "running" && !session.pauseRequested);
+  const currentPausedSessions = sessions.filter((session) => session.status === "paused");
+  const currentPauseRequestedSessions = sessions.filter(
+    (session) => session.status === "running" && session.pauseRequested,
+  );
   const active = activeWorkflow();
   const completion = active ? workflowCompletionState(active, validateWorkflow(active, "background")) : null;
   const issueCount = completion?.items.filter((item) => item.severity === "issue").length || 0;
@@ -1402,8 +1433,13 @@ function renderOpsDashboard() {
   setText("#ops-window-detail", `已选 ${selectedCount} · 管理员 ${elevatedCount}`);
   setText("#ops-queue-total", queueTotal);
   setText("#ops-queue-detail", `${assignmentCount} 个窗口已分配`);
-  setText("#ops-running-total", runningSessions.length);
-  setText("#ops-running-detail", runningSessions.length ? runningSessions.map((item) => item.display).join(" / ") : "idle");
+  setText("#ops-running-total", currentRunningSessions.length + currentPausedSessions.length + currentPauseRequestedSessions.length);
+  setText(
+    "#ops-running-detail",
+    currentRunningSessions.length || currentPausedSessions.length || currentPauseRequestedSessions.length
+      ? `运行 ${currentRunningSessions.length} · 暂停 ${currentPausedSessions.length} · 待暂停 ${currentPauseRequestedSessions.length}`
+      : "idle",
+  );
   setText("#ops-active-workflow", active?.name || "未载入");
   setText(
     "#ops-active-gaps",
@@ -5428,8 +5464,7 @@ function validateWorkflowQueue(workflows, mode = "definition") {
 
 async function startRunForWindow(target, runEntries, mode, source) {
   const key = String(target.hwnd);
-  const running = state.sessions[key]?.status === "running";
-  if (running) {
+  if (isActiveSession(state.sessions[key])) {
     appendLog("warn", `${target.display} 已有运行中的会话，同 hwnd 保持互斥`);
     return false;
   }
@@ -5485,6 +5520,12 @@ async function startRunForWindow(target, runEntries, mode, source) {
     workflowJumpCount: 0,
     workflowJumpRequest: null,
     cancelRequested: false,
+    pauseRequested: false,
+    pauseRequestedAt: "",
+    pauseStartedAt: "",
+    pausedDurationMs: 0,
+    pauseCount: 0,
+    activePauseEvent: null,
   };
   state.sessions[key] = session;
   setRunState("running");
@@ -5494,9 +5535,146 @@ async function startRunForWindow(target, runEntries, mode, source) {
   return true;
 }
 
+function pauseRuns() {
+  let count = 0;
+  for (const session of activeRunSessions()) {
+    if (session.cancelRequested || session.pauseRequested) continue;
+    session.pauseRequested = true;
+    session.pauseRequestedAt = new Date().toISOString();
+    session.logs.unshift("暂停请求已提交，当前步骤结束或到达等待点后挂起");
+    count += 1;
+  }
+  appendLog(
+    count ? "warn" : "info",
+    count ? `暂停请求已提交 ${count} 个运行会话；已发出的单个后台步骤会先到达安全点` : "没有可暂停的运行会话",
+  );
+  renderSessions();
+}
+
+function resumeRuns() {
+  let count = 0;
+  for (const session of pausedSessions()) {
+    if (session.cancelRequested) continue;
+    resumeSession(session);
+    count += 1;
+  }
+  appendLog(count ? "info" : "warn", count ? `已请求继续 ${count} 个运行会话` : "没有可继续的运行会话");
+  renderSessions();
+}
+
+function setSessionPaused(session, reason = "pause requested", context = {}) {
+  if (!session || session.cancelRequested || !session.pauseRequested) return;
+  const workflow = context.workflow || null;
+  const item = context.item || null;
+  if (!session.pauseStartedAt) {
+    session.pauseStartedAt = new Date().toISOString();
+    session.pauseCount = (session.pauseCount || 0) + 1;
+  }
+  if (!session.activePauseEvent) {
+    session.activePauseEvent = {
+      workflowId: workflow?.id || "",
+      workflowName: workflow?.name || session.currentWorkflowName || "",
+      stepId: item?.id || "",
+      stepName: item?.name || "",
+      phase: "pause",
+      reason,
+      delayMs: 0,
+      status: "paused",
+      startedAt: session.pauseStartedAt,
+      endedAt: "",
+      durationMs: 0,
+    };
+    session.queueEvents.push(session.activePauseEvent);
+    session.logs.unshift(`运行已暂停 · ${reason}`);
+  } else if (workflow?.id && !session.activePauseEvent.workflowId) {
+    session.activePauseEvent.workflowId = workflow.id;
+    session.activePauseEvent.workflowName = workflow.name || "";
+    session.activePauseEvent.stepId = item?.id || "";
+    session.activePauseEvent.stepName = item?.name || "";
+  }
+  session.status = "paused";
+  syncRunState();
+}
+
+function closePauseEvent(session, endedAt, status = "resumed") {
+  const finishedAt = endedAt || new Date();
+  if (!session?.pauseStartedAt && !session?.activePauseEvent) return 0;
+  const startedAt = Number.isFinite(Date.parse(session.pauseStartedAt))
+    ? new Date(session.pauseStartedAt)
+    : finishedAt;
+  const durationMs = Math.max(0, finishedAt.getTime() - startedAt.getTime());
+  if (session.pauseStartedAt) {
+    session.pausedDurationMs = (session.pausedDurationMs || 0) + durationMs;
+  }
+  if (session.activePauseEvent) {
+    session.activePauseEvent.status = status;
+    session.activePauseEvent.endedAt = finishedAt.toISOString();
+    session.activePauseEvent.durationMs = durationMs;
+  }
+  session.pauseStartedAt = "";
+  session.activePauseEvent = null;
+  return durationMs;
+}
+
+function resumeSession(session) {
+  if (!session) return;
+  const endedAt = new Date();
+  const pauseEvent = session.activePauseEvent;
+  const wasPaused = Boolean(session.status === "paused" || session.pauseStartedAt || session.activePauseEvent);
+  const durationMs = closePauseEvent(session, endedAt, "resumed");
+  if (pauseEvent) {
+    session.queueEvents.push({
+      workflowId: pauseEvent.workflowId || "",
+      workflowName: pauseEvent.workflowName || session.currentWorkflowName || "",
+      stepId: pauseEvent.stepId || "",
+      stepName: pauseEvent.stepName || "",
+      phase: "resume",
+      reason: "manual resume",
+      delayMs: 0,
+      status: "done",
+      startedAt: endedAt.toISOString(),
+      endedAt: endedAt.toISOString(),
+      durationMs: 0,
+    });
+  }
+  session.pauseRequested = false;
+  session.pauseRequestedAt = "";
+  if (!session.cancelRequested && session.status === "paused") {
+    session.status = "running";
+  }
+  session.logs.unshift(wasPaused ? `继续运行 · 暂停 ${durationLabel(durationMs)}` : "暂停请求已撤销");
+  syncRunState();
+}
+
+async function waitIfPaused(session, workflow = null, context = {}) {
+  if (!session || session.cancelRequested) return false;
+  if (!session.pauseRequested && session.status !== "paused") return true;
+  setSessionPaused(session, "pause gate", { ...context, workflow: context.workflow || workflow });
+  renderSessions();
+  while (!session.cancelRequested && session.pauseRequested) {
+    await sleep(200);
+  }
+  if (session.cancelRequested) return false;
+  if (session.status === "paused") resumeSession(session);
+  renderSessions();
+  return true;
+}
+
+function syncRunActionButtons() {
+  const pauseButton = $("#pause-runs");
+  const resumeButton = $("#resume-runs");
+  if (pauseButton) {
+    pauseButton.disabled = !runningSessions().some((session) => !session.cancelRequested && !session.pauseRequested);
+  }
+  if (resumeButton) {
+    resumeButton.disabled = !pausedSessions().some((session) => !session.cancelRequested);
+  }
+}
+
 async function runSession(session, runPlan) {
   const pendingRunPlan = [...runPlan];
   for (let index = 0; index < pendingRunPlan.length; index += 1) {
+    if (!(await waitIfPaused(session))) break;
     const entry = pendingRunPlan[index];
     session.workflowJumpRequest = null;
     const completed = await runWorkflowEntry(session, entry);
@@ -5507,6 +5685,11 @@ async function runSession(session, runPlan) {
       const inserted = insertWorkflowJumpIntoRunPlan(session, pendingRunPlan, index + 1, jumpRequest);
       if (!inserted) break;
     }
+  }
+  if (session.activePauseEvent || session.pauseStartedAt) {
+    closePauseEvent(session, new Date(), session.cancelRequested ? "stopped" : "resumed");
+    session.pauseRequested = false;
+    session.pauseRequestedAt = "";
   }
   if (session.status !== "failed") {
     session.status = session.cancelRequested ? "stopped" : "done";
@@ -5519,8 +5702,7 @@ async function runSession(session, runPlan) {
   state.workspace.runHistory = state.workspace.runHistory.slice(0, 80);
   markDirty("run logged");
   renderSessions();
-  const stillRunning = Object.values(state.sessions).some((item) => item.status === "running");
-  setRunState(stillRunning ? "running" : "idle");
+  syncRunState();
   appendLog(
     session.status === "done" ? "info" : "warn",
     `${modeLabel(session.mode)} ${session.status}：${session.display}`,
@@ -5543,6 +5725,7 @@ async function runWorkflowEntry(session, entry) {
   const queueItem = entry.queueItem;
   if (session.cancelRequested || session.status === "failed") return false;
   session.currentWorkflowName = workflow.name;
+  if (!(await waitIfPaused(session, workflow))) return false;
   if (queueItem.startDelayMs > 0) {
     const completed = await runQueueDelay(session, workflow, "start", queueItem.startDelayMs);
     if (!completed) return false;
@@ -5565,6 +5748,7 @@ async function runWorkflowEntry(session, entry) {
       pc += 1;
       continue;
     }
+    if (!(await waitIfPaused(session, workflow, { item, phase: "before_step" }))) return false;
     const currentPc = pc;
     executedSteps += 1;
     session.currentStep += 1;
@@ -5588,6 +5772,7 @@ async function runWorkflowEntry(session, entry) {
       renderSessions();
       return false;
     }
+    if (!(await waitIfPaused(session, workflow, { item, phase: "before_action" }))) return false;
     if (session.mode === "background") {
       const identityIssue = await verifySessionWindowIdentityForStep(session, workflow, item);
       result = identityIssue
@@ -5616,7 +5801,7 @@ async function runWorkflowEntry(session, entry) {
         matched: false,
       };
       session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
-      await cancellableSleep(session, dryRunDelay(item));
+      await cancellableSleep(session, dryRunDelay(item), { workflow, item, phase: "dry_run" });
     }
     const postDelay =
       session.cancelRequested || stopAfterResult
@@ -5800,10 +5985,11 @@ function recordSessionStepResult(session, workflow, item, result, startedAt, end
 }
 
 async function runQueueDelay(session, workflow, phase, ms) {
+  if (!(await waitIfPaused(session, workflow, { phase }))) return false;
   const label = phase === "start" ? "启动前错峰" : "任务后间隔";
   appendLog("info", `${session.display} / ${workflow.name} ${label} ${durationLabel(ms)}`);
   const startedAt = new Date();
-  const completed = await cancellableSleep(session, ms);
+  const completed = await cancellableSleep(session, ms, { workflow, phase });
   const endedAt = new Date();
   const event = {
     workflowId: workflow.id,
@@ -5824,10 +6010,11 @@ async function runQueueDelay(session, workflow, phase, ms) {
 async function runStepDelay(session, workflow, item, key) {
   const ms = stepTimingDelay(item, key);
   if (ms <= 0) return { completed: true, elapsedMs: 0 };
+  if (!(await waitIfPaused(session, workflow, { item, phase: key }))) return { completed: false, elapsedMs: 0 };
   const label = key === "preDelay" ? "步骤前等待" : "步骤后等待";
   appendLog("info", `${session.display} / ${workflow.name} / ${item.name} ${label} ${durationLabel(ms)}`);
   const startedAt = Date.now();
-  const completed = await cancellableSleep(session, ms);
+  const completed = await cancellableSleep(session, ms, { workflow, item, phase: key });
   const elapsedMs = Math.max(0, Date.now() - startedAt);
   session.logs.unshift(`${workflow.name} / ${item.name} / ${label} ${completed ? "完成" : "已停止"} · ${durationLabel(ms)}`);
   renderSessions();
@@ -5873,6 +6060,8 @@ function runHistoryEntryFromSession(session) {
     totalSteps: session.totalSteps,
     completedSteps: session.currentStep,
     durationMs: session.durationMs || 0,
+    pauseCount: session.pauseCount || 0,
+    pausedDurationMs: session.pausedDurationMs || 0,
     failureReason: session.failureReason || "",
     failedWorkflowName: session.failedWorkflowName || "",
     failedStepName: session.failedStepName || "",
@@ -5881,6 +6070,7 @@ function runHistoryEntryFromSession(session) {
     endedWindowIdentityError: session.endedWindowIdentityError || "",
     queuePlan: session.queuePlan || [],
     queueEvents: session.queueEvents || [],
+    pauseEvents: (session.queueEvents || []).filter((event) => event.phase === "pause" || event.phase === "resume"),
     controlFlowTransitions: (session.controlFlowTransitions || []).slice(-MAX_CONTROL_FLOW_TRANSITIONS),
     stepResults: session.stepResults.slice(-MAX_SESSION_STEP_RESULTS),
     startedAt: session.startedAt,
@@ -5893,6 +6083,15 @@ async function executeBackgroundStepWithRetries(session, item) {
   const attempts = retries + 1;
   let result = null;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    if (!(await waitIfPaused(session, null, { item, phase: "retry_attempt" }))) {
+      return {
+        status: "stopped",
+        action: "retry_wait",
+        detail: "stopped while paused before retry attempt",
+        inputSent: false,
+        matched: false,
+      };
+    }
     result = await executeBackgroundStep(session, item);
     if (attempts > 1) {
       result = {
@@ -5901,7 +6100,7 @@ async function executeBackgroundStepWithRetries(session, item) {
       };
     }
     if (!shouldRetryBackgroundStep(item, result) || attempt === attempts) return result;
-    const completed = await cancellableSleep(session, backgroundRetryDelay(item));
+    const completed = await cancellableSleep(session, backgroundRetryDelay(item), { item, phase: "retry_wait" });
     if (!completed) {
       return {
         ...result,
@@ -5917,7 +6116,7 @@ async function executeBackgroundStepWithRetries(session, item) {
 async function executeBackgroundStep(session, item) {
   if (item.type === "delay") {
     const ms = backgroundStepDelay(item);
-    const completed = await cancellableSleep(session, ms);
+    const completed = await cancellableSleep(session, ms, { item, phase: "delay" });
     return {
       status: completed ? "ok" : "stopped",
       action: "delay",
@@ -5964,12 +6163,23 @@ async function executeRetryUntilStep(session, item) {
   }
   const timeoutMs = Math.max(0, Number(item.timeoutMs) || 0);
   const intervalMs = backgroundRetryDelay(item);
-  const deadline = Date.now() + timeoutMs;
+  const startedAt = Date.now();
+  const pausedAtStart = session.pausedDurationMs || 0;
   const probe = { ...item, type: "wait_image" };
   let attempt = 0;
   let result = null;
   do {
     attempt += 1;
+    if (!(await waitIfPaused(session, null, { item, phase: "retry_until_probe" }))) {
+      return {
+        ...(result || {}),
+        status: "stopped",
+        action: "retry_until",
+        detail: "stopped while paused before retry_until probe",
+        inputSent: false,
+        matched: false,
+      };
+    }
     result = await executeBackendStep(session, probe);
     if (result.matched || result.status === "matched" || result.status === "sent") {
       return {
@@ -5980,8 +6190,12 @@ async function executeRetryUntilStep(session, item) {
       };
     }
     if (!["below_threshold", "planned"].includes(result.status)) return result;
-    if (Date.now() >= deadline) break;
-    const completed = await cancellableSleep(session, Math.min(intervalMs, Math.max(0, deadline - Date.now())));
+    const remainingTimeoutMs = Math.max(0, timeoutMs - activeElapsedMs(session, startedAt, pausedAtStart));
+    if (remainingTimeoutMs <= 0) break;
+    const completed = await cancellableSleep(session, Math.min(intervalMs, remainingTimeoutMs), {
+      item,
+      phase: "retry_until_wait",
+    });
     if (!completed) return {
       ...(result || {}),
       status: "stopped",
@@ -5999,6 +6213,11 @@ async function executeRetryUntilStep(session, item) {
     inputSent: false,
     matched: false,
   };
+}
+
+function activeElapsedMs(session, startedAt, pausedAtStart = 0) {
+  const pausedDuringSpan = Math.max(0, (session?.pausedDurationMs || 0) - pausedAtStart);
+  return Math.max(0, Date.now() - startedAt - pausedDuringSpan);
 }
 
 function retryUntilHasVisualTarget(item) {
@@ -6190,8 +6409,29 @@ function dryRunDelay(item) {
 function stopDryRun() {
   let count = 0;
   for (const session of Object.values(state.sessions)) {
-    if (session.status === "running") {
+    if (isActiveSession(session)) {
+      const pauseEvent = session.activePauseEvent;
+      if (session.status === "paused" || session.pauseRequested) {
+        const endedAt = new Date();
+        closePauseEvent(session, endedAt, "stopped");
+        if (pauseEvent) {
+          session.queueEvents.push({
+            workflowId: pauseEvent.workflowId || "",
+            workflowName: pauseEvent.workflowName || session.currentWorkflowName || "",
+            stepId: pauseEvent.stepId || "",
+            stepName: pauseEvent.stepName || "",
+            phase: "resume",
+            reason: "stop while paused",
+            delayMs: 0,
+            status: "stopped",
+            startedAt: endedAt.toISOString(),
+            endedAt: endedAt.toISOString(),
+            durationMs: 0,
+          });
+        }
+      }
       session.cancelRequested = true;
+      session.pauseRequested = false;
       count += 1;
     }
   }
@@ -6212,13 +6452,14 @@ function renderSessions() {
   for (const session of sessions) {
     const lane = document.createElement("div");
     lane.className = `session-lane ${session.status}`;
+    const pauseText = session.pauseCount ? ` · 暂停 ${session.pauseCount} 次` : "";
     lane.innerHTML = `
       <div>
         <strong>${escapeHtml(session.display)}</strong>
         <span>${escapeHtml(modeLabel(session.mode))} · ${escapeHtml(session.workflowName)} · ${session.currentStep}/${session.totalSteps}</span>
       </div>
       <progress max="${session.totalSteps}" value="${session.currentStep}"></progress>
-      <small>${escapeHtml(session.status)} · ${escapeHtml(session.currentWorkflowName || "等待")} · hwnd=${escapeHtml(session.hwnd)}</small>
+      <small>${escapeHtml(session.status)} · ${escapeHtml(session.currentWorkflowName || "等待")} · hwnd=${escapeHtml(session.hwnd)}${escapeHtml(pauseText)}</small>
     `;
     if (session.logs.length) {
       const latest = document.createElement("small");
@@ -6229,6 +6470,7 @@ function renderSessions() {
   }
   renderRunHistory(lanes);
   renderFailureReports();
+  syncRunActionButtons();
   renderOpsDashboard();
 }
 
@@ -6239,7 +6481,10 @@ function historyTransitionSummary(record) {
   const taskJumpEvents = Array.isArray(record.queueEvents)
     ? record.queueEvents.filter((event) => event.phase === "task_jump").slice(-2).map(formatHistoryTaskJumpEvent)
     : [];
-  return [...transitions, ...taskJumpEvents].filter(Boolean);
+  const pauseEvents = Array.isArray(record.pauseEvents)
+    ? record.pauseEvents.slice(-2).map(formatHistoryPauseEvent)
+    : [];
+  return [...transitions, ...taskJumpEvents, ...pauseEvents].filter(Boolean);
 }
 
 function formatHistoryTransition(transition) {
@@ -6267,6 +6512,18 @@ function formatHistoryTaskJumpEvent(event) {
   return `queue task_jump ${event.status || "queued"}: ${from} -> ${to}${loop}`;
 }
 
+function formatHistoryPauseEvent(event) {
+  if (event.phase === "pause") {
+    const where = event.stepName || event.workflowName || "运行会话";
+    return `pause ${event.status || "paused"}: ${where} · ${durationLabel(event.durationMs || 0)}`;
+  }
+  if (event.phase === "resume") {
+    const where = event.stepName || event.workflowName || "运行会话";
+    return `resume ${event.status || "done"}: ${where}`;
+  }
+  return "";
+}
+
 function renderRunHistory(container) {
   const records = state.workspace.runHistory.slice(0, 5);
   if (!records.length) return;
@@ -6279,6 +6536,7 @@ function renderRunHistory(container) {
     const status = record.status || "unknown";
     const lastStep = Array.isArray(record.stepResults) ? record.stepResults.at(-1) : null;
     const transitionCount = Array.isArray(record.controlFlowTransitions) ? record.controlFlowTransitions.length : 0;
+    const pauseText = record.pauseCount ? ` · 暂停 ${record.pauseCount} 次/${durationLabel(record.pausedDurationMs || 0)}` : "";
     const failed = record.failedStepName || (status === "failed" ? lastStep?.stepName : "");
     lane.className = `session-lane history ${status}`;
     lane.innerHTML = `
@@ -6286,7 +6544,7 @@ function renderRunHistory(container) {
         <strong>${escapeHtml(record.display || record.hwnd)}</strong>
         <span>${escapeHtml(modeLabel(record.mode))} · ${escapeHtml(record.workflowName || `${record.queueLength || 0} 个任务`)} · ${escapeHtml(status)}</span>
       </div>
-      <small>${escapeHtml(record.completedSteps ?? record.stepResults?.length ?? 0)}/${escapeHtml(record.totalSteps || 0)} 步 · 控制流 ${escapeHtml(transitionCount)} · ${escapeHtml(durationLabel(record.durationMs))} · ${escapeHtml(record.endedAt || "")}</small>
+      <small>${escapeHtml(record.completedSteps ?? record.stepResults?.length ?? 0)}/${escapeHtml(record.totalSteps || 0)} 步 · 控制流 ${escapeHtml(transitionCount)} · ${escapeHtml(durationLabel(record.durationMs))}${escapeHtml(pauseText)} · ${escapeHtml(record.endedAt || "")}</small>
       <small>${escapeHtml(failed ? `失败点：${failed}` : lastStep ? `末步：${lastStep.stepName} ${lastStep.status}/${lastStep.action}` : "无步骤明细")}</small>
     `;
     if (record.failureReason) {
@@ -6512,10 +6770,18 @@ function imageSize(dataUrl) {
   });
 }
 
-async function cancellableSleep(session, ms) {
-  const deadline = Date.now() + Math.max(0, Number(ms) || 0);
-  while (!session.cancelRequested && Date.now() < deadline) {
-    await sleep(Math.min(250, deadline - Date.now()));
+async function cancellableSleep(session, ms, context = {}) {
+  let remainingMs = Math.max(0, Number(ms) || 0);
+  while (!session.cancelRequested && remainingMs > 0) {
+    if (session.pauseRequested || session.status === "paused") {
+      const resumed = await waitIfPaused(session, context.workflow || null, context);
+      if (!resumed) return false;
+      continue;
+    }
+    const chunkMs = Math.min(250, remainingMs);
+    const startedAt = Date.now();
+    await sleep(chunkMs);
+    remainingMs = Math.max(0, remainingMs - Math.max(1, Date.now() - startedAt));
   }
   return !session.cancelRequested;
 }
@@ -6582,6 +6848,8 @@ $("#validate-workflow").addEventListener("click", validateActiveWorkflow);
 $("#validate-all-workflows").addEventListener("click", validateAllWorkflows);
 $("#dry-run-selected").addEventListener("click", dryRunSelected);
 $("#background-run-selected").addEventListener("click", backgroundRunSelected);
+$("#pause-runs").addEventListener("click", pauseRuns);
+$("#resume-runs").addEventListener("click", resumeRuns);
 $("#stop-dry-run").addEventListener("click", stopDryRun);
 $("#export-workspace").addEventListener("click", exportWorkspace);
 $("#import-workspace").addEventListener("click", importWorkspace);

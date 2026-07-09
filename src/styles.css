@@ -447,6 +447,11 @@ h3 {
   color: #e4bd6a;
 }
 
+.state-pill.paused {
+  border-color: #3f5872;
+  color: #9fc7ec;
+}
+
 .state-pill.blocked {
   border-color: #7b3d34;
   color: #e99a8d;
@@ -1985,6 +1990,10 @@ label {
 
 .session-lane.running {
   border-color: #6d5a2c;
+}
+
+.session-lane.paused {
+  border-color: #3f5872;
 }
 
 .session-lane.failed {

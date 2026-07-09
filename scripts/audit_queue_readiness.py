@@ -21,8 +21,19 @@ REQUIRED_FUNCTIONS = [
     "queueExerciseSuiteForTargets",
     "runSelected",
     "startRunForWindow",
+    "activeRunSessions",
+    "runningSessions",
+    "pausedSessions",
+    "pauseRuns",
+    "resumeRuns",
+    "setSessionPaused",
+    "closePauseEvent",
+    "resumeSession",
+    "waitIfPaused",
+    "syncRunActionButtons",
     "executeBackendStep",
     "runHistoryEntryFromSession",
+    "stopDryRun",
     "selectedEditableWindows",
     "updateQueueItem",
     "updateQueueItemTiming",
@@ -130,16 +141,20 @@ def audit(project_root: Path) -> dict[str, object]:
 
     main_path = project_root / "src/main.js"
     css_path = project_root / "src/styles.css"
+    index_path = project_root / "index.html"
     package_path = project_root / "package.json"
     if not main_path.is_file():
         return {"passed": False, "failures": [f"missing {main_path}"], "warnings": warnings, "counts": counts}
     if not css_path.is_file():
         failures.append("missing src/styles.css")
+    if not index_path.is_file():
+        failures.append("missing index.html")
     if not package_path.is_file():
         failures.append("missing package.json")
 
     source = read_text(main_path)
     css = read_text(css_path) if css_path.is_file() else ""
+    index_html = read_text(index_path) if index_path.is_file() else ""
     package = json.loads(read_text(package_path)) if package_path.is_file() else {}
 
     bodies: dict[str, str] = {}
@@ -162,8 +177,17 @@ def audit(project_root: Path) -> dict[str, object]:
     exercise_queue = bodies["queueExerciseSuiteForTargets"]
     run_selected = bodies["runSelected"]
     start_run = bodies["startRunForWindow"]
+    active_runs = bodies["activeRunSessions"]
+    pause_runs = bodies["pauseRuns"]
+    resume_runs = bodies["resumeRuns"]
+    set_paused = bodies["setSessionPaused"]
+    close_pause = bodies["closePauseEvent"]
+    resume_session = bodies["resumeSession"]
+    wait_paused = bodies["waitIfPaused"]
+    sync_buttons = bodies["syncRunActionButtons"]
     execute_backend = bodies["executeBackendStep"]
     run_history = bodies["runHistoryEntryFromSession"]
+    stop_runs = bodies["stopDryRun"]
     selected_editable = bodies["selectedEditableWindows"]
     update_queue = bodies["updateQueueItem"]
     update_timing = bodies["updateQueueItemTiming"]
@@ -273,7 +297,7 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(failures, run_selected, "validateWorkflowQueue(workflows, mode)", "runSelected must validate each queue")
     require_contains(failures, run_selected, "startRunForWindow(target, runEntries, mode, source)", "runSelected must start per target")
 
-    require_contains(failures, start_run, "state.sessions[key]?.status === \"running\"", "startRunForWindow must enforce same-hwnd lock")
+    require_contains(failures, start_run, "isActiveSession(state.sessions[key])", "startRunForWindow must enforce same-hwnd lock")
     require_contains(failures, start_run, "currentWindowIdentityForRun(target, mode)", "startRunForWindow must refresh identity")
     require_contains(failures, start_run, "queuePlan", "startRunForWindow must record queue plan")
     require_contains(failures, start_run, "void runSession(session, runPlan)", "startRunForWindow must launch independent session")
@@ -283,6 +307,37 @@ def audit(project_root: Path) -> dict[str, object]:
         "JSON.parse(JSON.stringify(entry.workflow))",
         "startRunForWindow must deep-copy queued workflows before async execution",
     )
+
+    require_contains(failures, active_runs, "isActiveSession(session)", "activeRunSessions must treat running and paused sessions as active")
+    require_contains(failures, pause_runs, "pauseRequested = true", "pauseRuns must request a session pause")
+    require_contains(
+        failures,
+        pause_runs,
+        "暂停请求已提交",
+        "pauseRuns must report a pending pause instead of pretending an in-flight backend step is already paused",
+    )
+    require_contains(failures, resume_runs, "resumeSession(session)", "resumeRuns must resume paused sessions")
+    require_contains(failures, set_paused, 'phase: "pause"', "setSessionPaused must record a pause queue event")
+    require_contains(failures, set_paused, 'status = "paused"', "setSessionPaused must expose paused status")
+    require_contains(failures, close_pause, "pausedDurationMs", "closePauseEvent must accumulate paused duration")
+    require_contains(failures, close_pause, "activePauseEvent", "closePauseEvent must close the active pause event")
+    require_contains(failures, resume_session, 'phase: "resume"', "resumeSession must record a resume queue event")
+    require_contains(failures, resume_session, "closePauseEvent(session", "resumeSession must close and account for paused duration")
+    require_contains(failures, wait_paused, "while (!session.cancelRequested && session.pauseRequested)", "waitIfPaused must block until resume or stop")
+    require_contains(failures, wait_paused, "setSessionPaused(session", "waitIfPaused must enter the paused state")
+    require_contains(failures, sync_buttons, "#pause-runs", "syncRunActionButtons must control pause button state")
+    require_contains(failures, sync_buttons, "#resume-runs", "syncRunActionButtons must control resume button state")
+    require_contains(failures, stop_runs, "isActiveSession(session)", "stopDryRun must stop paused sessions too")
+    require_contains(failures, stop_runs, "pauseRequested = false", "stopDryRun must break paused waits")
+    require_contains(failures, source, "waitIfPaused(session, workflow", "runner must check pause gates with workflow context")
+    require_contains(failures, source, "cancellableSleep(session, ms, { workflow, phase })", "queue delays must be pause-aware")
+    require_contains(failures, source, "cancellableSleep(session, ms, { workflow, item, phase: key })", "step delays must be pause-aware")
+    require_contains(failures, source, "cancellableSleep(session, backgroundRetryDelay(item), { item, phase: \"retry_wait\" })", "retry waits must be pause-aware")
+    require_contains(failures, source, "pauseRequested: false", "sessions must initialize pauseRequested")
+    require_contains(failures, source, "pausedDurationMs: 0", "sessions must initialize pausedDurationMs")
+    require_contains(failures, source, "pauseCount: 0", "sessions must initialize pauseCount")
+    require_contains(failures, index_html, 'id="pause-runs"', "index.html must expose a pause button")
+    require_contains(failures, index_html, 'id="resume-runs"', "index.html must expose a resume button")
 
     require_contains(
         failures,
@@ -299,6 +354,9 @@ def audit(project_root: Path) -> dict[str, object]:
 
     require_contains(failures, run_history, "queuePlan: session.queuePlan", "run history must keep queue plan")
     require_contains(failures, run_history, "queueEvents: session.queueEvents", "run history must keep queue delay events")
+    require_contains(failures, run_history, "pauseCount: session.pauseCount", "run history must keep pause count")
+    require_contains(failures, run_history, "pausedDurationMs: session.pausedDurationMs", "run history must keep paused duration")
+    require_contains(failures, run_history, "pauseEvents:", "run history must keep explicit pause/resume events")
     require_contains(
         failures,
         run_history,
@@ -316,6 +374,8 @@ def audit(project_root: Path) -> dict[str, object]:
     require_regex(failures, css, r"\.queue-overview-row\.(ready|warning|blocked)", "CSS must style queue overview readiness")
     require_regex(failures, css, r"\.queue-window\.(ready|warning|blocked)", "CSS must style queue window readiness")
     require_regex(failures, css, r"\.queue-item\.(ready|warning|blocked)", "CSS must style queue item readiness")
+    require_contains(failures, css, ".state-pill.paused", "CSS must style paused run-state pill")
+    require_contains(failures, css, ".session-lane.paused", "CSS must style paused session lanes")
     require_contains(failures, css, "grid-column: 2 / -1", "queue item detail must occupy a stable row")
 
     scripts = package.get("scripts", {})

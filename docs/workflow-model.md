@@ -88,11 +88,14 @@
       "status": "failed",
       "completedSteps": 8,
       "totalSteps": 12,
+      "pauseCount": 1,
+      "pausedDurationMs": 2500,
       "failureReason": "best score 0.512 below threshold",
       "windowIdentity": {},
       "endedWindowIdentity": {},
       "queuePlan": [],
       "queueEvents": [],
+      "pauseEvents": [],
       "controlFlowTransitions": [],
       "stepResults": []
     }
@@ -105,7 +108,7 @@
 - `workflows`: 用户创建和导入的任务库。
 - `assignments`: 窗口 hwnd 到任务队列的分配表。旧版 `workflowId` 会在载入时迁移成单项 `queue`。
 - `targets`: 粘贴图片、ROI、后续模板图和 OCR 文本等可复用识别目标。旧版 `assets` 会在载入时迁移成 `targets`。
-- `runHistory`: 观察运行或真实运行的最近报告，包含每步结果、控制流跳转、失败点、耗时和结束窗口身份。
+- `runHistory`: 观察运行或真实运行的最近报告，包含每步结果、控制流跳转、暂停/继续事件、失败点、耗时和结束窗口身份。
 
 当前保存位置是 Tauri AppData 下的 `workspace.json`。第一阶段不用 SQLite，是为了让格式可读、易迁移、好调试；等任务历史、资产索引、运行日志变多后再迁移数据库。
 
@@ -307,6 +310,7 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 - 点击后台运行 beta 后，每个窗口同样按自己的队列生成独立 `RunSession`。
 - 如果队列项设置了 `startDelayMs`，该窗口会在对应任务开始前等待；如果设置了 `afterDelayMs`，该任务结束后会等待再进入下一个队列项。等待过程只改运行会话状态，不截图、不 OCR、不投递任何输入，并且可以响应停止请求。
 - 如果步骤设置了 `preDelay` 或 `postDelay`，运行器会在该步骤前/后执行可取消等待，并把等待写入单步耗时和详情；失败停止时不会强制继续后置等待。
+- 暂停/继续是 `RunSession` 的内存态控制，不改 `Workflow`、`Step`、`Target`、窗口队列或 workspace schema。当前全局按钮会暂停/继续所有正在运行的窗口会话；paused session 仍占用同 hwnd 互斥锁，不能在暂停期间对同窗口启动第二条队列。暂停请求会在步骤边界、队列等待、步骤等待、`delay` 步骤和重试等待处生效；如果单个后台 IPC 已进入 Rust 执行，则该单步先返回，再停在下一处暂停门闸。暂停期间不截图、不 OCR、不投递 hwnd 输入，也不占用前台鼠标键盘。继续后同一 hwnd 会话从原队列继续；停止请求会打断暂停等待并把会话记为 stopped。
 - 如果窗口有已分配队列，运行开始前会先比对 `WindowAssignment.windowIdentity` 和当前 live 窗口身份，防止旧队列落到复用后的 hwnd 上。
 - 后台运行会做更严格的前端校验：缺 OCR 目标文本、缺图片目标的图像步骤、缺坐标/ROI/图片目标的点击或双击步骤、丢失 `targetId` 的步骤会阻止执行；观察运行仍允许这些抽象样例通过日志演练。
 - `retry_until` 如果没有图片、ROI 或坐标目标，会以缺少可验证目标处理，不再把 Rust 后端的计划态 `no_input` 当成功。`condition` 和 `loop` 会通过前端 runner 改变同任务执行路径；后向跳转没有 `maxIterations` 会阻止后台运行。
@@ -324,11 +328,11 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 - 后台步骤返回 `error` 或 `unsupported` 时一律停止窗口会话。`missing_asset`、`below_threshold`、`text_miss`、`ocr_unavailable`、`missing_expect` 等失败状态在重试耗尽后默认停止，只有步骤显式设置 `onFail=skip` 才会继续下一步。
 - `onFail=restore` 会跳到显式 `recoveryStepId`，但只作为失败恢复分支调度；它不会把原失败任务改判为成功，也不会在恢复结束后继续消费后续队列。要真正返回主界面，需要用户把恢复入口配置为可执行的热键、识图点击、等待和确认步骤；默认模板已提供低风险 `ESC + 等待 + 页面确认 + 截图记录` 片段，但真实返航仍依赖用户素材采样、窗口身份稳定和 live 验收。单独的 `restore` 类型仍只记录计划语义。
 
-`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON 作为验收证据。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为事件流。
+`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON 作为验收证据。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为事件流。
 
 每条 `controlFlowTransitions[]` 会记录来源步骤、目标步骤或目标任务、guard 结果、跳转原因、状态 `taken/skipped/fallthrough`、后向跳转次数、任务跳转次数和跳过原因。它用于解释一次运行为什么跳到某一步、为什么插入了另一个任务，或为什么没有跳；它不是任务定义的一部分，也不会跨运行复用。
 
-每条 `queueEvents[]` 会记录队列项启动前错峰或任务后间隔的 phase、delayMs、状态和耗时。每条 `stepResults[]` 会记录 workflow、step、状态、动作、详情、是否发送输入、匹配分数、坐标和耗时；如果步骤有前/后等待，详情中会带 `timing preDelay=... postDelay=...`。运行结束时前端会通过只读 `current_window_identity` 再读取一次 hwnd 身份，写入 `endedWindowIdentity` 或 `endedWindowIdentityError`，便于排查长时间多窗口运行后的 hwnd 漂移、窗口关闭和权限变化。
+每条 `queueEvents[]` 会记录队列项启动前错峰、任务后间隔、暂停和继续的 phase、delayMs、状态和耗时。暂停事件使用 `phase=pause`，继续事件使用 `phase=resume`，并汇总到 `pauseCount/pausedDurationMs`。每条 `stepResults[]` 会记录 workflow、step、状态、动作、详情、是否发送输入、匹配分数、坐标和耗时；如果步骤有前/后等待，详情中会带 `timing preDelay=... postDelay=...`。运行结束时前端会通过只读 `current_window_identity` 再读取一次 hwnd 身份，写入 `endedWindowIdentity` 或 `endedWindowIdentityError`，便于排查长时间多窗口运行后的 hwnd 漂移、窗口关闭和权限变化。
 
 ## 输入安全原则
 

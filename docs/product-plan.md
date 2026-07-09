@@ -36,7 +36,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 - `workflows[]`: 任务定义，步骤仍保留兼容字段 `target/command/expect`，并保存 `targetStepId/elseTargetStepId/recoveryStepId/jumpWorkflowId/maxIterations` 这些控制流字段。
 - `targets[]`: 共享目标库，保存图片 data URL、ROI、阈值、点击默认值、OCR 文本和备注。
 - `assignments[]`: 窗口队列，保存 hwnd 与 `windowIdentity` 快照，以及队列项顺序、启用状态和等待参数。
-- `runHistory[]`: 运行报告，保存队列计划、控制流 transition、步骤结果、失败原因、开始/结束窗口身份。
+- `runHistory[]`: 运行报告，保存队列计划、暂停/继续事件、控制流 transition、步骤结果、失败原因、暂停次数/时长、开始/结束窗口身份。
 
 当前 v7 边界：
 
@@ -51,6 +51,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 已落地的 v7 子集：
 
 - `delay`、pre/post delay、队列等待都必须可取消。
+- 暂停/继续属于运行会话状态，不修改 `Workflow`、`assignments` 或持久化队列 schema；当前全局按钮会暂停/继续所有正在运行的窗口会话。暂停请求在步骤边界、队列错峰、任务后间隔、步骤前后等待、`delay` 和重试等待点生效；暂停期间不截图、不 OCR、不投递 hwnd 输入，并且等待剩余时间会冻结。已经进入 Rust 后端执行的单步不能被前端暂停中断，会先返回并在下一处暂停门闸停住。paused session 仍占用同 hwnd 互斥锁；继续后从同一窗口队列和同一运行会话恢复，停止请求优先级高于暂停，可打断暂停等待。
 - `retry_until` 只对图片、ROI 或坐标目标做等待循环；纯状态目标阻止后台运行。
 - 使用 `pc` 指令指针执行，而不是 `for...of`。
 - 设置全局 `MAX_CONTROL_FLOW_STEPS`，并用后向跳转、任务跳回当前任务，以及跨任务环内每条参与循环的 `task_jump` 的 `maxIterations` 防止无限循环。
@@ -60,6 +61,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 - `onFail=restore` 可在可恢复失败后跳到同任务 `recoveryStepId`；默认恢复片段模板会展开为普通可执行步骤，并在正常成功路径跳过；恢复分支执行到任务末尾后停止当前窗口队列，并在失败报告中保留原失败点。
 - `task_jump` / `jumpWorkflowId` 可在当前 hwnd 会话内插入目标 workflow；插入项只进入本次 `RunSession.queuePlan`，不改写持久化窗口队列，并受 `MAX_WORKFLOW_JUMPS` 与可选 `maxIterations` 保护；一旦多个任务互跳形成环，环内没有上限的跳转会被后台 readiness 阻止。
 - 每次控制流决策会写入 `runHistory[].controlFlowTransitions[]`，记录 taken/skipped/fallthrough、guard 结果、目标步骤、后向跳转次数和跳过原因。
+- 每次暂停/继续会写入 `runHistory[].queueEvents[]` 的 `pause/resume` 事件，并汇总 `pauseCount` 与 `pausedDurationMs`，用于证明任务中断、暂停/继续和长时间等待期间没有额外输入。
 
 未落地的 v7 边界：
 
