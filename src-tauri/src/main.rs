@@ -122,6 +122,7 @@ struct WorkflowWorkspace {
 #[serde(rename_all = "camelCase")]
 struct WorkflowWorkspaceSave {
     saved_path: String,
+    backup_path: Option<String>,
     bytes: usize,
 }
 
@@ -210,7 +211,7 @@ struct TemplateMatch {
     score: f32,
 }
 
-const WORKSPACE_SCHEMA_VERSION: u32 = 8;
+const WORKSPACE_SCHEMA_VERSION: u32 = 9;
 const DEFAULT_IMAGE_THRESHOLD: f32 = 0.86;
 const MAX_TEMPLATE_DATA_URL_CHARS: usize = 5 * 1024 * 1024;
 const MAX_TEMPLATE_BYTES: usize = 4 * 1024 * 1024;
@@ -289,14 +290,15 @@ fn save_workflow_workspace(
         fs::create_dir_all(parent).map_err(|err| format!("{}: {err}", parent.display()))?;
     }
     let text = serde_json::to_string_pretty(&workspace).map_err(|err| err.to_string())?;
-    atomic_write_workspace_json(&path, text.as_bytes())?;
+    let backup_path = atomic_write_workspace_json(&path, text.as_bytes())?;
     Ok(WorkflowWorkspaceSave {
         saved_path: path.display().to_string(),
+        backup_path: backup_path.map(|path| path.display().to_string()),
         bytes: text.len(),
     })
 }
 
-fn atomic_write_workspace_json(path: &Path, bytes: &[u8]) -> Result<(), String> {
+fn atomic_write_workspace_json(path: &Path, bytes: &[u8]) -> Result<Option<PathBuf>, String> {
     let parent = path
         .parent()
         .ok_or_else(|| format!("{}: workspace path has no parent", path.display()))?;
@@ -311,7 +313,7 @@ fn atomic_write_workspace_json(path: &Path, bytes: &[u8]) -> Result<(), String> 
     let tmp_path = parent.join(format!(".{file_name}.{stamp}.tmp"));
     let backup_path = path.with_extension("json.bak");
 
-    let write_result = (|| -> Result<(), String> {
+    let write_result = (|| -> Result<Option<PathBuf>, String> {
         let mut file =
             fs::File::create(&tmp_path).map_err(|err| format!("{}: {err}", tmp_path.display()))?;
         file.write_all(bytes)
@@ -320,12 +322,15 @@ fn atomic_write_workspace_json(path: &Path, bytes: &[u8]) -> Result<(), String> 
             .map_err(|err| format!("{}: {err}", tmp_path.display()))?;
         drop(file);
 
-        if path.exists() {
+        let backup_path = if path.exists() {
             fs::copy(path, &backup_path)
                 .map_err(|err| format!("{} -> {}: {err}", path.display(), backup_path.display()))?;
-        }
+            Some(backup_path)
+        } else {
+            None
+        };
         replace_file_with_temp(&tmp_path, path)?;
-        Ok(())
+        Ok(backup_path)
     })();
 
     if write_result.is_err() {
@@ -2112,9 +2117,10 @@ mod tests {
         let path = dir.join("workspace.json");
         fs::write(&path, br#"{"schemaVersion":1}"#).unwrap();
 
-        atomic_write_workspace_json(&path, br#"{"schemaVersion":2}"#).unwrap();
+        let backup_path = atomic_write_workspace_json(&path, br#"{"schemaVersion":2}"#).unwrap();
 
         assert_eq!(fs::read_to_string(&path).unwrap(), r#"{"schemaVersion":2}"#);
+        assert_eq!(backup_path, Some(path.with_extension("json.bak")));
         assert_eq!(
             fs::read_to_string(path.with_extension("json.bak")).unwrap(),
             r#"{"schemaVersion":1}"#

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit the schema v8 Step.params compatibility contract."""
+"""Audit the schema v9 Step.params compatibility contract."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,7 +132,7 @@ def audit(project_root: Path) -> dict[str, object]:
     if not re.search(rf"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*{SCHEMA_VERSION}\b", rust):
         failures.append(f"src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not {SCHEMA_VERSION}")
     if f"WORKSPACE_SCHEMA_VERSION\\s*=\\s*{SCHEMA_VERSION}" not in control_flow_audit:
-        failures.append("scripts/audit_control_flow_schema.py must audit schema v8")
+        failures.append("scripts/audit_control_flow_schema.py must audit schema v9")
     if re.search(r"schemaVersion:\s*7\b", target_library_test):
         failures.append("scripts/test_target_library_core.mjs still expects schemaVersion 7")
 
@@ -181,7 +181,7 @@ def audit(project_root: Path) -> dict[str, object]:
     try:
         workflow_step_input = struct_body(rust, "WorkflowStepInput")
         if re.search(r"\bparams\s*:", workflow_step_input):
-            failures.append("Rust WorkflowStepInput must not require params while v8 is a frontend compatibility mirror")
+            failures.append("Rust WorkflowStepInput must not require params while Step.params is a frontend compatibility mirror")
     except ValueError as error:
         failures.append(str(error))
 
@@ -214,7 +214,8 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(
         docs_text,
         [
-            "schema v8",
+            "schema v9",
+            "v8 引入",
             "steps[].params",
             "前端结构化参数镜像",
             "Rust IPC",

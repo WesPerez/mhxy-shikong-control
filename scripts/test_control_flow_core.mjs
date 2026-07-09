@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 
 import {
   completeRecoveryAsFailed,
+  completeRecoveryWithPolicy,
   controlFlowDecisionForStep,
   evaluateConditionGuard,
   insertWorkflowJumpIntoRunPlan,
+  normalizeRecoveryAction,
   recordControlFlowTransition,
   recoveryDecisionForFailedStep,
   unboundedWorkflowJumpCycleFindings,
@@ -318,6 +320,77 @@ function testRecoverySkipsNonRecoverableFailures() {
   assert.equal(recovery.transition.skippedReason, "status is not recoverable");
 }
 
+function testRecoveryContinuePolicyReturnsToDefaultNextStep() {
+  const session = makeSession();
+  const steps = [
+    {
+      id: "s1",
+      type: "image_click",
+      name: "Needs target",
+      onFail: "restore",
+      recoveryStepId: "s3",
+      recoveryAction: "continue",
+    },
+    { id: "s2", type: "delay", name: "Normal next" },
+    { id: "s3", type: "restore", name: "Recovery" },
+  ];
+
+  const recovery = recoveryFor({ steps, itemIndex: 0, session, result: missingAsset() });
+  assert.equal(recovery.recovered, true);
+  assert.equal(session.recoveryContext.recoveryAction, "continue");
+
+  const completion = completeRecoveryWithPolicy(session, { steps, completedIndex: 2, stepLabels: labels });
+
+  assert.equal(completion.stopped, false);
+  assert.equal(completion.nextPc, 1);
+  assert.equal(completion.transition.recoveryAction, "continue");
+  assert.equal(completion.transition.toStepId, "s2");
+  assert.equal(session.recoveryContext, null);
+}
+
+function testRecoveryRetryPolicyReturnsToFailedStepWithBudget() {
+  const session = makeSession();
+  const steps = [
+    {
+      id: "s1",
+      type: "image_click",
+      name: "Needs target",
+      onFail: "restore",
+      recoveryStepId: "s3",
+      recoveryAction: "retry",
+      maxIterations: 2,
+    },
+    { id: "s2", type: "delay", name: "Normal next" },
+    { id: "s3", type: "restore", name: "Recovery" },
+  ];
+
+  let recovery = recoveryFor({ steps, itemIndex: 0, session, result: missingAsset() });
+  assert.equal(recovery.recovered, true);
+  let completion = completeRecoveryWithPolicy(session, { steps, completedIndex: 2, stepLabels: labels });
+  assert.equal(completion.stopped, false);
+  assert.equal(completion.nextPc, 0);
+  assert.equal(completion.transition.iterationCount, 1);
+
+  recovery = recoveryFor({ steps, itemIndex: 0, session, result: missingAsset() });
+  assert.equal(recovery.recovered, true);
+  completion = completeRecoveryWithPolicy(session, { steps, completedIndex: 2, stepLabels: labels });
+  assert.equal(completion.stopped, false);
+  assert.equal(completion.nextPc, 0);
+  assert.equal(completion.transition.iterationCount, 2);
+
+  recovery = recoveryFor({ steps, itemIndex: 0, session, result: missingAsset() });
+  assert.equal(recovery.recovered, false);
+  assert.equal(recovery.transition.status, "skipped");
+  assert.match(recovery.transition.skippedReason, /maxIterations=2/);
+}
+
+function testNormalizeRecoveryActionFallsBackSafely() {
+  assert.equal(normalizeRecoveryAction("continue"), "continue");
+  assert.equal(normalizeRecoveryAction("retry"), "retry");
+  assert.equal(normalizeRecoveryAction("bad", "continue"), "continue");
+  assert.equal(normalizeRecoveryAction("bad"), "stop");
+}
+
 function testInsertWorkflowJumpIntoRunPlan() {
   const session = makeSession();
   const runPlan = [
@@ -468,6 +541,9 @@ const tests = [
   testUnsupportedConditionFallsThroughWithEvidence,
   testRecoveryOnlyRunsForRecoverableFailures,
   testRecoverySkipsNonRecoverableFailures,
+  testRecoveryContinuePolicyReturnsToDefaultNextStep,
+  testRecoveryRetryPolicyReturnsToFailedStepWithBudget,
+  testNormalizeRecoveryActionFallsBackSafely,
   testInsertWorkflowJumpIntoRunPlan,
   testInsertWorkflowJumpBudgetFailure,
   testTransitionRecordingTrimsOldEntries,

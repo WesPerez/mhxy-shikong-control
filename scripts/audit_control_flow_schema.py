@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit schema v8 control-flow fields and pc runner boundaries."""
+"""Audit schema v9 control-flow fields and pc runner boundaries."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from pathlib import Path
 
 CONTROL_FLOW_STEP_FIELDS = ["targetStepId", "elseTargetStepId", "recoveryStepId"]
 CONTROL_FLOW_WORKFLOW_FIELDS = ["jumpWorkflowId"]
-CONTROL_FLOW_FIELDS = [*CONTROL_FLOW_STEP_FIELDS, *CONTROL_FLOW_WORKFLOW_FIELDS, "maxIterations"]
+CONTROL_FLOW_FIELDS = [*CONTROL_FLOW_STEP_FIELDS, *CONTROL_FLOW_WORKFLOW_FIELDS, "maxIterations", "recoveryAction"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -126,10 +126,10 @@ def audit(project_root: Path) -> dict[str, object]:
     product_docs = read_text(paths["product_docs"])
     readme = read_text(paths["readme"])
 
-    if not re.search(r"WORKSPACE_SCHEMA_VERSION\s*=\s*8\b", main):
-        failures.append("src/main.js WORKSPACE_SCHEMA_VERSION is not 8")
-    if not re.search(r"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*8\b", rust):
-        failures.append("src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not 8")
+    if not re.search(r"WORKSPACE_SCHEMA_VERSION\s*=\s*9\b", main):
+        failures.append("src/main.js WORKSPACE_SCHEMA_VERSION is not 9")
+    if not re.search(r"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*9\b", rust):
+        failures.append("src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not 9")
     require_contains(rust, ["task_jump", "loop", "planned", "no_input"], failures, "src-tauri/src/main.rs")
 
     try:
@@ -143,7 +143,7 @@ def audit(project_root: Path) -> dict[str, object]:
 
     require_contains(main, CONTROL_FLOW_STEP_FIELDS, failures, "src/main.js")
     require_contains(main, CONTROL_FLOW_WORKFLOW_FIELDS, failures, "src/main.js")
-    require_contains(main, ["maxIterations"], failures, "src/main.js")
+    require_contains(main, ["maxIterations", "recoveryAction", "normalizeRecoveryAction"], failures, "src/main.js")
     require_contains(
         main,
         ["sanitizeStepControlFlowForType", "item.type !== \"condition\"", "item.type === \"loop\"", "plannedOnlyStepTypes.has(item.type)"],
@@ -173,7 +173,7 @@ def audit(project_root: Path) -> dict[str, object]:
         normalize_body = function_body(main, "normalizeStep")
         require_contains(
             normalize_body,
-            ["controlFlowStepReferenceFields", "controlFlowWorkflowReferenceFields", "maxIterations"],
+            ["controlFlowStepReferenceFields", "controlFlowWorkflowReferenceFields", "maxIterations", "recoveryAction"],
             failures,
             "normalizeStep",
         )
@@ -213,6 +213,7 @@ def audit(project_root: Path) -> dict[str, object]:
                 "恢复入口必须指向恢复片段的可执行步骤",
                 "恢复片段需要至少一个可执行步骤",
                 "恢复片段需要至少一个页面确认",
+                "恢复后重试必须设置最大循环次数",
                 "plannedOnlyStepTypes",
                 "不能驱动成功/条件/任务跳转",
             ],
@@ -281,7 +282,8 @@ def audit(project_root: Path) -> dict[str, object]:
                 "session.status === \"failed\"",
                 "verifySessionWindowIdentityForStep",
                 "recoveryDecisionForFailedStep",
-                "completeRecoveryAsFailed",
+                "completeRecoveryWithPolicy",
+                "shouldCompleteRecoveryAfterStep",
                 "workflowJumpRequest",
             ],
             failures,
@@ -360,6 +362,8 @@ def audit(project_root: Path) -> dict[str, object]:
             [
                 "backgroundFailureStatuses.has",
                 "recoveryStepId",
+                "recoveryAction",
+                "recoveryRetryKey",
                 "failure restore",
                 "originalFailureReason",
                 "recoveryContext",
@@ -425,6 +429,7 @@ def audit(project_root: Path) -> dict[str, object]:
         failures.append(str(error))
 
     ui_ids = [
+        "step-recovery-action",
         "param-control-target-step",
         "param-control-else-step",
         "param-control-recovery-step",
@@ -438,16 +443,17 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(main, [f'$("#{item}").addEventListener' for item in ui_ids], failures, "bindStepParamEditor")
 
     docs_text = "\n".join([workflow_docs, product_docs, readme])
-    require_contains(docs_text, ["schema v8", "targetStepId", "elseTargetStepId", "recoveryStepId", "jumpWorkflowId", "maxIterations"], failures, "docs")
+    require_contains(docs_text, ["schema v9", "targetStepId", "elseTargetStepId", "recoveryStepId", "jumpWorkflowId", "maxIterations", "recoveryAction"], failures, "docs")
     require_contains(
         docs_text,
         ["指令指针", "condition", "loop", "有限循环", "后向跳转", "失败恢复", "任务跳转", "跨任务环", "controlFlowTransitions"],
         failures,
         "docs",
     )
-    require_contains(docs_text, ["恢复片段", "计划态 restore"], failures, "docs recovery fragment")
+    require_contains(docs_text, ["恢复片段", "计划态 restore", "恢复后重试", "恢复后继续"], failures, "docs recovery fragment")
     test_control_flow = read_text(project_root / "scripts/test_control_flow_core.mjs")
     require_contains(test_control_flow, ["testLoopStepUsesPlannedNoInputAndBudget", "type: \"loop\"", "循环目标必须位于当前步骤之前"], failures, "scripts/test_control_flow_core.mjs loop")
+    require_contains(test_control_flow, ["testRecoveryRetryPolicyReturnsToFailedStepWithBudget", "testRecoveryContinuePolicyReturnsToDefaultNextStep"], failures, "scripts/test_control_flow_core.mjs recovery policy")
 
     scripts = package.get("scripts", {})
     if scripts.get("audit:control-flow-schema") != "python scripts/audit_control_flow_schema.py":

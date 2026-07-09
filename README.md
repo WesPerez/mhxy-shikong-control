@@ -19,7 +19,7 @@
 - 托盘右键菜单提供“显示主窗口”和“退出”，其中“退出”才是真退出。
 - 多次启动同一个 exe 会唤醒已运行实例，不会保留多个主进程。
 - 界面包含目标窗口列表、窗口任务队列、任务库、步骤时间线、步骤属性、识别目标、预览/ROI、运行队列和运行记录。
-- 工作区保存到 Tauri AppData 下的 `workspace.json`，包含 workflows、assignments、targets、runHistory；旧 assets 会在载入时迁移为 targets。
+- 工作区保存到 Tauri AppData 下的 `workspace.json`，包含 workflows、assignments、targets、runHistory；保存使用临时文件替换并保留 `workspace.json.bak`，旧 assets 会在载入时迁移为 targets。
 - 首次启动会生成 10 个示例任务，每个 10 步以上，覆盖 hotkey、图像等待、图像点击、OCR 确认、后台点击、后台文本输入、延迟、条件、重试、截图记录和失败恢复片段；旧工作区可用“导入示例包”补齐缺失示例，不覆盖已有任务。
 - 任务库支持按蓝图批量新建任务，内置家园活力、福利签到、背包物品、组队准备、帮派签到、邮件领取、宠物照料、摊位搜索、任务链检查和材料整理 10 个 10 步以上草稿；生成后会自动创建目标占位，并定位到下一处待采样图像步骤。
 - 任务库提供“演练套件”入口，可一次生成 10 个 10 步以上任务，并按已选窗口写入不同长度的独立队列，方便验证多窗口分别跑 `2/5/7/3/9/4/6/8/1/10` 个任务的场景。
@@ -30,6 +30,7 @@
 - 观察运行只模拟每个 hwnd 的任务会话、互斥锁、步骤进度和日志，不向游戏窗口发送输入。
 - 新增后台运行 beta：`hotkey`、`text_input`、`click`、`double_click`、`image_click` 可以通过目标 hwnd 投递后台消息。
 - 步骤时间线支持添加、插入到当前步骤下方、复制步骤、上移/下移和删除；复制步骤会生成新的步骤 id。
+- 步骤时间线新增 quick-step 快捷动作区，覆盖快捷键、坐标点击、识图点击链、OCR 判断、文本输入、右键物品、条件检查、失败恢复和 10 步任务骨架；插入后会沿用现有目标库占位、`Step.params` 同步和待采样图像步骤定位。
 - 步骤时间线支持一键插入常用片段，包括打开界面、识图点击、文本输入、物品右键、状态检查和 10 步完整任务骨架；插入时会同步创建可复用逻辑目标。
 - 步骤编辑器新增常用参数控件，可把热键、后台文本、点击/双击坐标与按钮、图像阈值、图像点击点位/偏移、步骤前后等待、延迟、条件和重试间隔同步到兼容的 `target/command` 字段。
 - 步骤行会显示校验问题/提醒 badge，点击校验会跳到第一个有问题的步骤。
@@ -43,10 +44,12 @@
 - Ctrl+V 图片或 ROI 生成目标时，如果当前步骤不适合绑定图片，会自动在当前步骤下方新建可执行步骤，避免误改延迟/热键等步骤语义；如果 WebView 粘贴事件没有带图片文件，会尝试从 Windows 剪贴板 DIB/DIBV5 后端读取截图。
 - 后台 `delay`、步骤前/后等待、队列错峰和任务间隔都使用真实等待时长，等待期间可响应停止请求；`retry_until` 对绑定图片、ROI 或坐标目标执行轻量等待循环，不发送额外输入，纯状态型目标会在后台校验中阻止执行，避免把未实现的状态判断当成功。
 - 运行中的窗口队列支持暂停/继续；暂停只改变当前 `RunSession`，在步骤边界和等待点生效，不改任务/队列配置，也不会额外截图、OCR 或发送 hwnd 输入；已经进入后端执行的单步会先返回，再停在下一处暂停门闸。
-- 工作区 schema v8 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId`、`maxIterations` 和 `steps[].params` 前端结构化参数镜像；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。`params` 会继续投影回 `target/command/expect`，当前 Rust IPC 仍读取旧字段。
-- 前端运行器已改为带 `MAX_CONTROL_FLOW_STEPS` 预算的指令指针模型：`condition` 会按 guard 选择 true/false 目标，普通成功步骤可用 `targetStepId` 跳到同任务步骤；一等 `loop` 步骤可做当前任务内的有限后向循环，必须设置循环目标和 `maxIterations`，本身不发送后台输入；跨任务环内任意未设上限的 `task_jump` 会在 readiness 中阻塞，直到该跳转补上最大循环次数。`onFail=restore` 可跳到同任务 `recoveryStepId` 执行失败恢复分支，默认恢复片段由 `ESC`、等待、页面确认和截图记录组成，且只在恢复分支执行；`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务；计划态 restore 类型本身仍不发送后台输入。
+- 工作区 schema v9 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId`、`maxIterations`、`recoveryAction` 和 v8 引入的 `steps[].params` 前端结构化参数镜像；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。`params` 会继续投影回 `target/command/expect`，当前 Rust IPC 仍读取旧字段。
+- 工作区载入和 JSON 导入会显示迁移审计摘要，包含 schema v9 规范化、旧 assets 迁移、运行记录裁剪、失效窗口队列过滤和最近备份路径，便于确认旧工作区升级后到底改了什么。
+- 前端运行器已改为带 `MAX_CONTROL_FLOW_STEPS` 预算的指令指针模型：`condition` 会按 guard 选择 true/false 目标，普通成功步骤可用 `targetStepId` 跳到同任务步骤；一等 `loop` 步骤可做当前任务内的有限后向循环，必须设置循环目标和 `maxIterations`，本身不发送后台输入；跨任务环内任意未设上限的 `task_jump` 会在 readiness 中阻塞，直到该跳转补上最大循环次数。`onFail=restore` 可跳到同任务 `recoveryStepId` 执行失败恢复分支，默认恢复片段由 `ESC`、等待、页面确认和截图记录组成，且只在恢复分支执行；恢复后可按 `recoveryAction` 保守停止、在上限内重试原失败步骤，或继续原失败步骤后的正常路径；`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务；计划态 restore 类型本身仍不发送后台输入。
 - 运行状态 pill 和会话卡片会区分 idle/ready/running/paused/blocked/failed，界面日志保留最近 500 条，适合长时间运行时保持可用。
 - 后台就绪面板的待补全项带结构化分类，不只依赖中文文案匹配；缺素材、缺坐标、缺 OCR 文本、缺目标、窗口、权限、计划态和恢复入口都会带稳定 category、聚焦控件和下一步动作。
+- 待补全面板会把当前缺口转成动作坞按钮：缺图可直接从剪贴板绑定、ROI 存为目标或接入内置素材；缺坐标可开启预览采点或写入 ROI 中心；窗口、权限、OCR、目标库和演练入口也能从同一区域触达。
 - 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、暂停/继续事件、统一 `runEvents` 时间线、控制流 `controlFlowTransitions`、每步状态、失败点、耗时、暂停次数/时长、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
 - 运行面板会从 `runHistory` 自动提取失败/停止报告，显示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；展开详情可查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，并支持一键定位到当前任务库中的失败步骤或复制单条报告 JSON。
 - `ocr_assert` 会截图、按 ROI 或命名区域裁剪后调用 Windows OCR；识别未命中或系统 OCR/语言包不可用都会明确失败，不会伪装成可识别。
@@ -82,6 +85,8 @@ python scripts\audit_input_safety.py --json
 python scripts\audit_control_flow_schema.py --json
 npm run test:step-params
 npm run audit:step-params
+npm run audit:quick-steps
+npm run audit:completion-action-dock
 npm run test:control-flow
 python scripts\audit_workflow_readiness.py --json
 python scripts\audit_readiness_taxonomy.py --json
@@ -98,6 +103,8 @@ npm run test:step-params
 npm run test:control-flow
 npm run test:target-library
 npm run audit:step-params
+npm run audit:quick-steps
+npm run audit:completion-action-dock
 npm run audit:input-safety
 npm run audit:control-flow-schema
 npm run audit:workflow-readiness
@@ -140,7 +147,7 @@ E:\Project\Common
 
 ## 后续路线
 
-1. 按 [docs/product-plan.md](docs/product-plan.md) 的方案门禁扩展恢复片段模板覆盖面、补真实窗口 live 验收、恢复后重试/继续策略和更完整的失败分析导出。
+1. 按 [docs/product-plan.md](docs/product-plan.md) 的方案门禁扩展恢复片段模板覆盖面、补真实窗口 live 验收和更完整的失败分析导出。
 2. 扩展 `targets` 文件化模板、批量导入导出和 OCR 文本目标实测。
 3. 继续完善后台 hwnd 输入执行器：增加 Rust 后端 runner、事件流、停止/失败恢复和真实游戏反馈验证。
 4. 接入 OCR 实测，每补一个真实任务都保留观察运行、运行报告和输入安全审计。

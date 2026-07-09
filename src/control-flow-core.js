@@ -10,6 +10,7 @@ const DEFAULT_BACKGROUND_FAILURE_STATUSES = new Set([
   "missing_expect",
 ]);
 const DEFAULT_PLANNED_ONLY_STEP_TYPES = new Set(["restore"]);
+const DEFAULT_RECOVERY_ACTIONS = new Set(["stop", "retry", "continue"]);
 
 function labelsFrom(options) {
   return options.stepLabels || {};
@@ -185,6 +186,10 @@ export function recoveryDecisionForFailedStep(context, options = {}) {
   const failureReason = failureReasonFromResult(result);
   const defaultNextPc = currentPc + 1;
   const targetStepId = String(item.recoveryStepId || "").trim();
+  const recoveryAction = normalizeRecoveryAction(item.recoveryAction);
+  const recoveryRetryKey = `${workflow.id}:${item.id}:recovery_action:retry`;
+  const recoveryRetryCount = Number(session.controlFlowCounts?.[recoveryRetryKey] || 0);
+  const recoveryMaxRetries = Math.max(0, Number(item.maxIterations) || 0);
   const buildTransition = (status, nextPc, extra = {}) => {
     const targetStep = Number.isInteger(nextPc) ? steps[nextPc] : null;
     return {
@@ -210,6 +215,7 @@ export function recoveryDecisionForFailedStep(context, options = {}) {
       resultStatus: result?.status || "",
       resultAction: result?.action || "",
       recovery: true,
+      recoveryAction,
       ...extra,
     };
   };
@@ -251,6 +257,22 @@ export function recoveryDecisionForFailedStep(context, options = {}) {
   }
 
   const recoveryStep = steps[nextPc];
+  if (recoveryAction === "retry" && (recoveryMaxRetries <= 0 || recoveryRetryCount >= recoveryMaxRetries)) {
+    const limit =
+      recoveryMaxRetries <= 0 ? "未设置恢复后重试上限" : `已达到恢复后重试 maxIterations=${recoveryMaxRetries}`;
+    return {
+      recovered: false,
+      failureReason,
+      message: `${workflow.name} / ${item.name} 恢复后重试被跳过：${limit}`,
+      transition: buildTransition("skipped", defaultNextPc, {
+        skippedReason: limit,
+        requestedToStepId: targetStepId,
+        requestedToIndex: nextPc,
+        maxIterations: recoveryMaxRetries,
+        iterationCount: recoveryRetryCount,
+      }),
+    };
+  }
   const backward = nextPc <= currentPc;
   let iterationCount = null;
   const maxIterations = Math.max(0, Number(item.maxIterations) || 0);
@@ -283,11 +305,20 @@ export function recoveryDecisionForFailedStep(context, options = {}) {
     workflowName: workflow.name,
     failedStepId: item.id,
     failedStepName: item.name || labelsFrom(options)[item.type] || item.type,
+    failedStepIndex: currentPc,
     failureReason,
     resultStatus: result?.status || "",
     resultAction: result?.action || "",
+    defaultNextIndex: defaultNextPc < steps.length ? defaultNextPc : null,
+    defaultNextStepId: steps[defaultNextPc]?.id || "",
+    defaultNextStepName: steps[defaultNextPc]?.name || labelsFrom(options)[steps[defaultNextPc]?.type] || steps[defaultNextPc]?.type || "",
     recoveryStepId: recoveryStep.id,
     recoveryStepName: recoveryStep.name || labelsFrom(options)[recoveryStep.type] || recoveryStep.type,
+    recoveryStepIndex: nextPc,
+    recoveryAction,
+    recoveryRetryKey,
+    recoveryRetryCount,
+    recoveryMaxRetries,
     startedAt: new Date().toISOString(),
   };
   return {
@@ -299,13 +330,116 @@ export function recoveryDecisionForFailedStep(context, options = {}) {
       maxIterations,
       iterationCount,
       originalFailureReason: failureReason,
+      defaultNextStepId: session.recoveryContext.defaultNextStepId,
+      defaultNextIndex: session.recoveryContext.defaultNextIndex,
     }),
   };
 }
 
 export function completeRecoveryAsFailed(session) {
+  return completeRecoveryWithPolicy(session, { forceAction: "stop" });
+}
+
+export function completeRecoveryWithPolicy(session, options = {}) {
   const context = session.recoveryContext;
-  if (!context) return;
+  if (!context) return { completed: false, stopped: false, nextPc: null, transition: null, message: "" };
+  const steps = Array.isArray(options.steps) ? options.steps : [];
+  const stepLabels = labelsFrom(options);
+  const requestedAction = options.forceAction || context.recoveryAction;
+  const recoveryAction = normalizeRecoveryAction(requestedAction);
+  const failedStepIndex = Number.isInteger(context.failedStepIndex) ? context.failedStepIndex : -1;
+  const defaultNextPc = Number.isInteger(context.defaultNextIndex) ? context.defaultNextIndex : failedStepIndex + 1;
+  const targetFor = (nextPc) => (Number.isInteger(nextPc) && nextPc >= 0 ? steps[nextPc] : null);
+  const buildTransition = (status, nextPc, extra = {}) => {
+    const targetStep = targetFor(nextPc);
+    return {
+      workflowId: context.workflowId,
+      workflowName: context.workflowName,
+      fromStepId: context.recoveryStepId || "",
+      fromStepName: context.recoveryStepName || "恢复分支",
+      fromStepType: "recovery",
+      fromIndex: Number.isInteger(options.completedIndex) ? options.completedIndex : context.recoveryStepIndex ?? null,
+      stepOrder: session.currentStep,
+      reason: "failure recovery complete",
+      guardResult: null,
+      guardSupported: null,
+      guardExpression: "",
+      configuredTargetStepId: context.recoveryStepId || "",
+      toStepId: status === "taken" && targetStep ? targetStep.id : "",
+      toStepName: status === "taken" && targetStep ? targetStep.name || stepLabels[targetStep.type] || targetStep.type : "",
+      toStepType: status === "taken" && targetStep ? targetStep.type : "",
+      toIndex: status === "taken" && Number.isInteger(nextPc) ? nextPc : null,
+      defaultNextStepId: context.defaultNextStepId || "",
+      defaultNextIndex: Number.isInteger(context.defaultNextIndex) ? context.defaultNextIndex : null,
+      status,
+      resultStatus: context.resultStatus || "",
+      resultAction: context.resultAction || "",
+      recovery: true,
+      recoveryComplete: true,
+      recoveryAction,
+      originalFailureReason: context.failureReason,
+      ...extra,
+    };
+  };
+
+  if (recoveryAction === "continue") {
+    const nextPc = Math.max(0, defaultNextPc);
+    const message = `${context.workflowName} / 恢复分支完成，继续原失败步骤后的正常路径`;
+    session.logs?.unshift(message);
+    session.recoveryContext = null;
+    return {
+      completed: true,
+      stopped: false,
+      nextPc,
+      message,
+      transition: buildTransition("taken", nextPc, { skippedReason: "", backward: false }),
+    };
+  }
+
+  if (recoveryAction === "retry") {
+    const maxRetries = Math.max(0, Number(context.recoveryMaxRetries) || 0);
+    const key = context.recoveryRetryKey || `${context.workflowId}:${context.failedStepId}:recovery_action:retry`;
+    const currentCount = Number(session.controlFlowCounts?.[key] || 0);
+    if (maxRetries <= 0 || currentCount >= maxRetries) {
+      const limit = maxRetries <= 0 ? "未设置恢复后重试上限" : `已达到恢复后重试 maxIterations=${maxRetries}`;
+      session.status = "failed";
+      session.cancelRequested = true;
+      session.failureReason = `原失败：${context.failureReason}；恢复分支完成但${limit}，当前窗口队列已停止`;
+      session.failedWorkflowName = context.workflowName;
+      session.failedStepName = context.failedStepName;
+      session.logs?.unshift(`${context.workflowName} / 恢复分支完成但${limit}，已停止当前窗口队列`);
+      session.recoveryContext = null;
+      return {
+        completed: true,
+        stopped: true,
+        nextPc: null,
+        message: session.failureReason,
+        transition: buildTransition("skipped", defaultNextPc, {
+          skippedReason: limit,
+          maxIterations: maxRetries,
+          iterationCount: currentCount,
+        }),
+      };
+    }
+    session.controlFlowCounts ||= {};
+    session.controlFlowCounts[key] = currentCount + 1;
+    const nextPc = Math.max(0, failedStepIndex);
+    const message = `${context.workflowName} / 恢复分支完成，重试原失败步骤 (${currentCount + 1}/${maxRetries})`;
+    session.logs?.unshift(message);
+    session.recoveryContext = null;
+    return {
+      completed: true,
+      stopped: false,
+      nextPc,
+      message,
+      transition: buildTransition("taken", nextPc, {
+        backward: true,
+        maxIterations: maxRetries,
+        iterationCount: currentCount + 1,
+      }),
+    };
+  }
+
   session.status = "failed";
   session.cancelRequested = true;
   session.failureReason = `原失败：${context.failureReason}；恢复分支已执行到任务结束，当前窗口队列已停止`;
@@ -313,6 +447,20 @@ export function completeRecoveryAsFailed(session) {
   session.failedStepName = context.failedStepName;
   session.logs.unshift(`${context.workflowName} / 恢复分支完成，原失败仍停止当前窗口队列`);
   session.recoveryContext = null;
+  return {
+    completed: true,
+    stopped: true,
+    nextPc: null,
+    message: session.failureReason,
+    transition: buildTransition("stopped", defaultNextPc, { skippedReason: "recovery action stop" }),
+  };
+}
+
+export function normalizeRecoveryAction(value, fallback = "stop") {
+  const action = String(value || "").trim();
+  if (DEFAULT_RECOVERY_ACTIONS.has(action)) return action;
+  const fallbackAction = String(fallback || "").trim();
+  return DEFAULT_RECOVERY_ACTIONS.has(fallbackAction) ? fallbackAction : "stop";
 }
 
 export function controlFlowDecisionForStep(context, options = {}) {

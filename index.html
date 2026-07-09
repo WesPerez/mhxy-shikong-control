@@ -169,6 +169,7 @@
             <div class="workspace-path">
               <span id="workspace-state" class="state-pill">loading</span>
               <p id="workspace-path">工作区未载入</p>
+              <p id="workspace-migration">迁移审计等待载入</p>
             </div>
           </section>
 
@@ -218,6 +219,13 @@
               <button id="move-step-down" type="button">下移</button>
               <button id="delete-step" type="button" class="danger">删除</button>
             </div>
+            <div class="quick-step-palette" aria-label="常用步骤快捷入口">
+              <div class="quick-step-head">
+                <strong>常用动作</strong>
+                <span>选中步骤下方插入；没有选中时追加到末尾</span>
+              </div>
+              <div id="quick-step-actions" class="quick-step-actions"></div>
+            </div>
             <div id="workflow-completion" class="completion-board" aria-live="polite">
               <div class="completion-head">
                 <div>
@@ -226,6 +234,7 @@
                 </div>
                 <button id="focus-next-gap" type="button">补下一项</button>
               </div>
+              <div id="completion-action-dock" class="completion-action-dock" hidden></div>
               <div id="completion-list" class="completion-list"></div>
             </div>
             <div id="step-list" class="step-list"></div>
@@ -484,6 +493,14 @@
                         <option value="restore">restore（跳转恢复入口）</option>
                       </select>
                     </label>
+                    <label>
+                      恢复后
+                      <select id="step-recovery-action">
+                        <option value="stop">stop（保留失败并停止）</option>
+                        <option value="retry">retry（恢复后重试原步骤）</option>
+                        <option value="continue">continue（恢复后继续下一步）</option>
+                      </select>
+                    </label>
                   </div>
                   <label>
                     说明
@@ -567,8 +584,10 @@
                   <div class="target-actions">
                     <button id="bind-selected-target" type="button">绑定到当前步骤</button>
                     <button id="unbind-step-target" type="button">解除当前步骤绑定</button>
+                    <button id="verify-selected-target" type="button">验证当前目标</button>
                     <button id="delete-target" type="button" class="danger">删除未使用目标</button>
                   </div>
+                  <p id="target-verify-state" class="target-verify-state">尚未验证</p>
                 </div>
               </section>
             </div>

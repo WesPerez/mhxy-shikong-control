@@ -3,6 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   compareNumbers as compareNumbersCore,
   completeRecoveryAsFailed as completeRecoveryAsFailedCore,
+  completeRecoveryWithPolicy as completeRecoveryWithPolicyCore,
   controlFlowDecisionForStep as controlFlowDecisionForStepCore,
   evaluateConditionGuard as evaluateConditionGuardCore,
   failureReasonFromResult as failureReasonFromResultCore,
@@ -10,6 +11,7 @@ import {
   isSuccessfulStepResult as isSuccessfulStepResultCore,
   recordControlFlowTransition as recordControlFlowTransitionCore,
   recoveryDecisionForFailedStep as recoveryDecisionForFailedStepCore,
+  normalizeRecoveryAction as normalizeRecoveryActionCore,
   stepLabelForExecution as stepLabelForExecutionCore,
   unboundedWorkflowJumpCycleFindings,
 } from "./control-flow-core.js";
@@ -24,10 +26,14 @@ import {
   syncStepParamsFromLegacy,
   syncStepParamsToLegacy,
 } from "./step-params-core.js";
+import {
+  workspaceMigrationAudit,
+  workspaceMigrationSummaryText,
+} from "./workspace-migration-core.js";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
-const WORKSPACE_SCHEMA_VERSION = 8;
+const WORKSPACE_SCHEMA_VERSION = 9;
 const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
@@ -339,6 +345,81 @@ const stepBlockPresets = [
   },
 ];
 
+const quickStepActions = [
+  {
+    id: "hotkey",
+    kind: "键盘",
+    label: "快捷键",
+    detail: "向目标 hwnd 发送组合键",
+    stepType: "hotkey",
+    focusSelector: "#param-hotkey",
+  },
+  {
+    id: "coordinate-click",
+    kind: "鼠标",
+    label: "坐标点击",
+    detail: "采点或手填坐标，后台点击",
+    stepType: "click",
+    focusSelector: "#param-click-x",
+  },
+  {
+    id: "image-click-flow",
+    kind: "识图",
+    label: "识图点击链",
+    detail: "等待图像、点击、等待反馈",
+    presetId: "image-click-flow",
+    focusSelector: "#param-target-select",
+  },
+  {
+    id: "ocr-assert",
+    kind: "OCR",
+    label: "OCR 判断",
+    detail: "截图识别文字，不发送输入",
+    stepType: "ocr_assert",
+    focusSelector: "#target-texts",
+  },
+  {
+    id: "text-input",
+    kind: "键盘",
+    label: "文本输入",
+    detail: "WM_CHAR 后台输入文本",
+    presetId: "text-input",
+    focusSelector: "#param-text-value",
+  },
+  {
+    id: "right-click-item",
+    kind: "物品",
+    label: "右键物品",
+    detail: "等图、右键、记录结果",
+    presetId: "right-click-item",
+    focusSelector: "#param-target-select",
+  },
+  {
+    id: "guard-snapshot",
+    kind: "流程",
+    label: "条件检查",
+    detail: "状态判断并记录现场",
+    presetId: "guard-snapshot",
+    focusSelector: "#param-condition-guard",
+  },
+  {
+    id: "recovery-fragment",
+    kind: "恢复",
+    label: "失败恢复",
+    detail: "ESC、等待、回主界面、截图",
+    presetId: "recovery-fragment",
+    focusSelector: "#param-control-recovery-step",
+  },
+  {
+    id: "full-task-skeleton",
+    kind: "任务",
+    label: "10 步骨架",
+    detail: "完整任务结构，适合新任务起步",
+    presetId: "full-task-skeleton",
+    focusSelector: "#param-target-select",
+  },
+];
+
 const workflowBlueprints = [
   {
     id: "home-vitality",
@@ -582,8 +663,11 @@ const state = {
   previewClickButton: "left",
   workspace: createSeedWorkspace(),
   workspacePath: "",
+  workspaceBackupPath: "",
+  workspaceMigration: null,
   selectedStepId: null,
   selectedTargetId: "",
+  targetVerification: null,
   targetSearch: "",
   targetKindFilter: "all",
   stepValidation: {},
@@ -876,26 +960,41 @@ function step(
 async function loadWorkspace() {
   try {
     const result = await invokeBackend("load_workflow_workspace");
+    const sourceData = result.data;
     state.workspacePath = result.path;
-    state.workspace = normalizeWorkspace(result.data);
-    let shouldSave = false;
+    state.workspaceBackupPath = "";
+    state.workspace = normalizeWorkspace(sourceData);
+    state.workspaceMigration = workspaceMigrationAudit(sourceData, state.workspace, WORKSPACE_SCHEMA_VERSION);
+    let shouldSave = state.workspaceMigration.shouldSave;
     if (!state.workspace.workflows.length) {
       state.workspace = createSeedWorkspace();
+      state.workspaceMigration = workspaceMigrationAudit(sourceData, state.workspace, WORKSPACE_SCHEMA_VERSION);
       shouldSave = true;
       appendLog("info", `首次启动已写入 ${state.workspace.workflows.length} 个示例任务`);
     }
     const hydrated = await hydrateBuiltinTargetTemplates({ log: true });
     shouldSave = shouldSave || hydrated > 0;
+    if (hydrated > 0) {
+      state.workspaceMigration = workspaceMigrationAudit(sourceData, state.workspace, WORKSPACE_SCHEMA_VERSION);
+    }
     if (shouldSave) await saveWorkspaceNow();
-    $("#workspace-state").textContent = result.existed ? "loaded" : "seeded";
+    $("#workspace-state").textContent = result.existed
+      ? state.workspaceMigration?.actions?.length
+        ? "migrated"
+        : "loaded"
+      : "seeded";
     $("#workspace-state").classList.add("ok");
     $("#workspace-path").textContent = state.workspacePath;
+    renderWorkspaceMigrationAudit();
   } catch (error) {
     state.workspace = createSeedWorkspace();
+    state.workspaceBackupPath = "";
+    state.workspaceMigration = null;
     await hydrateBuiltinTargetTemplates({ log: true });
     $("#workspace-state").textContent = "memory";
     $("#workspace-state").classList.remove("ok");
     $("#workspace-path").textContent = "工作区载入失败，当前使用内存草稿";
+    renderWorkspaceMigrationAudit();
     appendLog("error", `工作区载入失败：${error}`);
   }
 }
@@ -963,6 +1062,7 @@ function normalizeStep(value) {
     timeoutMs: Number(value?.timeoutMs ?? defaults.timeoutMs),
     retry: Number(value?.retry ?? defaults.retry),
     onFail: normalizeStepFailAction(value?.onFail, defaults.onFail),
+    recoveryAction: normalizeRecoveryAction(value?.recoveryAction),
     enabled: value?.enabled !== false,
     targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
@@ -1007,6 +1107,10 @@ function normalizeStepFailAction(value, fallback = "stop") {
   if (stepFailActions.has(action)) return action;
   const fallbackAction = String(fallback || "").trim();
   return stepFailActions.has(fallbackAction) ? fallbackAction : "stop";
+}
+
+function normalizeRecoveryAction(value, fallback = "stop") {
+  return normalizeRecoveryActionCore(value, fallback);
 }
 
 function sanitizeStepControlFlowForType(item) {
@@ -1190,16 +1294,28 @@ async function saveWorkspaceNow() {
     state.workspace.updatedAt = new Date().toISOString();
     const result = await invokeBackend("save_workflow_workspace", { workspace: state.workspace });
     state.workspacePath = result.savedPath;
+    state.workspaceBackupPath = result.backupPath || state.workspaceBackupPath || "";
     $("#workspace-state").textContent = "saved";
     $("#workspace-state").classList.add("ok");
     $("#workspace-path").textContent = `${result.savedPath} · ${result.bytes} bytes`;
+    renderWorkspaceMigrationAudit();
     return result;
   } catch (error) {
     $("#workspace-state").textContent = "save failed";
     $("#workspace-state").classList.remove("ok");
+    renderWorkspaceMigrationAudit();
     appendLog("error", `工作区保存失败：${error}`);
     return null;
   }
+}
+
+function renderWorkspaceMigrationAudit() {
+  const element = $("#workspace-migration");
+  if (!element) return;
+  element.textContent = workspaceMigrationSummaryText(state.workspaceMigration, {
+    backupPath: state.workspaceBackupPath,
+  });
+  element.title = state.workspaceMigration ? JSON.stringify(state.workspaceMigration, null, 2) : "";
 }
 
 function markDirty(reason = "draft") {
@@ -2571,6 +2687,7 @@ function renderWorkflowCompletion(workflow = activeWorkflow(), validation = null
     summary.textContent = "没有当前任务";
     nextButton.disabled = true;
     board.classList.remove("ready", "warning", "blocked");
+    renderCompletionActionDock(null);
     return;
   }
   const completion = workflowCompletionState(workflow, validation || validateWorkflow(workflow, "background"));
@@ -2592,6 +2709,7 @@ function renderWorkflowCompletion(workflow = activeWorkflow(), validation = null
   summary.textContent = completion.items.length
     ? `${completion.items.length} 项待处理 · 阻塞 ${issueCount} · 提醒 ${warningCount}${detail ? ` · ${detail}` : ""}`
     : `${workflow.name} 输入链路可进入后台队列`;
+  renderCompletionActionDock(completion);
   if (!completion.items.length) {
     const ready = document.createElement("div");
     ready.className = "empty-block compact";
@@ -2623,6 +2741,147 @@ function renderWorkflowCompletion(workflow = activeWorkflow(), validation = null
     more.textContent = `还有 ${completion.items.length - 8} 项，补完上面的项后会继续显示`;
     list.append(more);
   }
+}
+
+function renderCompletionActionDock(completion) {
+  const dock = $("#completion-action-dock");
+  if (!dock) return;
+  dock.replaceChildren();
+  const workflow = activeWorkflow();
+  if (!workflow) {
+    dock.hidden = true;
+    return;
+  }
+
+  const items = completion?.items || [];
+  const selectedGap = items.find((item) => item.stepId && item.stepId === state.selectedStepId);
+  const environmentGap = workbenchReadinessItems(completion || { items: [] }).find((item) =>
+    !item.stepId && ["missing_window", "permission", "window_identity"].includes(item.category),
+  );
+  const primary = selectedGap || items[0] || environmentGap || null;
+  const actions = primary ? completionDockActionsForItem(primary, workflow) : completionReadyDockActions();
+  if (!actions.length) {
+    dock.hidden = true;
+    return;
+  }
+
+  dock.hidden = false;
+  const copy = document.createElement("div");
+  copy.className = "completion-action-copy";
+  copy.innerHTML = primary
+    ? `
+      <strong>${escapeHtml(primary.kind || "缺口")}</strong>
+      <span>${escapeHtml(completionMessageDetail(primary.message || primary.statusMessage || "当前缺口"))}</span>
+    `
+    : `
+      <strong>可演练</strong>
+      <span>${escapeHtml(`${workflow.name} 已满足当前任务的输入链路要求`)}</span>
+    `;
+  const row = document.createElement("div");
+  row.className = "completion-action-row";
+  for (const action of actions) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `dock-action ${action.tone || "neutral"}`;
+    button.dataset.dockAction = action.action;
+    button.dataset.stepId = action.stepId || primary?.stepId || "";
+    button.dataset.focusSelector = action.focusSelector || "";
+    button.dataset.category = primary?.category || "";
+    button.disabled = Boolean(action.disabled);
+    button.title = action.title || "";
+    button.textContent = action.label;
+    row.append(button);
+  }
+  dock.append(copy, row);
+}
+
+function completionReadyDockActions() {
+  return [
+    completionDockAction("追加到已选窗口", "assign-active", { tone: "primary" }),
+    completionDockAction("观察运行队列", "dry-run"),
+    completionDockAction("准备演练", "prepare-exercise"),
+  ];
+}
+
+function completionDockActionsForItem(item, workflow) {
+  const stepItem = item?.stepId ? workflow.steps.find((step) => step.id === item.stepId) : null;
+  const focusSelector = completionFocusSelector(item, stepItem) || item?.focusSelector || "";
+  const actions = [];
+  const addFocus = (label = item?.action || "定位字段") => {
+    if (focusSelector) {
+      actions.push(completionDockAction(label, "focus-gap", { focusSelector, stepId: item.stepId, tone: "primary" }));
+    }
+  };
+
+  if (!item) return actions;
+  if (item.category === "missing_asset") {
+    actions.push(completionDockAction("剪贴板绑定图片", "clipboard-image", { stepId: item.stepId, tone: "primary" }));
+    actions.push(completionDockAction("ROI 存为目标", "roi-target", { stepId: item.stepId }));
+    actions.push(completionDockAction("接入内置素材", "builtin-templates", { stepId: item.stepId }));
+    actions.push(completionDockAction("选择目标库", "target-library", { stepId: item.stepId, focusSelector }));
+    return actions;
+  }
+  if (item.category === "missing_coordinate") {
+    actions.push(completionDockAction("开启预览采点", "capture-point", { stepId: item.stepId, tone: "primary" }));
+    actions.push(completionDockAction("用 ROI 中心", "roi-center", { stepId: item.stepId }));
+    addFocus("填写 X/Y");
+    return actions;
+  }
+  if (item.category === "missing_ocr_text") {
+    addFocus("填写 OCR 文本");
+    actions.push(completionDockAction("筛选 OCR 目标", "ocr-target-library", { stepId: item.stepId }));
+    actions.push(completionDockAction("接入内置素材", "builtin-templates", { stepId: item.stepId }));
+    return actions;
+  }
+  if (item.category === "missing_target") {
+    actions.push(completionDockAction("选择目标库", "target-library", { stepId: item.stepId, tone: "primary" }));
+    actions.push(completionDockAction("接入内置素材", "builtin-templates", { stepId: item.stepId }));
+    actions.push(completionDockAction("剪贴板绑定图片", "clipboard-image", { stepId: item.stepId }));
+    return actions;
+  }
+  if (item.category === "missing_window" || item.category === "window_identity") {
+    actions.push(completionDockAction("刷新窗口", "refresh-windows", { tone: "primary" }));
+    actions.push(completionDockAction("选择全部窗口", "select-windows"));
+    return actions;
+  }
+  if (item.category === "permission") {
+    actions.push(completionDockAction("管理员重启", "restart-admin", { tone: "primary" }));
+    actions.push(completionDockAction("刷新窗口", "refresh-windows"));
+    return actions;
+  }
+  if (item.category === "step_structure") {
+    actions.push(completionDockAction("插入片段", "insert-step-block", { tone: "primary" }));
+    addFocus("选择片段");
+    return actions;
+  }
+  if (item.category === "recovery_entry") {
+    actions.push(completionDockAction("插入恢复片段", "insert-recovery-fragment", { stepId: item.stepId, tone: "primary" }));
+    actions.push(completionDockAction("标记当前为入口", "mark-recovery-entry", { stepId: item.stepId }));
+    addFocus("选择恢复入口");
+    return actions;
+  }
+  if (["task_jump", "loop_control", "unsupported_guard"].includes(item.category)) {
+    addFocus(item.action || "定位流程");
+    return actions;
+  }
+  addFocus(item.action || "定位字段");
+  if (["text_input", "hotkey", "threshold", "mouse_button", "timing", "roi_warning"].includes(item.category)) {
+    return actions;
+  }
+  if (item.stepId) actions.push(completionDockAction("选择目标库", "target-library", { stepId: item.stepId }));
+  return actions;
+}
+
+function completionDockAction(label, action, options = {}) {
+  return {
+    label,
+    action,
+    stepId: options.stepId || "",
+    focusSelector: options.focusSelector || "",
+    tone: options.tone || "neutral",
+    disabled: Boolean(options.disabled),
+    title: options.title || "",
+  };
 }
 
 function workflowCompletionState(workflow, validation = validateWorkflow(workflow, "background")) {
@@ -2789,6 +3048,128 @@ function completionFocusSelector(item, stepItem) {
 
 function completionStatusMessage(item) {
   return item.statusMessage || readinessGapForMessage(item.message).statusMessage;
+}
+
+async function handleCompletionActionDock(event) {
+  const button = event.target.closest("[data-dock-action]");
+  if (!button) return;
+  event.preventDefault();
+  const action = button.dataset.dockAction;
+  const stepId = button.dataset.stepId || "";
+  if (stepId) focusCompletionDockStep(stepId);
+  try {
+    if (action === "focus-gap") {
+      focusDockSelector(button.dataset.focusSelector);
+    } else if (action === "clipboard-image") {
+      await bindClipboardImageToCurrentStep();
+    } else if (action === "roi-target") {
+      await targetFromRoi();
+    } else if (action === "capture-point") {
+      enablePreviewClickCaptureFromDock();
+    } else if (action === "roi-center") {
+      applyRoiCenterToSelectedStep();
+    } else if (action === "target-library") {
+      focusTargetLibrary("all");
+    } else if (action === "ocr-target-library") {
+      focusTargetLibrary("ocr");
+    } else if (action === "builtin-templates") {
+      await applyBuiltinTemplatesToTargets();
+    } else if (action === "refresh-windows") {
+      await refreshWindows();
+    } else if (action === "select-windows") {
+      selectGameWindows();
+    } else if (action === "restart-admin") {
+      await restartAsAdmin();
+    } else if (action === "assign-active") {
+      assignWorkflowToSelected();
+    } else if (action === "dry-run") {
+      dryRunSelected();
+    } else if (action === "prepare-exercise") {
+      await prepareExerciseWorkspace();
+    } else if (action === "insert-step-block") {
+      insertStepBlock();
+    } else if (action === "insert-recovery-fragment") {
+      insertRecoveryFragmentForSelectedStep();
+    } else if (action === "mark-recovery-entry") {
+      markSelectedStepAsRecoveryEntry();
+    }
+  } catch (error) {
+    setStatus(`动作执行失败：${error}`);
+    appendLog("error", `补全动作失败：${action} / ${error}`);
+  } finally {
+    renderWorkflowCompletion();
+  }
+}
+
+function focusCompletionDockStep(stepId) {
+  const workflow = activeWorkflow();
+  const stepItem = workflow?.steps.find((item) => item.id === stepId);
+  if (!stepItem) return null;
+  selectStepAndTarget(stepItem);
+  renderSteps();
+  renderStepEditor();
+  renderTargets();
+  return stepItem;
+}
+
+function focusDockSelector(selector) {
+  if (!selector) {
+    setStatus("当前缺口没有可聚焦字段");
+    return;
+  }
+  window.requestAnimationFrame(() => {
+    const element = $(selector);
+    if (!element) {
+      setStatus(`未找到字段：${selector}`);
+      return;
+    }
+    openContainingDetails(element);
+    element.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    element.focus();
+    if (typeof element.select === "function") element.select();
+    setStatus("已定位补全字段");
+  });
+}
+
+function focusTargetLibrary(kind = "all") {
+  state.targetSearch = "";
+  state.targetKindFilter = kind === "ocr" ? "ocr" : "all";
+  renderTargets();
+  focusDockSelector("#target-search");
+  setStatus(kind === "ocr" ? "已筛选 OCR 目标库" : "已定位目标库");
+}
+
+function enablePreviewClickCaptureFromDock() {
+  if (!state.preview) {
+    setStatus("请先刷新预览，再在预览图上采点");
+  }
+  if (!state.previewClickCapture) {
+    togglePreviewClickCapture();
+  } else {
+    updatePreviewClickCaptureUi();
+    setStatus("采点模式已开启：在预览图上点一下生成后台点击步骤");
+  }
+}
+
+function applyRoiCenterToSelectedStep() {
+  const item = selectedStep();
+  if (!item) {
+    setStatus("需要先选择点击步骤");
+    return;
+  }
+  const target = selectedManagedTarget() || targetForStep(item);
+  const roi = state.roiSelection || target?.roi;
+  const point = roiCenterPoint(roi);
+  if (!point) {
+    setStatus("需要先框选 ROI，或选择带 ROI 的目标");
+    return;
+  }
+  applyClickPointToStep(item, point, target?.click?.button || state.previewClickButton || "left");
+  markDirty("draft");
+  renderSteps();
+  renderStepEditor();
+  renderTargets();
+  setStatus(`已用 ROI 中心写入后台点击坐标：${point.x},${point.y}`);
 }
 
 function createStep(type) {
@@ -3026,6 +3407,68 @@ function insertStepBlock() {
   }
   appendLog("info", `插入片段：${preset.label}（${inserted.length} 步）`);
   setStatus(`已插入片段：${preset.label}`);
+}
+
+function renderQuickStepActions() {
+  const host = $("#quick-step-actions");
+  if (!host) return;
+  host.replaceChildren(
+    ...quickStepActions.map((action) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `quick-step-action action-${action.id}`;
+      button.dataset.quickStepAction = action.id;
+      button.innerHTML = `
+        <span>${escapeHtml(action.kind)}</span>
+        <strong>${escapeHtml(action.label)}</strong>
+        <small>${escapeHtml(action.detail)}</small>
+      `;
+      return button;
+    }),
+  );
+}
+
+function insertQuickStepAction(actionId) {
+  const action = quickStepActions.find((item) => item.id === actionId);
+  const workflow = activeWorkflow();
+  if (!action || !workflow) return;
+  const index = selectedStepIndex(workflow);
+  const insertIndex = index >= 0 ? index + 1 : workflow.steps.length;
+  let inserted = [];
+  let label = action.label;
+  if (action.presetId) {
+    const { preset, steps } = createStepBlock(action.presetId);
+    inserted = insertStepsAt(steps, insertIndex) || [];
+    label = preset.label;
+  } else {
+    const item = createStep(action.stepType);
+    const insertedItem = insertStepAt(item, insertIndex);
+    inserted = insertedItem ? [insertedItem] : [];
+  }
+  if (!inserted.length) return;
+  selectStepAndTarget(inserted[0]);
+  if (selectFirstUnboundCapturedStep(inserted)) {
+    renderSteps();
+    renderStepEditor();
+    renderTargets();
+  } else {
+    renderStepEditor();
+    renderTargets();
+  }
+  focusQuickStepActionTarget(action);
+  appendLog("info", `快捷动作：${label}（插入 ${inserted.length} 步）`);
+  setStatus(`已插入快捷动作：${label}`);
+}
+
+function focusQuickStepActionTarget(action) {
+  window.requestAnimationFrame(() => {
+    const selector = action.focusSelector || "";
+    const element = selector ? $(selector) : null;
+    if (!element) return;
+    openContainingDetails(element);
+    element.focus();
+    if (typeof element.select === "function") element.select();
+  });
 }
 
 function insertRecoveryFragmentForSelectedStep() {
@@ -3356,6 +3799,7 @@ function controlFlowReferenceSummary(item) {
   }
   if (item.elseTargetStepId) parts.push(`false -> ${byId.get(item.elseTargetStepId) || "断链"}`);
   if (item.recoveryStepId) parts.push(`restore -> ${byId.get(item.recoveryStepId) || "断链"}`);
+  if (item.onFail === "restore") parts.push(`after ${normalizeRecoveryAction(item.recoveryAction)}`);
   if (item.jumpWorkflowId) parts.push(`task -> ${workflowNameById(item.jumpWorkflowId) || "断链"}`);
   if (item.maxIterations) parts.push(`max ${item.maxIterations}`);
   return parts.join(" / ");
@@ -3587,6 +4031,7 @@ function bindTargetEditor() {
   });
   $("#bind-selected-target").addEventListener("click", bindSelectedTargetToStep);
   $("#unbind-step-target").addEventListener("click", unbindCurrentStepTarget);
+  $("#verify-selected-target").addEventListener("click", verifySelectedTarget);
   $("#delete-target").addEventListener("click", deleteSelectedTarget);
   $("#apply-builtin-templates").addEventListener("click", applyBuiltinTemplatesToTargets);
   $("#export-target-library").addEventListener("click", exportTargetLibrary);
@@ -3639,6 +4084,7 @@ function renderStepEditor() {
   $("#step-timeout").value = String(item.timeoutMs ?? 0);
   $("#step-retry").value = String(item.retry ?? 0);
   $("#step-on-fail").value = item.onFail || "stop";
+  $("#step-recovery-action").value = normalizeRecoveryAction(item.recoveryAction);
   $("#step-notes").value = item.notes || "";
   renderStepParamPanel(item);
 }
@@ -3690,6 +4136,7 @@ function bindStepEditor() {
   $("#step-timeout").addEventListener("input", update("timeoutMs", (value) => Number(value) || 0));
   $("#step-retry").addEventListener("input", update("retry", (value) => Number(value) || 0));
   $("#step-on-fail").addEventListener("change", update("onFail"));
+  $("#step-recovery-action").addEventListener("change", update("recoveryAction", normalizeRecoveryAction));
   $("#step-notes").addEventListener("input", update("notes"));
   $("#step-type").addEventListener("change", (event) => {
     const item = selectedStep();
@@ -3703,6 +4150,7 @@ function bindStepEditor() {
     item.timeoutMs = defaults.timeoutMs;
     item.retry = defaults.retry;
     item.onFail = defaults.onFail;
+    item.recoveryAction = normalizeRecoveryAction(item.recoveryAction);
     if (!targetBackedStepTypes.has(item.type)) {
       item.targetId = "";
     }
@@ -3949,8 +4397,17 @@ function renderTargetEditor(filteredTargets = null) {
   $("#target-usage").textContent = usageText;
   $("#bind-selected-target").disabled = !selectedStep();
   $("#unbind-step-target").disabled = !stepTargetId(selectedStep());
+  $("#verify-selected-target").disabled = !activeWindow() || !targetCanPreviewVerify(target);
   $("#delete-target").disabled = usages.length > 0;
   $("#delete-target").title = usages.length > 0 ? "目标仍被步骤使用，先解除绑定后再删除" : "删除当前未使用目标";
+  const verification = state.targetVerification?.targetId === target.id ? state.targetVerification : null;
+  const verifyState = $("#target-verify-state");
+  verifyState.className = `target-verify-state ${verification?.level || "idle"}`;
+  verifyState.textContent = verification
+    ? `${verification.label} · ${verification.detail}`
+    : targetCanPreviewVerify(target)
+      ? "可用当前窗口做只读验证"
+      : "需要图片、ROI 或 OCR 目标文本后才能验证";
 }
 
 function updateSelectedTarget(mutator, options = {}) {
@@ -4007,6 +4464,104 @@ function bindSelectedTargetToStep() {
   renderSteps();
   renderStepEditor();
   setStatus(`已绑定目标：${target.name}`);
+}
+
+function targetCanPreviewVerify(target) {
+  if (!target) return false;
+  if (target.dataUrl || target.roi) return true;
+  return target.kind === "ocr";
+}
+
+function targetVerificationStep(target) {
+  const type = target.kind === "ocr" ? "ocr_assert" : target.kind === "page" ? "detect_page" : "wait_image";
+  const threshold = normalizedThreshold(target.match?.threshold, DEFAULT_IMAGE_THRESHOLD);
+  const command =
+    type === "ocr_assert"
+      ? commandWithValues("", {
+          lang: "zh",
+          roi: target.match?.scope && target.match.scope !== "window" ? target.match.scope : "",
+        })
+      : commandWithValues("", {
+          threshold,
+          button: target.click?.button || "left",
+          point: target.click?.point || "center",
+        });
+  return normalizeStep({
+    id: randomId("verify-step"),
+    type,
+    name: `验证 ${target.name || target.id}`,
+    target: target.id,
+    targetId: target.id,
+    command,
+    expect: type === "ocr_assert" ? "text_found" : "visible",
+    timeoutMs: 2000,
+    retry: 0,
+    onFail: "stop",
+  });
+}
+
+async function verifySelectedTarget() {
+  const target = selectedManagedTarget();
+  if (!target) {
+    setStatus("需要先选择目标");
+    return;
+  }
+  if (!targetCanPreviewVerify(target)) {
+    const detail = "当前目标没有图片、ROI 或 OCR 配置，无法做预览验证";
+    state.targetVerification = { targetId: target.id, level: "blocked", label: "无法验证", detail };
+    appendLog("warn", `${target.name}: ${detail}`);
+    renderTargets({ preserveEditor: true });
+    setStatus(detail);
+    return;
+  }
+  const windowTarget = activeWindow();
+  if (!windowTarget) {
+    const detail = "需要先选择一个目标窗口";
+    state.targetVerification = { targetId: target.id, level: "blocked", label: "缺窗口", detail };
+    renderTargets({ preserveEditor: true });
+    setStatus(detail);
+    return;
+  }
+  const verifyState = $("#target-verify-state");
+  if (verifyState) {
+    verifyState.className = "target-verify-state running";
+    verifyState.textContent = "验证中 · 正在截图匹配/OCR";
+  }
+  const probe = targetVerificationStep(target);
+  try {
+    const result = await invokeBackend("execute_workflow_step", {
+      hwnd: Number(windowTarget.hwnd),
+      step: backendStepPayload(probe),
+      expectedWindow: windowIdentityForTarget(windowTarget),
+    });
+    const matched = Boolean(result.matched || ["matched", "ok", "planned"].includes(result.status));
+    const level = matched ? "ready" : "blocked";
+    const score = result.score == null ? "" : ` · score=${Number(result.score).toFixed(3)}`;
+    const point = result.x != null && result.y != null ? ` · @${result.x},${result.y}` : "";
+    const detail = `${result.status}/${result.action}${score}${point} · ${result.detail || "无详情"}`;
+    state.targetVerification = {
+      targetId: target.id,
+      level,
+      label: matched ? "验证通过" : "验证未通过",
+      detail,
+      result,
+      checkedAt: new Date().toISOString(),
+    };
+    appendLog(level === "ready" ? "info" : "warn", `${target.name} 验证结果：${detail}`);
+    setStatus(`${target.name}：${matched ? "验证通过" : "验证未通过"}`);
+  } catch (error) {
+    const detail = String(error);
+    state.targetVerification = {
+      targetId: target.id,
+      level: "blocked",
+      label: "验证失败",
+      detail,
+      checkedAt: new Date().toISOString(),
+    };
+    appendLog("warn", `${target.name} 验证失败：${detail}`);
+    setStatus(`目标验证失败：${detail}`);
+  }
+  renderTargets({ preserveEditor: true });
 }
 
 function unbindCurrentStepTarget() {
@@ -5045,33 +5600,55 @@ async function cropPreviewRoiDataUrl(roi) {
 async function handlePasteImage(event) {
   const item = [...(event.clipboardData?.items || [])].find((entry) => entry.type.startsWith("image/"));
   const editableTarget = isEditablePasteTarget(event.target);
-  let dataUrl = "";
-  let size = { width: 0, height: 0 };
-  let note = "由 Ctrl+V 粘贴创建";
+  let payload = null;
   if (item) {
     event.preventDefault();
     const file = item.getAsFile();
     if (!file) return;
-    dataUrl = await readBlobAsDataUrl(file);
-    size = await imageSize(dataUrl).catch(() => ({ width: 0, height: 0 }));
+    const dataUrl = await readBlobAsDataUrl(file);
+    payload = {
+      dataUrl,
+      size: await imageSize(dataUrl).catch(() => ({ width: 0, height: 0 })),
+      note: "由 Ctrl+V 粘贴创建",
+    };
   } else {
     if (editableTarget) return;
-    let imported = null;
-    try {
-      imported = await invokeBackend("import_clipboard_image");
-    } catch (error) {
-      const message = String(error);
-      if (!message.includes("剪贴板里没有图片")) {
-        appendLog("warn", `后端剪贴板图片导入失败：${message}`);
-      }
-      return;
-    }
+    payload = await clipboardImagePayloadFromBackend();
+    if (!payload) return;
     event.preventDefault();
-    dataUrl = imported.dataUrl || "";
-    size = { width: imported.width || 0, height: imported.height || 0 };
-    note = "由 Ctrl+V 后端剪贴板导入创建";
   }
+  await createTargetFromClipboardImagePayload(payload);
+}
+
+async function bindClipboardImageToCurrentStep() {
+  const payload = await clipboardImagePayloadFromBackend({ showEmptyStatus: true });
+  if (!payload) return;
+  await createTargetFromClipboardImagePayload(payload);
+}
+
+async function clipboardImagePayloadFromBackend(options = {}) {
+  try {
+    const imported = await invokeBackend("import_clipboard_image");
+    return {
+      dataUrl: imported.dataUrl || "",
+      size: { width: imported.width || 0, height: imported.height || 0 },
+      note: "由 Ctrl+V 后端剪贴板导入创建",
+    };
+  } catch (error) {
+    const message = String(error);
+    if (!message.includes("剪贴板里没有图片")) {
+      appendLog("warn", `后端剪贴板图片导入失败：${message}`);
+    } else if (options.showEmptyStatus) {
+      setStatus("剪贴板里没有可绑定图片");
+    }
+    return null;
+  }
+}
+
+async function createTargetFromClipboardImagePayload(payload) {
+  const dataUrl = payload?.dataUrl || "";
   if (!dataUrl) return;
+  const size = payload.size || { width: 0, height: 0 };
   const targetItem = normalizeTarget({
     id: randomId("target"),
     name: `粘贴图片 ${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`,
@@ -5082,7 +5659,7 @@ async function handlePasteImage(event) {
     click: { button: "left", point: "center" },
     width: size.width,
     height: size.height,
-    note,
+    note: payload.note || "由剪贴板图片创建",
   });
   const destination = ensureCapturedTargetStep(targetItem);
   if (!destination.step) {
@@ -5104,6 +5681,7 @@ async function handlePasteImage(event) {
       ? `已粘贴图片目标并跳到下一个待绑定图像步骤：${savedTarget.name}`
       : `${destination.created ? "已自动新增图像点击步骤并" : "已"}粘贴图片目标：${savedTarget.name}`,
   );
+  return savedTarget;
 }
 
 function isEditablePasteTarget(target) {
@@ -5449,6 +6027,12 @@ function validateStepControlFlowReferences(workflow, item, prefix, addIssue, add
   if (item.recoveryStepId && item.onFail !== "restore") {
     addWarning(`${prefix} 恢复入口已保存，但失败处理不是 restore，不会自动使用`, item);
   }
+  if (item.recoveryAction && item.onFail !== "restore" && normalizeRecoveryAction(item.recoveryAction) !== "stop") {
+    addWarning(`${prefix} 恢复后动作已保存，但失败处理不是 restore，不会自动使用`, item);
+  }
+  if (item.onFail === "restore" && normalizeRecoveryAction(item.recoveryAction) === "retry" && !item.maxIterations) {
+    addReferenceMessage(`${prefix} 恢复后重试必须设置最大循环次数，避免恢复后无限重跑原失败步骤`);
+  }
   if (item.maxIterations && (!Number.isInteger(Number(item.maxIterations)) || Number(item.maxIterations) < 0)) {
     addReferenceMessage(`${prefix} 最大循环次数必须是非负整数`);
   }
@@ -5591,8 +6175,15 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
     }
   }
   if (item.onFail === "restore") {
+    const action = normalizeRecoveryAction(item.recoveryAction);
+    const actionLabel =
+      action === "retry"
+        ? `恢复后重试原失败步骤，最多 ${item.maxIterations || 0} 次`
+        : action === "continue"
+          ? "恢复后继续原失败步骤后的正常路径"
+          : "恢复后停止当前窗口队列并保留失败报告";
     const message = item.recoveryStepId
-      ? `${prefix} 失败处理 restore 会跳转到恢复入口；恢复分支执行结束后仍会停止当前窗口队列并保留失败报告`
+      ? `${prefix} 失败处理 restore 会跳转到恢复入口；${actionLabel}`
       : `${prefix} 失败处理 restore 未设置恢复入口；失败仍会停止队列`;
     addWarning(message, item);
   }
@@ -6170,6 +6761,7 @@ async function runWorkflowEntry(session, entry) {
   let pc = 0;
   let previousResult = null;
   let executedSteps = 0;
+  while (true) {
   while (pc >= 0 && pc < steps.length) {
     if (session.cancelRequested) return false;
     if (executedSteps >= MAX_CONTROL_FLOW_STEPS) {
@@ -6287,6 +6879,15 @@ async function runWorkflowEntry(session, entry) {
       renderSessions();
       return false;
     }
+    if (shouldCompleteRecoveryAfterStep(session, item, currentPc, steps)) {
+      const completion = completeRecoveryWithPolicy(session, steps, currentPc);
+      recordControlFlowTransition(session, completion.transition);
+      renderSessions();
+      if (completion.stopped || session.status === "failed" || session.cancelRequested) return false;
+      previousResult = result;
+      pc = Number.isInteger(completion.nextPc) ? completion.nextPc : currentPc + 1;
+      continue;
+    }
     if (session.status === "failed") {
       renderSessions();
       return false;
@@ -6322,9 +6923,17 @@ async function runWorkflowEntry(session, entry) {
   }
   if (session.cancelRequested || session.status === "failed") return false;
   if (session.recoveryContext) {
-    completeRecoveryAsFailed(session);
+    const recoveryCompletion = completeRecoveryWithPolicy(session, steps, steps.length - 1);
+    recordControlFlowTransition(session, recoveryCompletion.transition);
     renderSessions();
-    return false;
+    if (recoveryCompletion.stopped || session.cancelRequested || session.status === "failed") return false;
+    if (Number.isInteger(recoveryCompletion.nextPc) && recoveryCompletion.nextPc >= 0 && recoveryCompletion.nextPc < steps.length) {
+      previousResult = null;
+      pc = recoveryCompletion.nextPc;
+      continue;
+    }
+  }
+  break;
   }
   if (queueItem.afterDelayMs > 0) {
     const completed = await runQueueDelay(session, workflow, "after", queueItem.afterDelayMs);
@@ -6367,6 +6976,20 @@ function recoveryDecisionForFailedStep(context) {
 
 function completeRecoveryAsFailed(session) {
   completeRecoveryAsFailedCore(session);
+}
+
+function completeRecoveryWithPolicy(session, steps, completedIndex) {
+  return completeRecoveryWithPolicyCore(session, {
+    steps,
+    completedIndex,
+    stepLabels,
+  });
+}
+
+function shouldCompleteRecoveryAfterStep(session, item, currentPc, steps) {
+  if (!session.recoveryContext) return false;
+  if (item?.id === session.recoveryContext.failedStepId) return false;
+  return item?.type === "restore" || currentPc >= steps.length - 1;
 }
 
 function controlFlowDecisionForStep(context) {
@@ -7330,11 +7953,13 @@ async function importWorkspace() {
   try {
     const parsed = JSON.parse($("#workspace-json").value);
     state.workspace = normalizeWorkspace(parsed);
+    state.workspaceMigration = workspaceMigrationAudit(parsed, state.workspace, WORKSPACE_SCHEMA_VERSION);
     state.selectedStepId = activeWorkflow()?.steps[0]?.id || null;
     markDirty("imported");
     await saveWorkspaceNow();
     renderAll();
-    setStatus("工作区 JSON 已载入");
+    renderWorkspaceMigrationAudit();
+    setStatus(`工作区 JSON 已载入；${workspaceMigrationSummaryText(state.workspaceMigration)}`);
   } catch (error) {
     setStatus(`工作区 JSON 载入失败：${error.message}`);
     appendLog("error", `工作区 JSON 载入失败：${error.message}`);
@@ -7398,6 +8023,7 @@ fillStepTypeSelect($("#new-step-type"));
 fillStepTypeSelect($("#step-type"));
 fillStepBlockSelect($("#step-block-preset"));
 fillWorkflowBlueprintSelect($("#workflow-blueprint-select"));
+renderQuickStepActions();
 
 $("#refresh-windows").addEventListener("click", refreshWindows);
 $("#launch-game-client").addEventListener("click", launchGameClient);
@@ -7429,10 +8055,18 @@ $("#add-step").addEventListener("click", addStep);
 $("#insert-step-below").addEventListener("click", insertStepBelowSelected);
 $("#duplicate-step").addEventListener("click", duplicateSelectedStep);
 $("#insert-step-block").addEventListener("click", insertStepBlock);
+$("#quick-step-actions").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-quick-step-action]");
+  if (!button) return;
+  insertQuickStepAction(button.dataset.quickStepAction);
+});
 $("#move-step-up").addEventListener("click", () => moveSelectedStep(-1));
 $("#move-step-down").addEventListener("click", () => moveSelectedStep(1));
 $("#delete-step").addEventListener("click", deleteSelectedStep);
 $("#focus-next-gap").addEventListener("click", focusNextCompletionGap);
+$("#completion-action-dock").addEventListener("click", (event) => {
+  void handleCompletionActionDock(event);
+});
 $("#validate-workflow").addEventListener("click", validateActiveWorkflow);
 $("#validate-all-workflows").addEventListener("click", validateAllWorkflows);
 $("#dry-run-selected").addEventListener("click", dryRunSelected);

@@ -10,7 +10,7 @@ import {
 
 const fixedNow = "2026-07-10T00:00:00.000Z";
 const options = {
-  schemaVersion: 8,
+  schemaVersion: 9,
   defaultImageThreshold: 0.91,
   now: () => fixedNow,
   randomId: (prefix) => `${prefix}.generated`,
@@ -34,7 +34,7 @@ function testExportPayloadMetadata() {
   const payload = targetLibraryExportPayload([imageTarget({ match: {} })], options);
 
   assert.equal(payload.kind, TARGET_LIBRARY_KIND);
-  assert.equal(payload.schemaVersion, 8);
+  assert.equal(payload.schemaVersion, 9);
   assert.equal(payload.exportedAt, fixedNow);
   assert.equal(payload.targetCount, 1);
   assert.equal(payload.targets[0].id, "target.image");
@@ -44,7 +44,7 @@ function testExportPayloadMetadata() {
 function testImportAcceptsWorkspaceTargets() {
   const imported = targetLibraryTargetsFromPayload(
     {
-      schemaVersion: 8,
+      schemaVersion: 9,
       workflows: [],
       targets: [imageTarget({ id: "target.from-workspace", name: "From workspace" })],
     },
