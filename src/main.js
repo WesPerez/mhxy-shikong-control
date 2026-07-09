@@ -27,6 +27,7 @@ const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
 const MAX_SESSION_STEP_RESULTS = 300;
+const MAX_SESSION_RUN_EVENTS = 800;
 const MAX_CONTROL_FLOW_TRANSITIONS = 300;
 const MAX_TEXT_INPUT_CHARS = 500;
 const MAX_CONTROL_FLOW_STEPS = 500;
@@ -584,6 +585,7 @@ const state = {
   saveTimer: null,
   sessions: {},
   sessionSerial: 0,
+  expandedFailureReportIds: new Set(),
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -1425,8 +1427,11 @@ function renderOpsDashboard() {
   );
   const active = activeWorkflow();
   const completion = active ? workflowCompletionState(active, validateWorkflow(active, "background")) : null;
-  const issueCount = completion?.items.filter((item) => item.severity === "issue").length || 0;
-  const warningCount = completion?.items.filter((item) => item.severity === "warning").length || 0;
+  const workbenchItems = workbenchReadinessItems(completion);
+  const workbenchSummary = readinessBucketSummary(workbenchItems);
+  const issueCount = workbenchSummary.issues;
+  const warningCount = workbenchSummary.warnings;
+  const gapDetail = readinessDetailText(workbenchSummary);
   const lastRun = state.workspace.runHistory?.[0] || null;
 
   setText("#ops-window-total", windows.length);
@@ -1443,12 +1448,22 @@ function renderOpsDashboard() {
   setText("#ops-active-workflow", active?.name || "未载入");
   setText(
     "#ops-active-gaps",
-    active ? `${active.steps.length} 步 · 阻塞 ${issueCount} · 提醒 ${warningCount}` : "等待工作区",
+    active
+      ? `${active.steps.length} 步 · 阻塞 ${issueCount} · 提醒 ${warningCount}${gapDetail ? ` · ${gapDetail}` : ""}`
+      : "等待工作区",
   );
   setText("#ops-dispatch-mode", state.privilege?.currentProcessElevated ? "Admin + PostMessageW" : "PostMessageW");
   setText(
     "#ops-dispatch-detail",
-    windows.length ? `hwnd 身份复核 · ${TARGET_TITLE}` : "等待扫描目标窗口",
+    workbenchSummary.permissionBlocks
+      ? "需要管理员权限后再后台运行"
+      : workbenchSummary.windowIdentityBlocks
+        ? "窗口身份需要刷新确认"
+        : workbenchSummary.missingWindows
+          ? "等待选择目标窗口"
+          : windows.length
+            ? `hwnd 身份复核 · ${TARGET_TITLE}`
+            : "等待扫描目标窗口",
   );
   setText("#ops-last-run-status", lastRun?.status || "none");
   setText(
@@ -1487,33 +1502,89 @@ function readinessBucketSummary(items = []) {
     missingAssets: 0,
     missingCoords: 0,
     missingOcrTexts: 0,
+    missingWindows: 0,
+    permissionBlocks: 0,
+    windowIdentityBlocks: 0,
+    controlFlowBlocks: 0,
+    targetIssues: 0,
+    textIssues: 0,
     roiWarnings: 0,
     plannedSemantics: 0,
     restorePlans: 0,
+    timingIssues: 0,
+    hotkeyWarnings: 0,
+    mouseWarnings: 0,
+    thresholdWarnings: 0,
+    sampleCoverageWarnings: 0,
   };
   for (const item of items) {
     if (item.severity === "issue") buckets.issues += 1;
     if (item.severity === "warning") buckets.warnings += 1;
-    const message = String(item.message || "");
-    if (item.kind === "缺素材" || /Ctrl\+V 图片|图像步骤/.test(message)) buckets.missingAssets += 1;
-    if (item.kind === "坐标" || /后台(?:点击|双击)需要/.test(message)) buckets.missingCoords += 1;
-    if (item.kind === "OCR" || /OCR 需要目标文本/.test(message)) buckets.missingOcrTexts += 1;
-    if (/未限定 ROI/.test(message)) buckets.roiWarnings += 1;
-    if (isPlannedSemanticMessage(message)) buckets.plannedSemantics += 1;
-    if (isRestorePlanMessage(message)) buckets.restorePlans += 1;
+    const category = item.category || readinessGapForMessage(item.message).category;
+    if (category === "missing_asset") buckets.missingAssets += 1;
+    if (category === "missing_coordinate") buckets.missingCoords += 1;
+    if (category === "missing_ocr_text") buckets.missingOcrTexts += 1;
+    if (category === "missing_window") buckets.missingWindows += 1;
+    if (category === "permission") buckets.permissionBlocks += 1;
+    if (category === "window_identity") buckets.windowIdentityBlocks += 1;
+    if (["task_jump", "recovery_entry", "loop_control", "unsupported_guard"].includes(category)) buckets.controlFlowBlocks += 1;
+    if (category === "missing_target") buckets.targetIssues += 1;
+    if (category === "text_input") buckets.textIssues += 1;
+    if (category === "roi_warning") buckets.roiWarnings += 1;
+    if (category === "planned_semantic" || category === "restore_plan") buckets.plannedSemantics += 1;
+    if (category === "restore_plan") buckets.restorePlans += 1;
+    if (category === "timing") buckets.timingIssues += 1;
+    if (category === "hotkey") buckets.hotkeyWarnings += 1;
+    if (category === "mouse_button") buckets.mouseWarnings += 1;
+    if (category === "threshold") buckets.thresholdWarnings += 1;
+    if (category === "step_structure") buckets.sampleCoverageWarnings += 1;
   }
   return buckets;
 }
 
 function readinessDetailText(summary) {
   const details = [];
+  if (summary.missingWindows) details.push(`缺窗口 ${summary.missingWindows}`);
+  if (summary.permissionBlocks) details.push(`权限 ${summary.permissionBlocks}`);
+  if (summary.windowIdentityBlocks) details.push(`窗口身份 ${summary.windowIdentityBlocks}`);
   if (summary.missingAssets) details.push(`缺素材 ${summary.missingAssets}`);
   if (summary.missingCoords) details.push(`缺坐标 ${summary.missingCoords}`);
   if (summary.missingOcrTexts) details.push(`OCR ${summary.missingOcrTexts}`);
+  if (summary.targetIssues) details.push(`目标 ${summary.targetIssues}`);
+  if (summary.textIssues) details.push(`文本 ${summary.textIssues}`);
   if (summary.roiWarnings) details.push(`ROI 提醒 ${summary.roiWarnings}`);
+  if (summary.controlFlowBlocks) details.push(`流程 ${summary.controlFlowBlocks}`);
   if (summary.plannedSemantics) details.push(`计划态 ${summary.plannedSemantics}`);
   if (summary.restorePlans) details.push(`恢复计划 ${summary.restorePlans}`);
+  if (summary.timingIssues) details.push(`时间 ${summary.timingIssues}`);
   return details.join(" · ");
+}
+
+function addReadinessBuckets(target, source = {}) {
+  for (const key of [
+    "issues",
+    "warnings",
+    "missingAssets",
+    "missingCoords",
+    "missingOcrTexts",
+    "missingWindows",
+    "permissionBlocks",
+    "windowIdentityBlocks",
+    "controlFlowBlocks",
+    "targetIssues",
+    "textIssues",
+    "roiWarnings",
+    "plannedSemantics",
+    "restorePlans",
+    "timingIssues",
+    "hotkeyWarnings",
+    "mouseWarnings",
+    "thresholdWarnings",
+    "sampleCoverageWarnings",
+  ]) {
+    target[key] = (target[key] || 0) + (Number(source[key]) || 0);
+  }
+  return target;
 }
 
 function isPlannedSemanticMessage(message) {
@@ -1522,6 +1593,237 @@ function isPlannedSemanticMessage(message) {
 
 function isRestorePlanMessage(message) {
   return /restore|恢复/.test(String(message || "")) && isPlannedSemanticMessage(message);
+}
+
+function readinessGapForMessage(message) {
+  const text = String(message || "");
+  if (isRestorePlanMessage(text)) {
+    return {
+      category: "restore_plan",
+      kind: "恢复",
+      action: "配恢复",
+      focusSelector: "#param-control-recovery-step",
+      statusMessage: "已定位恢复计划：确认恢复入口指向可执行恢复片段，而不是计划态 restore 步骤",
+    };
+  }
+  if (isPlannedSemanticMessage(text)) {
+    return {
+      category: "planned_semantic",
+      kind: "流程",
+      action: "看计划",
+      focusSelector: "",
+      statusMessage: "已定位计划态流程：它会保留语义提醒，但不会投递后台输入",
+    };
+  }
+  if (text.includes("Ctrl+V 图片") || text.includes("图像步骤")) {
+    return {
+      category: "missing_asset",
+      kind: "缺素材",
+      action: "粘贴图",
+      focusSelector: "#param-target-select",
+      statusMessage: "已定位缺图步骤：复制图片后直接 Ctrl+V，或在预览中框 ROI 后存为目标",
+    };
+  }
+  if (text.includes("OCR 需要目标文本")) {
+    return {
+      category: "missing_ocr_text",
+      kind: "OCR",
+      action: "填文本",
+      focusSelector: "#target-texts",
+      statusMessage: "已定位 OCR 步骤：填写目标文本后即可用于后台识别",
+    };
+  }
+  if (/后台(?:点击|双击)需要/.test(text)) {
+    return {
+      category: "missing_coordinate",
+      kind: "坐标",
+      action: "填坐标",
+      focusSelector: "#param-click-x",
+      statusMessage: "已定位点击步骤：填写 x/y 坐标或绑定 ROI 目标",
+    };
+  }
+  if (text.includes("未限定 ROI")) {
+    return {
+      category: "roi_warning",
+      kind: "ROI",
+      action: "设 ROI",
+      focusSelector: "#target-editor",
+      statusMessage: "已定位 OCR ROI 提醒：可绑定 ROI 或在命令里设置 roi=top/panel/dialog",
+    };
+  }
+  if (text.includes("识别目标已不存在") || text.includes("缺少目标")) {
+    return {
+      category: "missing_target",
+      kind: "目标",
+      action: "绑目标",
+      focusSelector: "#param-target-select",
+      statusMessage: "已定位目标绑定问题：选择共享目标，或用 Ctrl+V / ROI 创建一个新目标",
+    };
+  }
+  if (text.includes("文本输入")) {
+    return {
+      category: "text_input",
+      kind: "文本",
+      action: "填文本",
+      focusSelector: "#param-text-value",
+      statusMessage: "已定位文本输入步骤：填写要发给目标窗口的文字",
+    };
+  }
+  if (text.includes("快捷键")) {
+    return {
+      category: "hotkey",
+      kind: "热键",
+      action: "改热键",
+      focusSelector: "#param-hotkey",
+      statusMessage: "已定位快捷键步骤：使用 ALT+N、ESC 这类后端可投递的格式",
+    };
+  }
+  if (text.includes("阈值")) {
+    return {
+      category: "threshold",
+      kind: "阈值",
+      action: "改阈值",
+      focusSelector: "#param-image-threshold",
+      statusMessage: "已定位阈值配置：将匹配阈值设在 0 到 1 之间",
+    };
+  }
+  if (text.includes("鼠标键")) {
+    return {
+      category: "mouse_button",
+      kind: "鼠标",
+      action: "改按钮",
+      focusSelector: "#param-click-button",
+      statusMessage: "已定位鼠标按钮配置：后台点击当前只支持 left/right",
+    };
+  }
+  if (text.includes("任务跳转")) {
+    return {
+      category: "task_jump",
+      kind: "跳转",
+      action: "选任务",
+      focusSelector: "#param-control-workflow-jump",
+      statusMessage: "已定位任务跳转：选择目标任务，并给可能成环的跳转设置最大次数",
+    };
+  }
+  if (text.includes("guard=") || text.includes("条件")) {
+    return {
+      category: "unsupported_guard",
+      kind: "条件",
+      action: "改条件",
+      focusSelector: "#param-condition-guard",
+      statusMessage: "已定位条件判断：guard 只支持 true/false、last.matched、last.status、last.action 或 last.score 比较",
+    };
+  }
+  if (text.includes("恢复入口")) {
+    return {
+      category: "recovery_entry",
+      kind: "恢复",
+      action: "配恢复",
+      focusSelector: "#param-control-recovery-step",
+      statusMessage: "已定位恢复入口：指向热键、等待、页面确认等可执行恢复片段第一步",
+    };
+  }
+  if (text.includes("循环") || text.includes("后向跳转")) {
+    return {
+      category: "loop_control",
+      kind: "循环",
+      action: "设次数",
+      focusSelector: "#param-control-max-iterations",
+      statusMessage: "已定位循环控制：后向跳转必须设置最大循环次数",
+    };
+  }
+  if (text.includes("延迟") || text.includes("间隔")) {
+    return {
+      category: "timing",
+      kind: "时间",
+      action: "改时间",
+      focusSelector: text.includes("重试间隔") ? "#param-retry-interval" : "#param-delay-ms",
+      statusMessage: "已定位时间参数：使用 300ms、1s 或非负毫秒数字",
+    };
+  }
+  if (text.includes("权限") || text.includes("管理员") || text.includes("elevated")) {
+    return {
+      category: "permission",
+      kind: "权限",
+      action: "提权限",
+      focusSelector: "#restart-admin",
+      statusMessage: "已定位权限问题：以管理员身份运行控制器后再接管高权限窗口",
+    };
+  }
+  if (text.includes("窗口身份") || text.includes("identity mismatch") || text.includes("身份不匹配")) {
+    return {
+      category: "window_identity",
+      kind: "窗口身份",
+      action: "刷新",
+      focusSelector: "#refresh-windows",
+      statusMessage: "已定位窗口身份问题：刷新窗口后重新选择并分配队列，避免 hwnd 漂移",
+    };
+  }
+  if (text.includes("窗口") || text.includes("hwnd")) {
+    return {
+      category: "missing_window",
+      kind: "缺窗口",
+      action: "选窗口",
+      focusSelector: "#refresh-windows",
+      statusMessage: "已定位窗口问题：刷新窗口后重新选择或分配队列",
+    };
+  }
+  if (text.includes("少于 10 步") || text.includes("步骤")) {
+    return {
+      category: "step_structure",
+      kind: "步骤",
+      action: "加步骤",
+      focusSelector: "#step-block-preset",
+      statusMessage: "已定位步骤结构问题：可插入完整任务骨架或继续添加步骤",
+    };
+  }
+  return {
+    category: text.includes("提醒") ? "warning" : "unknown",
+    kind: text.includes("提醒") ? "提醒" : "检查",
+    action: "定位",
+    focusSelector: "",
+    statusMessage: `已定位：${completionMessageDetail(text)}`,
+  };
+}
+
+function readinessRuntimeItem(message, severity = "issue", title = "运行环境") {
+  const gap = readinessGapForMessage(message);
+  return {
+    stepId: "",
+    stepIndex: null,
+    severity,
+    category: gap.category,
+    kind: gap.kind,
+    title,
+    action: gap.action,
+    focusSelector: gap.focusSelector,
+    statusMessage: gap.statusMessage,
+    message,
+  };
+}
+
+function workbenchReadinessItems(completion = null) {
+  const items = [...(completion?.items || [])];
+  const windows = state.windows || [];
+  const selected = selectedWindows();
+  if (!windows.length) {
+    items.push(readinessRuntimeItem(`未找到标题包含“${TARGET_TITLE}”的目标窗口`));
+  } else if (!selected.length) {
+    items.push(readinessRuntimeItem("没有选中的目标窗口"));
+  }
+  const elevatedSelected = selected.filter((item) => item.elevated === true).length;
+  if (elevatedSelected > 0 && state.privilege?.currentProcessElevated === false) {
+    items.push(readinessRuntimeItem(`权限不足：已选 ${elevatedSelected} 个管理员目标窗口，请用管理员权限运行编排器`));
+  }
+  for (const target of selected) {
+    const assignment = assignmentForHwnd(target.hwnd);
+    if (!assignment?.queue?.length) continue;
+    const mismatch = windowIdentityMismatchReason(assignment.windowIdentity, windowIdentityForTarget(target));
+    if (mismatch) {
+      items.push(readinessRuntimeItem(`${target.display || target.hwnd} 队列窗口身份不匹配：${mismatch}`));
+    }
+  }
+  return items;
 }
 
 function workflowReadinessSummary(workflow, validation = null) {
@@ -1557,6 +1859,10 @@ function queueReadinessSummary(assignment) {
   const validation = workflows.length
     ? validateWorkflowQueue(workflows, "background")
     : { issues: [], warnings: [], firstBlockingWorkflow: null, firstBlockingValidation: null };
+  const readinessBuckets = readinessBucketSummary([]);
+  for (const workflow of workflows) {
+    addReadinessBuckets(readinessBuckets, workflowReadinessSummary(workflow));
+  }
   const issueCount = validation.issues.length + missingWorkflowCount + (queue.length && !workflows.length ? 1 : 0);
   const warningCount = validation.warnings.length + disabledCount;
   const level = issueCount ? "blocked" : warningCount ? "warning" : "ready";
@@ -1572,8 +1878,10 @@ function queueReadinessSummary(assignment) {
   if (disabledCount) details.push(`停用 ${disabledCount}`);
   if (validation.issues.length) details.push(`校验阻塞 ${validation.issues.length}`);
   if (validation.warnings.length) details.push(`校验提醒 ${validation.warnings.length}`);
+  const classifiedDetail = readinessDetailText(readinessBuckets);
+  if (classifiedDetail) details.push(classifiedDetail);
   const plannedWarningCount = validation.warnings.filter(isPlannedSemanticMessage).length;
-  if (plannedWarningCount) details.push(`计划态 ${plannedWarningCount}`);
+  if (plannedWarningCount && !readinessBuckets.plannedSemantics) details.push(`计划态 ${plannedWarningCount}`);
   if (!queue.length) details.push("暂无任务");
   if (queue.length && !workflows.length && !missingWorkflowCount) details.push("没有启用任务");
   return {
@@ -1588,6 +1896,7 @@ function queueReadinessSummary(assignment) {
     warningCount,
     missingWorkflowCount,
     disabledCount,
+    readinessBuckets,
     detail: details.join(" · ") || "后台链路满足基础要求",
     firstBlockingMessage:
       validation.issues[0] ||
@@ -2299,13 +2608,17 @@ function workflowCompletionState(workflow, validation = validateWorkflow(workflo
     for (const { message, severity } of messages) {
       stepMessages.add(message);
       if (hasSpecificGap && message.includes("缺少目标")) continue;
+      const gap = readinessGapForMessage(message);
       items.push({
         stepId: item.id,
         stepIndex: index,
         severity,
-        kind: completionKindForMessage(message),
+        category: gap.category,
+        kind: gap.kind,
         title: `${String(index + 1).padStart(2, "0")} ${item.name || stepLabels[item.type] || item.type}`,
-        action: completionActionForMessage(message),
+        action: gap.action,
+        focusSelector: gap.focusSelector,
+        statusMessage: gap.statusMessage,
         message,
       });
     }
@@ -2324,13 +2637,17 @@ function workflowCompletionState(workflow, validation = validateWorkflow(workflo
 }
 
 function workflowCompletionItem(message, severity, workflow) {
+  const gap = readinessGapForMessage(message);
   return {
     stepId: "",
     stepIndex: null,
     severity,
-    kind: completionKindForMessage(message),
+    category: gap.category,
+    kind: gap.kind,
     title: workflow?.name || "当前任务",
-    action: completionActionForMessage(message),
+    action: gap.action,
+    focusSelector: gap.focusSelector,
+    statusMessage: gap.statusMessage,
     message,
   };
 }
@@ -2342,37 +2659,11 @@ function isSpecificCompletionGap(message) {
 }
 
 function completionKindForMessage(message) {
-  if (isRestorePlanMessage(message)) return "恢复";
-  if (isPlannedSemanticMessage(message)) return "流程";
-  if (message.includes("文本输入")) return "文本";
-  if (message.includes("Ctrl+V 图片")) return "缺素材";
-  if (message.includes("OCR 需要目标文本")) return "OCR";
-  if (message.includes("未限定 ROI")) return "ROI";
-  if (/后台(?:点击|双击)需要/.test(message)) return "坐标";
-  if (message.includes("识别目标已不存在") || message.includes("缺少目标")) return "目标";
-  if (message.includes("快捷键")) return "热键";
-  if (message.includes("阈值")) return "阈值";
-  if (message.includes("鼠标键")) return "鼠标";
-  if (message.includes("延迟") || message.includes("间隔")) return "时间";
-  if (message.includes("少于 10 步") || message.includes("步骤")) return "步骤";
-  return message.includes("提醒") ? "提醒" : "检查";
+  return readinessGapForMessage(message).kind;
 }
 
 function completionActionForMessage(message) {
-  if (isRestorePlanMessage(message)) return "配恢复";
-  if (isPlannedSemanticMessage(message)) return "看计划";
-  if (message.includes("文本输入")) return "填文本";
-  if (message.includes("Ctrl+V 图片")) return "粘贴图";
-  if (message.includes("OCR 需要目标文本")) return "填文本";
-  if (message.includes("未限定 ROI")) return "设 ROI";
-  if (/后台(?:点击|双击)需要/.test(message)) return "填坐标";
-  if (message.includes("识别目标已不存在") || message.includes("缺少目标")) return "绑目标";
-  if (message.includes("快捷键")) return "改热键";
-  if (message.includes("阈值")) return "改阈值";
-  if (message.includes("鼠标键")) return "改按钮";
-  if (message.includes("延迟") || message.includes("间隔")) return "改时间";
-  if (message.includes("少于 10 步")) return "加步骤";
-  return "定位";
+  return readinessGapForMessage(message).action;
 }
 
 function completionMessageDetail(message) {
@@ -2453,34 +2744,21 @@ function openContainingDetails(element) {
 }
 
 function completionFocusSelector(item, stepItem) {
-  if (item.message.includes("文本输入")) return "#param-text-value";
-  if (item.message.includes("OCR 需要目标文本")) {
+  if (item.category === "missing_ocr_text") {
     return targetForStep(stepItem) ? "#target-texts" : "#step-expect";
   }
-  if (item.message.includes("后台点击需要")) return "#param-click-x";
-  if (item.message.includes("快捷键")) return "#param-hotkey";
-  if (item.message.includes("阈值")) return "#param-image-threshold";
-  if (item.message.includes("鼠标键")) {
+  if (item.category === "mouse_button") {
     return ["image_click", "double_click"].includes(stepItem?.type) ? "#param-image-button" : "#param-click-button";
   }
-  if (item.message.includes("延迟") || item.message.includes("间隔")) {
+  if (item.category === "timing") {
     return stepItem?.type === "retry_until" ? "#param-retry-interval" : "#param-delay-ms";
   }
-  if (item.message.includes("任务跳转")) return "#param-control-workflow-jump";
-  if (item.message.includes("循环步骤必须选择循环目标")) return "#param-control-target-step";
-  if (item.message.includes("后向跳转") || item.message.includes("循环")) return "#param-control-max-iterations";
-  if (item.message.includes("恢复入口")) return "#param-control-recovery-step";
-  if (item.message.includes("缺少目标") || item.message.includes("识别目标已不存在")) return "#param-target-select";
-  return "";
+  if (item.category === "loop_control" && item.message.includes("必须选择循环目标")) return "#param-control-target-step";
+  return item.focusSelector || "";
 }
 
 function completionStatusMessage(item) {
-  if (item.message.includes("Ctrl+V 图片")) return "已定位缺图步骤：复制图片后直接 Ctrl+V，或在预览中框 ROI 后存为目标";
-  if (item.message.includes("文本输入")) return "已定位文本输入步骤：填写要发给目标窗口的文字";
-  if (item.message.includes("OCR 需要目标文本")) return "已定位 OCR 步骤：填写目标文本后即可用于后台识别";
-  if (item.message.includes("后台点击需要")) return "已定位点击步骤：填写 x/y 坐标或绑定 ROI 目标";
-  if (item.message.includes("未限定 ROI")) return "已定位 OCR ROI 提醒：可绑定 ROI 或在命令里设置 roi=top/panel/dialog";
-  return `已定位：${completionMessageDetail(item.message)}`;
+  return item.statusMessage || readinessGapForMessage(item.message).statusMessage;
 }
 
 function createStep(type) {
@@ -5526,9 +5804,16 @@ async function startRunForWindow(target, runEntries, mode, source) {
     pausedDurationMs: 0,
     pauseCount: 0,
     activePauseEvent: null,
+    runEvents: [],
+    runEventSerial: 0,
   };
   state.sessions[key] = session;
   setRunState("running");
+  recordRunEvent(session, "session_start", {
+    status: "running",
+    detail: `${modeLabel(mode)} 启动：${target.display} -> ${session.workflowNames.join(" / ")}`,
+    queueLength: runPlan.length,
+  });
   appendLog("info", `${modeLabel(mode)} 启动：${target.display} -> ${session.workflowNames.join(" / ")}`);
   renderSessions();
   void runSession(session, runPlan);
@@ -5585,6 +5870,12 @@ function setSessionPaused(session, reason = "pause requested", context = {}) {
       durationMs: 0,
     };
     session.queueEvents.push(session.activePauseEvent);
+    recordRunEvent(session, "pause", {
+      ...session.activePauseEvent,
+      workflow,
+      item,
+      timestamp: session.activePauseEvent.startedAt,
+    });
     session.logs.unshift(`运行已暂停 · ${reason}`);
   } else if (workflow?.id && !session.activePauseEvent.workflowId) {
     session.activePauseEvent.workflowId = workflow.id;
@@ -5623,7 +5914,7 @@ function resumeSession(session) {
   const wasPaused = Boolean(session.status === "paused" || session.pauseStartedAt || session.activePauseEvent);
   const durationMs = closePauseEvent(session, endedAt, "resumed");
   if (pauseEvent) {
-    session.queueEvents.push({
+    const resumeEvent = {
       workflowId: pauseEvent.workflowId || "",
       workflowName: pauseEvent.workflowName || session.currentWorkflowName || "",
       stepId: pauseEvent.stepId || "",
@@ -5635,6 +5926,14 @@ function resumeSession(session) {
       startedAt: endedAt.toISOString(),
       endedAt: endedAt.toISOString(),
       durationMs: 0,
+    };
+    session.queueEvents.push(resumeEvent);
+    recordRunEvent(session, "resume", { ...resumeEvent, pauseDurationMs: durationMs });
+  } else if (session.pauseRequested) {
+    recordRunEvent(session, "pause_cancel", {
+      phase: "resume",
+      status: "done",
+      detail: "pause request was cancelled before a pause gate",
     });
   }
   session.pauseRequested = false;
@@ -5644,6 +5943,67 @@ function resumeSession(session) {
   }
   session.logs.unshift(wasPaused ? `继续运行 · 暂停 ${durationLabel(durationMs)}` : "暂停请求已撤销");
   syncRunState();
+}
+
+function recordRunEvent(session, type, payload = {}) {
+  if (!session) return null;
+  const workflow = payload.workflow || null;
+  const item = payload.item || payload.step || null;
+  const timestamp = payload.timestamp || payload.endedAt || payload.startedAt || new Date().toISOString();
+  session.runEventSerial = Math.max(0, Number(session.runEventSerial) || 0) + 1;
+  const event = {
+    order: session.runEventSerial,
+    type,
+    status: String(payload.status ?? session.status ?? ""),
+    phase: String(payload.phase ?? ""),
+    mode: session.mode || "",
+    hwnd: session.hwnd || "",
+    display: session.display || "",
+    workflowId: String(payload.workflowId ?? workflow?.id ?? ""),
+    workflowName: String(payload.workflowName ?? workflow?.name ?? session.currentWorkflowName ?? ""),
+    stepId: String(payload.stepId ?? item?.id ?? payload.fromStepId ?? ""),
+    stepName: String(payload.stepName ?? item?.name ?? payload.fromStepName ?? ""),
+    stepType: String(payload.stepType ?? item?.type ?? payload.fromStepType ?? ""),
+    action: String(payload.action ?? ""),
+    detail: String(payload.detail ?? payload.reason ?? ""),
+    timestamp,
+  };
+  const optionalFields = [
+    "queueLength",
+    "queueItemId",
+    "delayMs",
+    "durationMs",
+    "pauseDurationMs",
+    "stepOrder",
+    "inputSent",
+    "matched",
+    "x",
+    "y",
+    "score",
+    "reason",
+    "resultStatus",
+    "resultAction",
+    "toStepId",
+    "toStepName",
+    "toWorkflowId",
+    "toWorkflowName",
+    "fromStepId",
+    "fromStepName",
+    "maxIterations",
+    "iterationCount",
+    "startedAt",
+    "endedAt",
+  ];
+  for (const field of optionalFields) {
+    const value = payload[field];
+    if (value !== undefined && value !== null && value !== "") event[field] = value;
+  }
+  session.runEvents ||= [];
+  session.runEvents.push(event);
+  if (session.runEvents.length > MAX_SESSION_RUN_EVENTS) {
+    session.runEvents.splice(0, session.runEvents.length - MAX_SESSION_RUN_EVENTS);
+  }
+  return event;
 }
 
 async function waitIfPaused(session, workflow = null, context = {}) {
@@ -5698,6 +6058,13 @@ async function runSession(session, runPlan) {
   session.endedAt = new Date().toISOString();
   session.durationMs = Math.max(0, Date.parse(session.endedAt) - Date.parse(session.startedAt));
   await attachEndedWindowIdentity(session);
+  recordRunEvent(session, "session_end", {
+    status: session.status,
+    detail: session.failureReason || `${modeLabel(session.mode)} ${session.status}`,
+    durationMs: session.durationMs || 0,
+    endedAt: session.endedAt,
+    timestamp: session.endedAt,
+  });
   state.workspace.runHistory.unshift(runHistoryEntryFromSession(session));
   state.workspace.runHistory = state.workspace.runHistory.slice(0, 80);
   markDirty("run logged");
@@ -5710,7 +6077,8 @@ async function runSession(session, runPlan) {
 }
 
 function insertWorkflowJumpIntoRunPlan(session, runPlan, insertIndex, request) {
-  return insertWorkflowJumpIntoRunPlanCore(session, runPlan, insertIndex, request, {
+  const beforeEvents = session.queueEvents?.length || 0;
+  const inserted = insertWorkflowJumpIntoRunPlanCore(session, runPlan, insertIndex, request, {
     workflowById,
     normalizeQueueItem,
     randomId,
@@ -5718,6 +6086,18 @@ function insertWorkflowJumpIntoRunPlan(session, runPlan, insertIndex, request) {
     renderSessions,
     maxWorkflowJumps: MAX_WORKFLOW_JUMPS,
   });
+  if (inserted) {
+    const queueEvent = (session.queueEvents || []).slice(beforeEvents).find((event) => event.phase === "task_jump");
+    recordRunEvent(session, "task_jump", {
+      ...(queueEvent || {}),
+      workflowId: request.fromWorkflowId || "",
+      workflowName: request.fromWorkflowName || "",
+      stepId: request.fromStepId || "",
+      stepName: request.fromStepName || "",
+      detail: `inserted workflow ${request.workflowName || request.workflowId}`,
+    });
+  }
+  return inserted;
 }
 
 async function runWorkflowEntry(session, entry) {
@@ -5725,6 +6105,12 @@ async function runWorkflowEntry(session, entry) {
   const queueItem = entry.queueItem;
   if (session.cancelRequested || session.status === "failed") return false;
   session.currentWorkflowName = workflow.name;
+  recordRunEvent(session, "workflow_start", {
+    workflow,
+    queueItemId: queueItem.id,
+    status: "running",
+    detail: "workflow queue item started",
+  });
   if (!(await waitIfPaused(session, workflow))) return false;
   if (queueItem.startDelayMs > 0) {
     const completed = await runQueueDelay(session, workflow, "start", queueItem.startDelayMs);
@@ -5753,6 +6139,15 @@ async function runWorkflowEntry(session, entry) {
     executedSteps += 1;
     session.currentStep += 1;
     const stepStartedAt = new Date();
+    recordRunEvent(session, "step_start", {
+      workflow,
+      item,
+      status: "running",
+      phase: "before_step",
+      stepOrder: session.currentStep,
+      startedAt: stepStartedAt.toISOString(),
+      timestamp: stepStartedAt.toISOString(),
+    });
     let result = null;
     let stopAfterResult = false;
     const preDelay = await runStepDelay(session, workflow, item, "preDelay");
@@ -5886,6 +6281,12 @@ async function runWorkflowEntry(session, entry) {
     const completed = await runQueueDelay(session, workflow, "after", queueItem.afterDelayMs);
     if (!completed) return false;
   }
+  recordRunEvent(session, "workflow_end", {
+    workflow,
+    queueItemId: queueItem.id,
+    status: "done",
+    detail: "workflow queue item completed",
+  });
   return true;
 }
 
@@ -5895,6 +6296,13 @@ function failSession(session, workflow, item, reason) {
   session.failureReason = reason;
   session.failedWorkflowName = workflow?.name || "";
   session.failedStepName = item?.name || stepLabels[item?.type] || item?.type || "";
+  recordRunEvent(session, "session_failure", {
+    workflow,
+    item,
+    status: "failed",
+    reason,
+    detail: reason,
+  });
 }
 
 function failureReasonFromResult(result) {
@@ -5945,6 +6353,22 @@ function recordControlFlowTransition(session, transition) {
   recordControlFlowTransitionCore(session, transition, {
     maxControlFlowTransitions: MAX_CONTROL_FLOW_TRANSITIONS,
   });
+  if (transition) {
+    recordRunEvent(session, "control_flow", {
+      ...transition,
+      workflowId: transition.workflowId || "",
+      workflowName: transition.workflowName || "",
+      stepId: transition.fromStepId || "",
+      stepName: transition.fromStepName || "",
+      stepType: transition.fromStepType || "",
+      status: transition.status || "",
+      phase: transition.reason || "control_flow",
+      reason: transition.reason || "",
+      detail: formatHistoryTransition(transition),
+      resultStatus: transition.resultStatus || "",
+      resultAction: transition.resultAction || "",
+    });
+  }
 }
 
 function isSuccessfulStepResult(result) {
@@ -5979,6 +6403,15 @@ function recordSessionStepResult(session, workflow, item, result, startedAt, end
     durationMs: Math.max(0, endedAt.getTime() - startedAt.getTime()),
   };
   session.stepResults.push(record);
+  recordRunEvent(session, "step_result", {
+    ...record,
+    workflow,
+    item,
+    stepOrder: record.order,
+    resultStatus: record.status,
+    resultAction: record.action,
+    timestamp: record.endedAt,
+  });
   if (session.stepResults.length > MAX_SESSION_STEP_RESULTS) {
     session.stepResults.splice(0, session.stepResults.length - MAX_SESSION_STEP_RESULTS);
   }
@@ -6002,6 +6435,12 @@ async function runQueueDelay(session, workflow, phase, ms) {
     durationMs: Math.max(0, endedAt.getTime() - startedAt.getTime()),
   };
   session.queueEvents.push(event);
+  recordRunEvent(session, "queue_event", {
+    ...event,
+    workflow,
+    detail: label,
+    timestamp: event.endedAt,
+  });
   session.logs.unshift(`${workflow.name} / ${label} ${completed ? "完成" : "已停止"} · ${durationLabel(ms)}`);
   renderSessions();
   return completed;
@@ -6071,6 +6510,7 @@ function runHistoryEntryFromSession(session) {
     queuePlan: session.queuePlan || [],
     queueEvents: session.queueEvents || [],
     pauseEvents: (session.queueEvents || []).filter((event) => event.phase === "pause" || event.phase === "resume"),
+    runEvents: (session.runEvents || []).slice(-MAX_SESSION_RUN_EVENTS),
     controlFlowTransitions: (session.controlFlowTransitions || []).slice(-MAX_CONTROL_FLOW_TRANSITIONS),
     stepResults: session.stepResults.slice(-MAX_SESSION_STEP_RESULTS),
     startedAt: session.startedAt,
@@ -6415,7 +6855,7 @@ function stopDryRun() {
         const endedAt = new Date();
         closePauseEvent(session, endedAt, "stopped");
         if (pauseEvent) {
-          session.queueEvents.push({
+          const resumeEvent = {
             workflowId: pauseEvent.workflowId || "",
             workflowName: pauseEvent.workflowName || session.currentWorkflowName || "",
             stepId: pauseEvent.stepId || "",
@@ -6427,9 +6867,15 @@ function stopDryRun() {
             startedAt: endedAt.toISOString(),
             endedAt: endedAt.toISOString(),
             durationMs: 0,
-          });
+          };
+          session.queueEvents.push(resumeEvent);
+          recordRunEvent(session, "resume", { ...resumeEvent, detail: "stop while paused" });
         }
       }
+      recordRunEvent(session, "stop_request", {
+        status: session.status === "paused" ? "paused" : "running",
+        detail: "user requested stop",
+      });
       session.cancelRequested = true;
       session.pauseRequested = false;
       count += 1;
@@ -6536,6 +6982,7 @@ function renderRunHistory(container) {
     const status = record.status || "unknown";
     const lastStep = Array.isArray(record.stepResults) ? record.stepResults.at(-1) : null;
     const transitionCount = Array.isArray(record.controlFlowTransitions) ? record.controlFlowTransitions.length : 0;
+    const eventCount = Array.isArray(record.runEvents) ? record.runEvents.length : 0;
     const pauseText = record.pauseCount ? ` · 暂停 ${record.pauseCount} 次/${durationLabel(record.pausedDurationMs || 0)}` : "";
     const failed = record.failedStepName || (status === "failed" ? lastStep?.stepName : "");
     lane.className = `session-lane history ${status}`;
@@ -6544,7 +6991,7 @@ function renderRunHistory(container) {
         <strong>${escapeHtml(record.display || record.hwnd)}</strong>
         <span>${escapeHtml(modeLabel(record.mode))} · ${escapeHtml(record.workflowName || `${record.queueLength || 0} 个任务`)} · ${escapeHtml(status)}</span>
       </div>
-      <small>${escapeHtml(record.completedSteps ?? record.stepResults?.length ?? 0)}/${escapeHtml(record.totalSteps || 0)} 步 · 控制流 ${escapeHtml(transitionCount)} · ${escapeHtml(durationLabel(record.durationMs))}${escapeHtml(pauseText)} · ${escapeHtml(record.endedAt || "")}</small>
+      <small>${escapeHtml(record.completedSteps ?? record.stepResults?.length ?? 0)}/${escapeHtml(record.totalSteps || 0)} 步 · 事件 ${escapeHtml(eventCount)} · 控制流 ${escapeHtml(transitionCount)} · ${escapeHtml(durationLabel(record.durationMs))}${escapeHtml(pauseText)} · ${escapeHtml(record.endedAt || "")}</small>
       <small>${escapeHtml(failed ? `失败点：${failed}` : lastStep ? `末步：${lastStep.stepName} ${lastStep.status}/${lastStep.action}` : "无步骤明细")}</small>
     `;
     if (record.failureReason) {
@@ -6592,8 +7039,9 @@ function renderFailureReports() {
     const identity = failureIdentitySummary(report);
     const steps = failureStepTrail(report);
     const transitions = historyTransitionSummary(report).slice(0, 2);
+    const expanded = state.expandedFailureReportIds.has(report.id);
     const article = document.createElement("article");
-    article.className = `failure-report ${report.status || "unknown"}`;
+    article.className = `failure-report ${report.status || "unknown"}${expanded ? " expanded" : ""}`;
     article.innerHTML = `
       <div class="failure-report-title">
         <span>
@@ -6607,9 +7055,11 @@ function renderFailureReports() {
       <small>${escapeHtml(identity)}</small>
       ${steps.length ? `<ol>${steps.map((item) => `<li title="${escapeHtml(item)}">${escapeHtml(item)}</li>`).join("")}</ol>` : ""}
       ${transitions.length ? `<small class="history-detail">${escapeHtml(transitions.join(" / "))}</small>` : ""}
+      ${expanded ? failureReportDetailHtml(report, failedStep, identity) : ""}
       <div class="failure-report-actions">
         <button type="button" data-report-action="focus" data-report-id="${escapeHtml(report.id)}"${failedStep ? "" : " disabled"}>定位步骤</button>
         <button type="button" data-report-action="copy" data-report-id="${escapeHtml(report.id)}">复制报告</button>
+        <button type="button" data-report-action="toggle" data-report-id="${escapeHtml(report.id)}">${expanded ? "收起详情" : "展开详情"}</button>
       </div>
     `;
     board.append(article);
@@ -6685,11 +7135,85 @@ function failureStepTrail(record) {
   });
 }
 
+function failureReportDetailHtml(report, failedStep, identity) {
+  const reason = failureReasonSummary(report);
+  const queuePlan = Array.isArray(report.queuePlan) ? report.queuePlan : [];
+  const queueEvents = Array.isArray(report.queueEvents) ? report.queueEvents : [];
+  const runEvents = Array.isArray(report.runEvents) ? report.runEvents : [];
+  const transitions = Array.isArray(report.controlFlowTransitions) ? report.controlFlowTransitions : [];
+  const pauseEvents = Array.isArray(report.pauseEvents) ? report.pauseEvents : [];
+  const steps = Array.isArray(report.stepResults) ? report.stepResults : [];
+  const groups = [
+    failureDetailGroupHtml("原因", [reason, failedStep ? `失败点：${failedStep.workflowName || report.failedWorkflowName || ""} / ${failedStep.stepName}` : "失败点：未记录步骤"]),
+    failureDetailGroupHtml("窗口", [
+      identity,
+      `hwnd=${report.hwnd || "-"} · mode=${modeLabel(report.mode)} · source=${report.source || "-"}`,
+    ]),
+    failureDetailGroupHtml("队列", queuePlan.slice(0, 6).map(formatFailureQueuePlan)),
+    failureDetailGroupHtml("队列事件", queueEvents.slice(-6).map(formatFailureQueueEvent)),
+    failureDetailGroupHtml("运行事件", runEvents.slice(-8).map(formatFailureRunEvent)),
+    failureDetailGroupHtml("控制流", transitions.slice(-6).map(formatHistoryTransition)),
+    failureDetailGroupHtml("暂停", pauseEvents.slice(-6).map(formatHistoryPauseEvent)),
+    failureDetailGroupHtml("最近步骤", steps.slice(-8).map(formatFailureStepResult)),
+  ].filter(Boolean);
+  return `<div class="failure-report-detail" aria-label="失败报告详情">${groups.join("")}</div>`;
+}
+
+function failureDetailGroupHtml(title, items) {
+  const values = (items || []).filter(Boolean);
+  if (!values.length) return "";
+  return `
+    <section>
+      <strong>${escapeHtml(title)}</strong>
+      <ul>${values.map((item) => `<li title="${escapeHtml(item)}">${escapeHtml(item)}</li>`).join("")}</ul>
+    </section>
+  `;
+}
+
+function formatFailureQueuePlan(item) {
+  if (!item) return "";
+  const waits = [
+    item.startDelayMs ? `start ${durationLabel(item.startDelayMs)}` : "",
+    item.afterDelayMs ? `after ${durationLabel(item.afterDelayMs)}` : "",
+  ].filter(Boolean);
+  return `${item.order || "-"} ${item.workflowName || item.workflowId || "任务"}${waits.length ? ` · ${waits.join(" / ")}` : ""}`;
+}
+
+function formatFailureQueueEvent(event) {
+  if (!event) return "";
+  const where = event.stepName || event.workflowName || event.workflowId || "队列";
+  const duration = event.durationMs != null ? ` · ${durationLabel(event.durationMs)}` : "";
+  const delay = event.delayMs ? ` · delay=${durationLabel(event.delayMs)}` : "";
+  return `${event.phase || "event"} ${event.status || "unknown"}: ${where}${delay}${duration}`;
+}
+
+function formatFailureRunEvent(event) {
+  if (!event) return "";
+  const where = event.stepName || event.workflowName || event.display || "运行会话";
+  const phase = event.phase ? `/${event.phase}` : "";
+  const detail = event.detail ? ` · ${event.detail}` : "";
+  const duration = event.durationMs != null ? ` · ${durationLabel(event.durationMs)}` : "";
+  return `${event.order || "-"} ${event.type || "event"}${phase} ${event.status || "unknown"}: ${where}${duration}${detail}`;
+}
+
+function formatFailureStepResult(item) {
+  if (!item) return "";
+  const score = item.score == null ? "" : ` · score=${Number(item.score).toFixed(3)}`;
+  const point = item.x == null || item.y == null ? "" : ` · (${item.x},${item.y})`;
+  const input = item.inputSent ? " · input" : "";
+  const detail = item.detail ? ` · ${item.detail}` : "";
+  return `${item.order || "-"} ${item.workflowName || ""} / ${item.stepName || item.stepType || "步骤"} · ${item.status || "unknown"}/${item.action || "-"}${score}${point}${input}${detail}`;
+}
+
 function handleFailureReportAction(event) {
   const button = event.target.closest("[data-report-action]");
   if (!button) return;
   const report = (state.workspace.runHistory || []).find((item) => item.id === button.dataset.reportId);
   if (!report) return;
+  if (button.dataset.reportAction === "toggle") {
+    toggleFailureReportDetail(report.id);
+    return;
+  }
   if (button.dataset.reportAction === "copy") {
     copyFailureReport(report);
     return;
@@ -6697,6 +7221,15 @@ function handleFailureReportAction(event) {
   if (button.dataset.reportAction === "focus") {
     focusFailureReportStep(report);
   }
+}
+
+function toggleFailureReportDetail(reportId) {
+  if (state.expandedFailureReportIds.has(reportId)) {
+    state.expandedFailureReportIds.delete(reportId);
+  } else {
+    state.expandedFailureReportIds.add(reportId);
+  }
+  renderFailureReports();
 }
 
 function copyFailureReport(report) {

@@ -46,8 +46,9 @@
 - 工作区 schema v7 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId` 和 `maxIterations`；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。
 - 前端运行器已改为带 `MAX_CONTROL_FLOW_STEPS` 预算的指令指针模型：`condition` 会按 guard 选择 true/false 目标，普通成功步骤可用 `targetStepId` 跳到同任务步骤；一等 `loop` 步骤可做当前任务内的有限后向循环，必须设置循环目标和 `maxIterations`，本身不发送后台输入；跨任务环内任意未设上限的 `task_jump` 会在 readiness 中阻塞，直到该跳转补上最大循环次数。`onFail=restore` 可跳到同任务 `recoveryStepId` 执行失败恢复分支，默认恢复片段由 `ESC`、等待、页面确认和截图记录组成，且只在恢复分支执行；`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务；计划态 restore 类型本身仍不发送后台输入。
 - 运行状态 pill 和会话卡片会区分 idle/ready/running/paused/blocked/failed，界面日志保留最近 500 条，适合长时间运行时保持可用。
-- 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、暂停/继续事件、控制流 `controlFlowTransitions`、每步状态、失败点、耗时、暂停次数/时长、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
-- 运行面板会从 `runHistory` 自动提取失败/停止报告，显示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要，并支持一键定位到当前任务库中的失败步骤或复制单条报告 JSON。
+- 后台就绪面板的待补全项带结构化分类，不只依赖中文文案匹配；缺素材、缺坐标、缺 OCR 文本、缺目标、窗口、权限、计划态和恢复入口都会带稳定 category、聚焦控件和下一步动作。
+- 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、暂停/继续事件、统一 `runEvents` 时间线、控制流 `controlFlowTransitions`、每步状态、失败点、耗时、暂停次数/时长、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
+- 运行面板会从 `runHistory` 自动提取失败/停止报告，显示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；展开详情可查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，并支持一键定位到当前任务库中的失败步骤或复制单条报告 JSON。
 - `ocr_assert` 会截图、按 ROI 或命名区域裁剪后调用 Windows OCR；识别未命中或系统 OCR/语言包不可用都会明确失败，不会伪装成可识别。
 - `127.0.0.1:47638` 是桌面应用单实例唤醒端口，不是前端页面。浏览器访问它会显示说明页；真实界面在标题为“时空任务编排器”的 Tauri 桌面窗口里。开发浏览器预览请启动 Vite 后访问 `http://127.0.0.1:5173/`。
 
@@ -81,6 +82,7 @@ python scripts\audit_input_safety.py --json
 python scripts\audit_control_flow_schema.py --json
 npm run test:control-flow
 python scripts\audit_workflow_readiness.py --json
+python scripts\audit_readiness_taxonomy.py --json
 python scripts\audit_queue_readiness.py --json
 ```
 
@@ -95,6 +97,7 @@ npm run test:target-library
 npm run audit:input-safety
 npm run audit:control-flow-schema
 npm run audit:workflow-readiness
+npm run audit:readiness-taxonomy
 npm run audit:queue-readiness
 cd src-tauri
 cargo fmt --check

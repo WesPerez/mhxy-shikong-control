@@ -96,6 +96,7 @@
       "queuePlan": [],
       "queueEvents": [],
       "pauseEvents": [],
+      "runEvents": [],
       "controlFlowTransitions": [],
       "stepResults": []
     }
@@ -313,6 +314,7 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 - 暂停/继续是 `RunSession` 的内存态控制，不改 `Workflow`、`Step`、`Target`、窗口队列或 workspace schema。当前全局按钮会暂停/继续所有正在运行的窗口会话；paused session 仍占用同 hwnd 互斥锁，不能在暂停期间对同窗口启动第二条队列。暂停请求会在步骤边界、队列等待、步骤等待、`delay` 步骤和重试等待处生效；如果单个后台 IPC 已进入 Rust 执行，则该单步先返回，再停在下一处暂停门闸。暂停期间不截图、不 OCR、不投递 hwnd 输入，也不占用前台鼠标键盘。继续后同一 hwnd 会话从原队列继续；停止请求会打断暂停等待并把会话记为 stopped。
 - 如果窗口有已分配队列，运行开始前会先比对 `WindowAssignment.windowIdentity` 和当前 live 窗口身份，防止旧队列落到复用后的 hwnd 上。
 - 后台运行会做更严格的前端校验：缺 OCR 目标文本、缺图片目标的图像步骤、缺坐标/ROI/图片目标的点击或双击步骤、丢失 `targetId` 的步骤会阻止执行；观察运行仍允许这些抽象样例通过日志演练。
+- `audit:readiness-taxonomy` 会锁住缺素材、缺坐标、OCR 文本、ROI 提醒、计划态、恢复计划、队列摘要、目标库状态、窗口身份和权限提示这些 readiness 分类，避免 UI、队列和运行门禁各说各话。
 - `retry_until` 如果没有图片、ROI 或坐标目标，会以缺少可验证目标处理，不再把 Rust 后端的计划态 `no_input` 当成功。`condition` 和 `loop` 会通过前端 runner 改变同任务执行路径；后向跳转没有 `maxIterations` 会阻止后台运行。
 - `task_jump` 或带 `jumpWorkflowId` 的成功步骤会在当前 hwnd 会话中插入目标任务；该插入只写入本次 `queuePlan/queueEvents` 和 `controlFlowTransitions`，不会改写持久化窗口队列。任务跳回当前任务必须设置 `maxIterations`；跨任务形成 A -> B -> A 这类任务环时，环内任意未设上限的跳转都会被后台 readiness 阻塞，直到该跳转设置 `maxIterations`；整个会话仍受 `MAX_WORKFLOW_JUMPS` 保护。
 - `onFail=restore` 只对识图/OCR/缺素材这类可恢复失败生效；`error/unsupported`、窗口身份漂移、权限不足、用户停止不会进入恢复分支。恢复入口不能只指向计划态 restore，默认恢复片段只在恢复分支执行；恢复分支执行结束后当前窗口队列会停止，`runHistory` 保留原失败点和恢复 transition。
@@ -328,11 +330,15 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 - 后台步骤返回 `error` 或 `unsupported` 时一律停止窗口会话。`missing_asset`、`below_threshold`、`text_miss`、`ocr_unavailable`、`missing_expect` 等失败状态在重试耗尽后默认停止，只有步骤显式设置 `onFail=skip` 才会继续下一步。
 - `onFail=restore` 会跳到显式 `recoveryStepId`，但只作为失败恢复分支调度；它不会把原失败任务改判为成功，也不会在恢复结束后继续消费后续队列。要真正返回主界面，需要用户把恢复入口配置为可执行的热键、识图点击、等待和确认步骤；默认模板已提供低风险 `ESC + 等待 + 页面确认 + 截图记录` 片段，但真实返航仍依赖用户素材采样、窗口身份稳定和 live 验收。单独的 `restore` 类型仍只记录计划语义。
 
-`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON 作为验收证据。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为事件流。
+`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/runEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份、事件数量和控制流摘要；展开详情后会列出队列计划、队列事件、暂停/继续事件、统一运行时间线、控制流 transition 和最近步骤结果，作为验收和排障证据。如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为可持久化事件流。
 
 每条 `controlFlowTransitions[]` 会记录来源步骤、目标步骤或目标任务、guard 结果、跳转原因、状态 `taken/skipped/fallthrough`、后向跳转次数、任务跳转次数和跳过原因。它用于解释一次运行为什么跳到某一步、为什么插入了另一个任务，或为什么没有跳；它不是任务定义的一部分，也不会跨运行复用。
 
 每条 `queueEvents[]` 会记录队列项启动前错峰、任务后间隔、暂停和继续的 phase、delayMs、状态和耗时。暂停事件使用 `phase=pause`，继续事件使用 `phase=resume`，并汇总到 `pauseCount/pausedDurationMs`。每条 `stepResults[]` 会记录 workflow、step、状态、动作、详情、是否发送输入、匹配分数、坐标和耗时；如果步骤有前/后等待，详情中会带 `timing preDelay=... postDelay=...`。运行结束时前端会通过只读 `current_window_identity` 再读取一次 hwnd 身份，写入 `endedWindowIdentity` 或 `endedWindowIdentityError`，便于排查长时间多窗口运行后的 hwnd 漂移、窗口关闭和权限变化。
+
+每条 `runEvents[]` 是按 `order` 追加的统一时间线，串起 `session_start/workflow_start/step_start/step_result/control_flow/task_jump/pause/resume/queue_event/stop_request/session_failure/session_end` 等事件。它不替代 `queueEvents`、`controlFlowTransitions` 或 `stepResults`，而是把这些来源的关键字段扁平化到同一条审计链，便于复制报告后按时间顺序证明暂停期间没有额外输入、失败前最后一步是什么、任务跳转何时插入，以及停止请求发生在什么位置。当前前端最多保留每个会话最近 800 条 `runEvents`，避免长循环报告无限增长。
+
+后台就绪 UI 中的待补全项会保留结构化 `category`，而不是只靠中文提示字符串归类。当前分类覆盖 `missing_asset`、`missing_coordinate`、`missing_ocr_text`、`missing_target`、`roi_warning`、`planned_semantic`、`restore_plan`、`missing_window`、`permission`、`task_jump`、`loop_control`、`recovery_entry` 等；每个分类同时提供用户可读动作、默认聚焦控件和状态提示。这样任务级统计、目标库状态、下一步定位和审计脚本可以共享同一套语义，后续调整文案时不应改变 readiness 判断结果。
 
 ## 输入安全原则
 

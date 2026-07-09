@@ -24,7 +24,8 @@
 - 已有实体：`Workflow`、`Step`、`Target`、`WindowAssignment`、`RunSession`、`runHistory`。
 - 已有运行：观察运行、后台运行 beta、每 hwnd 互斥、不同 hwnd 并行、队列错峰和任务后间隔。
 - 已有后台动作：`hotkey`、`text_input`、`click`、`double_click`、`image_click`、`wait_image`、`detect_page`、`ocr_assert`、`snapshot`、`delay`、`retry_until` 的视觉目标等待。
-- 已有报告：运行面板会从 `runHistory` 提取失败/停止报告，显示失败原因、失败步骤、窗口身份、最近步骤轨迹和控制流摘要，并支持定位步骤与复制单条报告 JSON。
+- 已有报告：运行面板会从 `runHistory` 提取失败/停止报告，显示失败原因、失败步骤、窗口身份、最近步骤轨迹和控制流摘要，并支持展开查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，或定位步骤与复制单条报告 JSON。
+- 已有就绪分类：待补全项会保存稳定 `category`、聚焦控件和下一步动作，覆盖缺图片素材、缺坐标、缺 OCR 文本、目标丢失、窗口/权限、计划态语义、恢复入口、任务跳转和循环控制。
 - 已知缺口：默认恢复片段还需要真实窗口 live 验收和更多场景模板，恢复后重试/继续策略、后端事件流和管理员环境下的双击 live 验收尚未完成；计划态 `restore` 步骤自身仍不发送后台输入。
 - 当前安全语义：`unsupported` 和 `error` 强制停止；识图/OCR/缺素材类失败在重试耗尽后默认停止，只有 `onFail=skip` 才继续。
 - 当前 readiness 会校验 v7 同任务跳转、有限 `loop`、失败恢复入口和任务跳转引用；`loop` 必须指向当前任务内更早的步骤并设置 `maxIterations`，跳回当前任务的 `task_jump` 也必须有 `maxIterations`；跨任务环内任意未设上限的 `task_jump` 会阻塞后台运行，直到该跳转补上最大循环次数。`restore` 步骤本身仍标记为计划态，避免误报成完整返航动作。
@@ -36,7 +37,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 - `workflows[]`: 任务定义，步骤仍保留兼容字段 `target/command/expect`，并保存 `targetStepId/elseTargetStepId/recoveryStepId/jumpWorkflowId/maxIterations` 这些控制流字段。
 - `targets[]`: 共享目标库，保存图片 data URL、ROI、阈值、点击默认值、OCR 文本和备注。
 - `assignments[]`: 窗口队列，保存 hwnd 与 `windowIdentity` 快照，以及队列项顺序、启用状态和等待参数。
-- `runHistory[]`: 运行报告，保存队列计划、暂停/继续事件、控制流 transition、步骤结果、失败原因、暂停次数/时长、开始/结束窗口身份。
+- `runHistory[]`: 运行报告，保存队列计划、暂停/继续事件、统一 `runEvents` 时间线、控制流 transition、步骤结果、失败原因、暂停次数/时长、开始/结束窗口身份。
 
 当前 v7 边界：
 
@@ -62,6 +63,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 - `task_jump` / `jumpWorkflowId` 可在当前 hwnd 会话内插入目标 workflow；插入项只进入本次 `RunSession.queuePlan`，不改写持久化窗口队列，并受 `MAX_WORKFLOW_JUMPS` 与可选 `maxIterations` 保护；一旦多个任务互跳形成环，环内没有上限的跳转会被后台 readiness 阻止。
 - 每次控制流决策会写入 `runHistory[].controlFlowTransitions[]`，记录 taken/skipped/fallthrough、guard 结果、目标步骤、后向跳转次数和跳过原因。
 - 每次暂停/继续会写入 `runHistory[].queueEvents[]` 的 `pause/resume` 事件，并汇总 `pauseCount` 与 `pausedDurationMs`，用于证明任务中断、暂停/继续和长时间等待期间没有额外输入。
+- 每次会话启动、任务开始/结束、步骤开始/结束、控制流、任务跳转、暂停/继续、停止请求和最终结束都会追加到 `runHistory[].runEvents[]`，作为复制报告时可按顺序审计的统一证据链；它不替代 `queueEvents/controlFlowTransitions/stepResults`，只补足跨表排序和验收叙事。
 
 未落地的 v7 边界：
 
@@ -83,8 +85,9 @@ schema v7 继续使用结构化 JSON + 原子写入：
 
 - 左侧：窗口列表和窗口队列，显示 hwnd、标题、PID、权限、队列数量和运行状态。
 - 中部：任务库和步骤时间线，支持新增、复制、排序、禁用、校验和演练。
-- 右侧：步骤参数、素材/目标库、预览验证和失败报告；运行区应能直接定位失败步骤并复制报告证据。
+- 右侧：步骤参数、素材/目标库、预览验证和失败报告；运行区应能直接定位失败步骤，展开诊断证据，并复制报告 JSON。
 - 顶部：后台就绪状态，按任务和步骤提示缺图片、缺坐标、缺 OCR 文本、缺窗口、权限不足、计划态步骤和可执行提醒。
+- 就绪提示必须保留结构化分类，不允许只靠文案正则决定 UI 聚焦和统计；后续改中文提示时，`category` 仍应稳定驱动“下一步动作”和审计门。
 - 常用动作少步骤完成：粘贴图片、采点、绑定目标、添加步骤、分配窗口、观察运行、后台运行。
 
 ## 多窗口安全
@@ -116,6 +119,7 @@ npm run test:target-library
 npm run audit:input-safety
 npm run audit:control-flow-schema
 npm run audit:workflow-readiness
+npm run audit:readiness-taxonomy
 npm run audit:queue-readiness
 npm run build
 cd src-tauri

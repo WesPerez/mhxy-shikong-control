@@ -11,6 +11,7 @@
     "audit:input-safety": "python scripts/audit_input_safety.py",
     "audit:control-flow-schema": "python scripts/audit_control_flow_schema.py",
     "audit:workflow-readiness": "python scripts/audit_workflow_readiness.py",
+    "audit:readiness-taxonomy": "python scripts/audit_readiness_taxonomy.py",
     "audit:queue-readiness": "python scripts/audit_queue_readiness.py",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"

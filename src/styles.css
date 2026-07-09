@@ -1898,6 +1898,10 @@ label {
   padding: 8px;
 }
 
+.failure-report.expanded {
+  min-height: 0;
+}
+
 .failure-report.stopped {
   border-color: #65572f;
   background:
@@ -1958,9 +1962,53 @@ label {
   white-space: nowrap;
 }
 
+.failure-report-detail {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid #283238;
+  border-radius: 5px;
+  background: rgba(8, 11, 13, 0.55);
+  padding: 8px;
+}
+
+.failure-report-detail section {
+  display: grid;
+  gap: 5px;
+}
+
+.failure-report-detail section + section {
+  border-top: 1px solid #222c31;
+  padding-top: 8px;
+}
+
+.failure-report-detail strong {
+  color: #d5dde2;
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.failure-report-detail ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.failure-report-detail li {
+  color: #9aa6ad;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.42;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .failure-report-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 
