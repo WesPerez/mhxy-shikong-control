@@ -9,12 +9,21 @@ const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
 const MAX_SESSION_STEP_RESULTS = 300;
 const MAX_TEXT_INPUT_CHARS = 500;
-const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page", "click", "ocr_assert"]);
-const capturedImageStepTypes = new Set(["image_click", "wait_image", "detect_page"]);
+const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page", "click", "ocr_assert", "retry_until"]);
+const capturedImageStepTypes = new Set(["image_click", "wait_image", "detect_page", "retry_until"]);
 const stepFailActions = new Set(["stop", "retry", "skip", "restore"]);
 const targetKindOptions = ["image", "roi", "page", "ocr", "click_target", "state", "unknown"];
 const workflowConcurrencyOptions = new Set(["per-window-exclusive"]);
 const imageClickPointOptions = new Set(["center", "top-left", "top-right", "bottom-left", "bottom-right"]);
+const terminalBackendStatuses = new Set(["error", "unsupported"]);
+const backgroundFailureStatuses = new Set([
+  "missing_asset",
+  "below_threshold",
+  "text_miss",
+  "ocr_unavailable",
+  "missing_expect",
+]);
+const plannedOnlyStepTypes = new Set(["condition", "restore"]);
 const builtinTargetTemplateBindings = [
   { target: "page.home.ready", key: "zonghe/jiahao.png", kind: "page", name: "主界面判定", threshold: 0.86 },
   { target: "target.activity.icon", key: "zonghe/huodong1.png", kind: "image", name: "活动入口" },
@@ -4503,6 +4512,13 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
     if (interval && durationMsFromText(interval) == null) {
       addIssue(`${prefix} 重试间隔格式应为 800ms 或 1s`, item);
     }
+    if (!retryUntilHasVisualTarget(item)) {
+      const message = `${prefix} 重试直到需要绑定图片、ROI 或坐标目标；纯状态目标当前只是计划语义，后台不会判定成功`;
+      mode === "background" ? addIssue(message, item) : addWarning(message, item);
+    }
+  }
+  if (plannedOnlyStepTypes.has(item.type)) {
+    addWarning(`${prefix} ${stepLabels[item.type] || item.type} 当前只记录计划态，不会执行真实条件分支或恢复动作`, item);
   }
 }
 
@@ -5018,8 +5034,11 @@ async function executeRetryUntilStep(session, item) {
     const result = await executeBackendStep(session, item);
     return {
       ...result,
+      status: "missing_asset",
       action: "retry_until",
-      detail: `${result.detail}; no image or ROI target is bound, kept as planned state wait`,
+      detail: `${result.detail || ""}; no image, ROI, or point target is bound, so retry_until cannot verify readiness`,
+      inputSent: false,
+      matched: false,
     };
   }
   const timeoutMs = Math.max(0, Number(item.timeoutMs) || 0);
@@ -5212,10 +5231,9 @@ function formatStepLog(index, workflow, item, result) {
 }
 
 function shouldStopAfterResult(item, result) {
-  if (result.status === "error") return true;
-  if (["unsupported", "missing_asset", "below_threshold", "text_miss", "ocr_unavailable", "missing_expect"].includes(result.status)) {
-    return ["stop", "restore"].includes(item.onFail || "stop");
-  }
+  const status = result?.status || "unknown";
+  if (terminalBackendStatuses.has(status)) return true;
+  if (backgroundFailureStatuses.has(status)) return (item.onFail || "stop") !== "skip";
   return false;
 }
 

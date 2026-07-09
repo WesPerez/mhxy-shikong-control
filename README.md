@@ -40,7 +40,7 @@
 - 后台执行启动前会用 Rust 重新读取 hwnd 身份；每步再传入启动时窗口身份快照，Rust 端要求快照 hwnd 与命令入参一致，并重新校验 title、pid、process、client size 和权限状态，发现漂移会安全失败。
 - `image_click` 支持用 Ctrl+V 图片或 ROI 裁剪图做轻量模板匹配，匹配后按目标默认点击点点击；点位支持模板中心和四角，并可用 `offsetX/offsetY` 微调。ROI 也可以绑定到后台点击步骤并使用 ROI 中心。
 - Ctrl+V 图片或 ROI 生成目标时，如果当前步骤不适合绑定图片，会自动在当前步骤下方新建可执行步骤，避免误改延迟/热键等步骤语义；如果 WebView 粘贴事件没有带图片文件，会尝试从 Windows 剪贴板 DIB/DIBV5 后端读取截图。
-- 后台 `delay`、步骤前/后等待、队列错峰和任务间隔都使用真实等待时长，等待期间可响应停止请求；`retry_until` 对绑定图像/ROI 执行轻量等待循环，不发送额外输入，纯状态型目标会保持明确的计划态等待。
+- 后台 `delay`、步骤前/后等待、队列错峰和任务间隔都使用真实等待时长，等待期间可响应停止请求；`retry_until` 对绑定图片、ROI 或坐标目标执行轻量等待循环，不发送额外输入，纯状态型目标会在后台校验中阻止执行，避免把未实现的状态判断当成功。
 - 运行状态 pill 和会话卡片会区分 idle/ready/running/blocked/failed，界面日志保留最近 500 条，适合长时间运行时保持可用。
 - 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、每步状态、失败点、耗时、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
 - `ocr_assert` 会截图、按 ROI 或命名区域裁剪后调用 Windows OCR；识别未命中或系统 OCR/语言包不可用都会明确失败，不会伪装成可识别。
@@ -48,7 +48,7 @@
 
 ## 任务模型
 
-当前方向见 [docs/workflow-model.md](docs/workflow-model.md)。
+当前模型见 [docs/workflow-model.md](docs/workflow-model.md)，第二阶段产品方案和编码门禁见 [docs/product-plan.md](docs/product-plan.md)。
 
 核心原则：
 
@@ -123,7 +123,7 @@ E:\Project\Common
 
 ## 后续路线
 
-1. 补共享 `restore` 恢复流程。
+1. 按 [docs/product-plan.md](docs/product-plan.md) 的方案门禁补 `double_click`、显式控制流和共享 `restore` 恢复流程。
 2. 扩展 `targets` 文件化模板、批量导入导出和 OCR 文本目标实测。
 3. 继续完善后台 hwnd 输入执行器：增加 Rust 后端 runner、事件流、停止/失败恢复和真实游戏反馈验证。
 4. 接入 OCR 实测，每补一个真实任务都保留观察运行、运行报告和输入安全审计。

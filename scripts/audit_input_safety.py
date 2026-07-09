@@ -151,6 +151,10 @@ RUNNER_SEMANTIC_TOKENS = [
     "backgroundStepDelay",
     "executeRetryUntilStep",
     "retryUntilHasVisualTarget",
+    "terminalBackendStatuses",
+    "backgroundFailureStatuses",
+    "plannedOnlyStepTypes",
+    "status: \"missing_asset\"",
     "type: \"wait_image\"",
 ]
 STEP_TIMING_TOKENS = [
