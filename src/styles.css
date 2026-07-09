@@ -392,6 +392,31 @@ h3 {
   min-width: 0;
 }
 
+.preview-tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.preview-tools button,
+.preview-tools select {
+  min-height: 28px;
+  font-size: 12px;
+}
+
+.preview-tools button.active {
+  border-color: rgba(215, 169, 75, 0.72);
+  background: #322716;
+  color: #ffe0a0;
+}
+
+.preview-tools select {
+  width: 78px;
+  padding: 0 7px;
+}
+
 .count,
 .state-pill {
   display: inline-grid;
@@ -1012,6 +1037,17 @@ h3 {
   background:
     linear-gradient(135deg, rgba(100, 195, 180, 0.08), transparent 38%),
     #070909;
+}
+
+.preview-stage.sampling {
+  border-color: rgba(215, 169, 75, 0.66);
+  background:
+    linear-gradient(135deg, rgba(215, 169, 75, 0.13), transparent 42%),
+    #090908;
+}
+
+.preview-stage.sampling #preview-image {
+  cursor: crosshair;
 }
 
 #preview-image {

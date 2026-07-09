@@ -22,6 +22,7 @@
           <button id="refresh-windows" type="button">刷新窗口</button>
           <button id="launch-game-client" type="button">启动客户端</button>
           <button id="select-game-windows" type="button">选择全部</button>
+          <button id="prepare-exercise-workspace" type="button">准备演练</button>
           <button id="restart-admin" type="button">管理员重启</button>
           <button id="save-workspace" type="button">保存工作区</button>
           <span id="launch-status" class="meta"></span>
@@ -177,6 +178,13 @@
                 <p class="eyebrow">Preview</p>
                 <h2>画面预览</h2>
               </div>
+              <div class="preview-tools" aria-label="预览采集工具">
+                <button id="preview-click-capture" type="button" aria-pressed="false">采点</button>
+                <select id="preview-click-button" aria-label="采点鼠标键">
+                  <option value="left">左键</option>
+                  <option value="right">右键</option>
+                </select>
+              </div>
               <span id="active-window-meta" class="meta">未选择窗口</span>
             </div>
             <div class="preview-stage">
@@ -186,6 +194,7 @@
             </div>
             <div class="preview-footer">
               <span id="roi-meta" class="meta">ROI: none</span>
+              <span id="preview-click-meta" class="meta">采点: off</span>
               <span class="meta">观察演练不发送输入；后台执行只向指定 hwnd 投递消息</span>
             </div>
           </section>

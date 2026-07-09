@@ -474,6 +474,8 @@ const state = {
   previewSource: "window",
   roiSelection: null,
   roiDragStart: null,
+  previewClickCapture: false,
+  previewClickButton: "left",
   workspace: createSeedWorkspace(),
   workspacePath: "",
   selectedStepId: null,
@@ -1457,6 +1459,70 @@ async function importSampleWorkflowPack() {
   return samples;
 }
 
+async function prepareExerciseWorkspace() {
+  setStatus("正在准备多窗口演练...");
+  await refreshWindows();
+  selectGameWindows();
+  const targets = selectedEditableWindows();
+  const workflows = await ensureExerciseSuiteWorkflows();
+  const queueResult = queueExerciseSuiteForTargets(workflows, targets, { onlyEmptyQueues: true });
+  const hydrated = await hydrateBuiltinTargetTemplates({ log: true });
+  state.workspace.activeWorkflowId = workflows[0]?.id || state.workspace.activeWorkflowId;
+  state.selectedStepId = workflows[0]?.steps[0]?.id || state.selectedStepId;
+  selectFirstUnboundCapturedStep(workflows[0]?.steps || []);
+  markDirty("exercise prepared");
+  renderAll();
+  const validation = validateWorkflowQueue(workflows, "definition");
+  if (validation.issues.length) {
+    setRunState("blocked");
+    $("#run-summary").textContent = validation.issues.join(" / ");
+    appendLog("warn", `演练准备后定义校验未通过：${validation.issues.join("；")}`);
+  } else {
+    setRunState("ready");
+    $("#run-summary").textContent =
+      `演练准备完成：${workflows.length} 个任务 · ${queueResult.queued} 个窗口新写入队列 · ${queueResult.skipped} 个窗口保留原队列`;
+  }
+  await saveWorkspaceNow();
+  setStatus(
+    `演练已准备：${targets.length} 个窗口，新增队列 ${queueResult.queued} 个，保留 ${queueResult.skipped} 个，模板 ${hydrated} 个`,
+  );
+  appendLog(
+    "info",
+    `一键演练准备：任务 ${workflows.length} 个；窗口 ${targets.length} 个；新队列 ${queueResult.queueSizes.join(" / ") || "none"}；已保留已有队列 ${queueResult.skipped} 个`,
+  );
+}
+
+async function ensureExerciseSuiteWorkflows() {
+  const byBlueprintId = new Map();
+  for (const workflow of state.workspace.workflows) {
+    const labels = new Set((workflow.tags || []).map(String));
+    for (const blueprintId of exerciseSuiteBlueprintIds) {
+      const blueprint = workflowBlueprintById(blueprintId);
+      if (
+        labels.has(blueprint.label || blueprint.id) &&
+        String(workflow.name || "").trim().startsWith("演练 ")
+      ) {
+        byBlueprintId.set(blueprintId, workflow);
+      }
+    }
+  }
+
+  const created = [];
+  for (const blueprintId of exerciseSuiteBlueprintIds) {
+    if (byBlueprintId.has(blueprintId)) continue;
+    const blueprint = workflowBlueprintById(blueprintId);
+    const workflow = createWorkflowFromBlueprint(blueprint, 1, `演练 ${blueprint.defaultPrefix || blueprint.label}`);
+    byBlueprintId.set(blueprintId, workflow);
+    created.push(workflow);
+  }
+  if (created.length) {
+    state.workspace.workflows.unshift(...created);
+    await hydrateBuiltinTargetTemplates({ log: true });
+    appendLog("info", `补足演练任务：${created.map((item) => item.name).join(" / ")}`);
+  }
+  return exerciseSuiteBlueprintIds.map((blueprintId) => byBlueprintId.get(blueprintId)).filter(Boolean);
+}
+
 async function createExerciseSuite() {
   const workflows = exerciseSuiteBlueprintIds.map((blueprintId) => {
     const blueprint = workflowBlueprintById(blueprintId);
@@ -1469,17 +1535,43 @@ async function createExerciseSuite() {
   selectFirstUnboundCapturedStep(workflows[0]?.steps || []);
 
   const targets = selectedEditableWindows();
+  const queueResult = queueExerciseSuiteForTargets(workflows, targets);
+
+  markDirty(targets.length ? "exercise suite queued" : "exercise suite");
+  renderAll();
+  const summary = `${workflows.length} 个任务 · 每个 ${workflows.map((item) => item.steps.length).join("/")} 步`;
+  if (targets.length) {
+    setStatus(`已生成演练套件并分配到 ${targets.length} 个窗口队列`);
+    appendLog(
+      "info",
+      `演练套件：${summary}；窗口队列长度 ${queueResult.queueSizes.join(" / ")}；等待 ${queueResult.staggerMs}ms/${queueResult.gapMs}ms`,
+    );
+  } else {
+    setStatus("已生成演练套件；选择窗口后可追加或复制队列");
+    appendLog("info", `演练套件：${summary}；未选择窗口，暂未分配队列`);
+  }
+  return workflows;
+}
+
+function queueExerciseSuiteForTargets(workflows, targets, options = {}) {
   const timing = queueTimingOptions();
   const staggerMs = normalizedNonNegativeInteger(timing.staggerMs) ?? 0;
   const gapMs = normalizedNonNegativeInteger(timing.gapMs) ?? 0;
   const queueSizes = [];
+  let queued = 0;
+  let skipped = 0;
   for (const [targetIndex, target] of targets.entries()) {
     const assignment = ensureAssignment(target);
+    if (options.onlyEmptyQueues && assignment.queue.length) {
+      skipped += 1;
+      continue;
+    }
     const queueSize = Math.min(
       workflows.length,
       exerciseSuiteQueuePattern[targetIndex % exerciseSuiteQueuePattern.length],
     );
     queueSizes.push(queueSize);
+    queued += 1;
     for (let workflowIndex = 0; workflowIndex < queueSize; workflowIndex += 1) {
       const workflow = workflows[(targetIndex + workflowIndex) % workflows.length];
       assignment.queue.push(
@@ -1492,21 +1584,7 @@ async function createExerciseSuite() {
     assignment.queue = renumberQueue(assignment.queue);
     assignment.updatedAt = new Date().toISOString();
   }
-
-  markDirty(targets.length ? "exercise suite queued" : "exercise suite");
-  renderAll();
-  const summary = `${workflows.length} 个任务 · 每个 ${workflows.map((item) => item.steps.length).join("/")} 步`;
-  if (targets.length) {
-    setStatus(`已生成演练套件并分配到 ${targets.length} 个窗口队列`);
-    appendLog(
-      "info",
-      `演练套件：${summary}；窗口队列长度 ${queueSizes.join(" / ")}；等待 ${staggerMs}ms/${gapMs}ms`,
-    );
-  } else {
-    setStatus("已生成演练套件；选择窗口后可追加或复制队列");
-    appendLog("info", `演练套件：${summary}；未选择窗口，暂未分配队列`);
-  }
-  return workflows;
+  return { queued, skipped, queueSizes, staggerMs, gapMs };
 }
 
 function newWorkflow() {
@@ -3618,6 +3696,10 @@ async function saveSnapshot() {
 }
 
 function startRoiDrag(event) {
+  if (state.previewClickCapture) {
+    captureClickPointFromPreview(event);
+    return;
+  }
   if (event.button !== 0) return;
   const point = imagePointFromEvent(event);
   if (!point) return;
@@ -3696,6 +3778,37 @@ function updateRoiMeta() {
   $("#roi-meta").textContent = state.roiSelection ? `ROI: ${roiText(state.roiSelection)}` : "ROI: none";
 }
 
+function togglePreviewClickCapture() {
+  state.previewClickCapture = !state.previewClickCapture;
+  updatePreviewClickCaptureUi();
+  setStatus(state.previewClickCapture ? "采点模式已开启：在预览图上点一下生成后台点击步骤" : "采点模式已关闭");
+}
+
+function updatePreviewClickCaptureUi(point = null) {
+  const button = $("#preview-click-capture");
+  if (button) {
+    button.classList.toggle("active", state.previewClickCapture);
+    button.setAttribute("aria-pressed", String(state.previewClickCapture));
+  }
+  const select = $("#preview-click-button");
+  if (select) select.value = state.previewClickButton;
+  $(".preview-stage")?.classList.toggle("sampling", state.previewClickCapture);
+  const meta = $("#preview-click-meta");
+  if (!meta) return;
+  if (point) {
+    meta.textContent = `采点: ${point.x},${point.y} · ${state.previewClickButton === "right" ? "右键" : "左键"}`;
+  } else {
+    meta.textContent = state.previewClickCapture
+      ? `采点: on · ${state.previewClickButton === "right" ? "右键" : "左键"}`
+      : "采点: off";
+  }
+}
+
+function setPreviewClickButton(value) {
+  state.previewClickButton = normalizedTargetButton(value);
+  updatePreviewClickCaptureUi();
+}
+
 function roiText(roi) {
   return `${roi.x},${roi.y},${roi.w},${roi.h}`;
 }
@@ -3706,6 +3819,57 @@ function roiCenterPoint(roi) {
     x: Math.round(Number(roi.x || 0) + Number(roi.w || 0) / 2),
     y: Math.round(Number(roi.y || 0) + Number(roi.h || 0) / 2),
   };
+}
+
+function captureClickPointFromPreview(event) {
+  if (![0, 2].includes(event.button)) return;
+  const point = imagePointFromEvent(event);
+  if (!point) return;
+  event.preventDefault();
+  const button = event.button === 2 ? "right" : state.previewClickButton;
+  state.previewClickButton = normalizedTargetButton(button);
+  const destination = ensurePreviewClickStep();
+  if (!destination.step) {
+    setStatus("需要先创建任务");
+    return;
+  }
+  applyClickPointToStep(destination.step, point, state.previewClickButton);
+  markDirty("draft");
+  clearRoiSelection();
+  renderSteps();
+  renderStepEditor();
+  renderTargets();
+  updatePreviewClickCaptureUi(point);
+  appendLog(
+    "info",
+    `${destination.created ? "已自动新增" : "已更新"}后台点击步骤：${point.x},${point.y} · ${state.previewClickButton}`,
+  );
+  setStatus(`${destination.created ? "已新增" : "已更新"}后台点击：${point.x},${point.y}`);
+}
+
+function ensurePreviewClickStep() {
+  const current = selectedStep();
+  if (current?.type === "click") return { step: current, created: false };
+  const workflow = activeWorkflow();
+  if (!workflow) return { step: null, created: false };
+  const item = createStep("click");
+  const index = selectedStepIndex(workflow);
+  const inserted = insertStepAt(item, index >= 0 ? index + 1 : workflow.steps.length);
+  return { step: inserted, created: Boolean(inserted) };
+}
+
+function applyClickPointToStep(item, point, button = "left") {
+  item.type = "click";
+  item.name = item.name || "后台点击";
+  item.target = `x=${point.x},y=${point.y}`;
+  item.command = commandWithValues(item.command, {
+    button: normalizedTargetButton(button),
+    mode: "hwnd-message",
+  });
+  item.expect = item.expect || "click.accepted";
+  item.timeoutMs = item.timeoutMs || stepDefaults.click.timeoutMs;
+  item.onFail = normalizeStepFailAction(item.onFail, stepDefaults.click.onFail);
+  unbindStepTarget(item);
 }
 
 function ensureCapturedTargetStep(targetItem) {
@@ -3797,8 +3961,8 @@ async function cropPreviewRoiDataUrl(roi) {
 }
 
 async function handlePasteImage(event) {
-  if (isEditablePasteTarget(event.target)) return;
   const item = [...(event.clipboardData?.items || [])].find((entry) => entry.type.startsWith("image/"));
+  const editableTarget = isEditablePasteTarget(event.target);
   let dataUrl = "";
   let size = { width: 0, height: 0 };
   let note = "由 Ctrl+V 粘贴创建";
@@ -3809,6 +3973,7 @@ async function handlePasteImage(event) {
     dataUrl = await readBlobAsDataUrl(file);
     size = await imageSize(dataUrl).catch(() => ({ width: 0, height: 0 }));
   } else {
+    if (editableTarget) return;
     let imported = null;
     try {
       imported = await invoke("import_clipboard_image");
@@ -5018,6 +5183,7 @@ fillWorkflowBlueprintSelect($("#workflow-blueprint-select"));
 $("#refresh-windows").addEventListener("click", refreshWindows);
 $("#launch-game-client").addEventListener("click", launchGameClient);
 $("#select-game-windows").addEventListener("click", selectGameWindows);
+$("#prepare-exercise-workspace").addEventListener("click", prepareExerciseWorkspace);
 $("#restart-admin").addEventListener("click", restartAsAdmin);
 $("#save-workspace").addEventListener("click", () => saveWorkspaceNow());
 $("#capture-preview").addEventListener("click", capturePreview);
@@ -5055,7 +5221,12 @@ $("#background-run-selected").addEventListener("click", backgroundRunSelected);
 $("#stop-dry-run").addEventListener("click", stopDryRun);
 $("#export-workspace").addEventListener("click", exportWorkspace);
 $("#import-workspace").addEventListener("click", importWorkspace);
+$("#preview-click-capture").addEventListener("click", togglePreviewClickCapture);
+$("#preview-click-button").addEventListener("change", (event) => setPreviewClickButton(event.target.value));
 $("#preview-image").addEventListener("mousedown", startRoiDrag);
+$("#preview-image").addEventListener("contextmenu", (event) => {
+  if (state.previewClickCapture) event.preventDefault();
+});
 window.addEventListener("mousemove", moveRoiDrag);
 window.addEventListener("mouseup", endRoiDrag);
 window.addEventListener("resize", updateRoiBox);
@@ -5070,6 +5241,7 @@ await setupCloseToTray();
 await loadWorkspace();
 state.selectedStepId = activeWorkflow()?.steps[0]?.id || null;
 renderAll();
+updatePreviewClickCaptureUi();
 await refreshPrivilege();
 await refreshGameLaunchStatus();
 await refreshWindows();

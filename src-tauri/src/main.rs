@@ -14,12 +14,17 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
     env, fs,
-    io::Cursor,
+    io::{Cursor, Write},
     path::{Path, PathBuf},
     process::Command,
     time::{SystemTime, UNIX_EPOCH},
 };
 use tauri::Manager;
+#[cfg(windows)]
+use windows::{
+    core::PCWSTR,
+    Win32::Storage::FileSystem::{MoveFileExW, MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH},
+};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -282,11 +287,78 @@ fn save_workflow_workspace(
         fs::create_dir_all(parent).map_err(|err| format!("{}: {err}", parent.display()))?;
     }
     let text = serde_json::to_string_pretty(&workspace).map_err(|err| err.to_string())?;
-    fs::write(&path, text.as_bytes()).map_err(|err| format!("{}: {err}", path.display()))?;
+    atomic_write_workspace_json(&path, text.as_bytes())?;
     Ok(WorkflowWorkspaceSave {
         saved_path: path.display().to_string(),
         bytes: text.len(),
     })
+}
+
+fn atomic_write_workspace_json(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("{}: workspace path has no parent", path.display()))?;
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| format!("{}: workspace file name is invalid", path.display()))?;
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|err| err.to_string())?
+        .as_millis();
+    let tmp_path = parent.join(format!(".{file_name}.{stamp}.tmp"));
+    let backup_path = path.with_extension("json.bak");
+
+    let write_result = (|| -> Result<(), String> {
+        let mut file =
+            fs::File::create(&tmp_path).map_err(|err| format!("{}: {err}", tmp_path.display()))?;
+        file.write_all(bytes)
+            .map_err(|err| format!("{}: {err}", tmp_path.display()))?;
+        file.sync_all()
+            .map_err(|err| format!("{}: {err}", tmp_path.display()))?;
+        drop(file);
+
+        if path.exists() {
+            fs::copy(path, &backup_path)
+                .map_err(|err| format!("{} -> {}: {err}", path.display(), backup_path.display()))?;
+        }
+        replace_file_with_temp(&tmp_path, path)?;
+        Ok(())
+    })();
+
+    if write_result.is_err() {
+        let _ = fs::remove_file(&tmp_path);
+    }
+    write_result
+}
+
+#[cfg(windows)]
+fn replace_file_with_temp(tmp_path: &Path, path: &Path) -> Result<(), String> {
+    let from = wide_path(tmp_path);
+    let to = wide_path(path);
+    unsafe {
+        MoveFileExW(
+            PCWSTR(from.as_ptr()),
+            PCWSTR(to.as_ptr()),
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+        )
+    }
+    .map_err(|err| format!("{} -> {}: {err}", tmp_path.display(), path.display()))
+}
+
+#[cfg(windows)]
+fn wide_path(path: &Path) -> Vec<u16> {
+    use std::os::windows::ffi::OsStrExt;
+    path.as_os_str().encode_wide().chain(Some(0)).collect()
+}
+
+#[cfg(not(windows))]
+fn replace_file_with_temp(tmp_path: &Path, path: &Path) -> Result<(), String> {
+    if path.exists() {
+        fs::remove_file(path).map_err(|err| format!("{}: {err}", path.display()))?;
+    }
+    fs::rename(tmp_path, path)
+        .map_err(|err| format!("{} -> {}: {err}", tmp_path.display(), path.display()))
 }
 
 #[tauri::command]
@@ -1832,6 +1904,30 @@ mod tests {
             ocr_language: None,
             ocr_region: None,
         }
+    }
+
+    #[test]
+    fn workspace_json_write_replaces_file_and_keeps_backup() {
+        let dir = env::temp_dir().join(format!(
+            "mhxy-workspace-write-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("workspace.json");
+        fs::write(&path, br#"{"schemaVersion":1}"#).unwrap();
+
+        atomic_write_workspace_json(&path, br#"{"schemaVersion":2}"#).unwrap();
+
+        assert_eq!(fs::read_to_string(&path).unwrap(), r#"{"schemaVersion":2}"#);
+        assert_eq!(
+            fs::read_to_string(path.with_extension("json.bak")).unwrap(),
+            r#"{"schemaVersion":1}"#
+        );
+
+        fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
