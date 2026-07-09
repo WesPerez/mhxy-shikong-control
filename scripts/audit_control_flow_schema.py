@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit schema v7 control-flow fields and pc runner boundaries."""
+"""Audit schema v8 control-flow fields and pc runner boundaries."""
 
 from __future__ import annotations
 
@@ -126,10 +126,10 @@ def audit(project_root: Path) -> dict[str, object]:
     product_docs = read_text(paths["product_docs"])
     readme = read_text(paths["readme"])
 
-    if not re.search(r"WORKSPACE_SCHEMA_VERSION\s*=\s*7\b", main):
-        failures.append("src/main.js WORKSPACE_SCHEMA_VERSION is not 7")
-    if not re.search(r"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*7\b", rust):
-        failures.append("src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not 7")
+    if not re.search(r"WORKSPACE_SCHEMA_VERSION\s*=\s*8\b", main):
+        failures.append("src/main.js WORKSPACE_SCHEMA_VERSION is not 8")
+    if not re.search(r"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*8\b", rust):
+        failures.append("src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not 8")
     require_contains(rust, ["task_jump", "loop", "planned", "no_input"], failures, "src-tauri/src/main.rs")
 
     try:
@@ -438,7 +438,7 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(main, [f'$("#{item}").addEventListener' for item in ui_ids], failures, "bindStepParamEditor")
 
     docs_text = "\n".join([workflow_docs, product_docs, readme])
-    require_contains(docs_text, ["schema v7", "targetStepId", "elseTargetStepId", "recoveryStepId", "jumpWorkflowId", "maxIterations"], failures, "docs")
+    require_contains(docs_text, ["schema v8", "targetStepId", "elseTargetStepId", "recoveryStepId", "jumpWorkflowId", "maxIterations"], failures, "docs")
     require_contains(
         docs_text,
         ["指令指针", "condition", "loop", "有限循环", "后向跳转", "失败恢复", "任务跳转", "跨任务环", "controlFlowTransitions"],

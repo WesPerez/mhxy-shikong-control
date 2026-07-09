@@ -19,10 +19,15 @@ import {
   targetLibraryExportPayload as targetLibraryExportPayloadCore,
   targetLibraryTargetsFromPayload as targetLibraryTargetsFromPayloadCore,
 } from "./target-library-core.js";
+import {
+  normalizeStepParams,
+  syncStepParamsFromLegacy,
+  syncStepParamsToLegacy,
+} from "./step-params-core.js";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
-const WORKSPACE_SCHEMA_VERSION = 7;
+const WORKSPACE_SCHEMA_VERSION = 8;
 const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
@@ -961,6 +966,14 @@ function normalizeStep(value) {
     enabled: value?.enabled !== false,
     targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
+    params: normalizeStepParams({
+      ...value,
+      type,
+      target: String(value?.target || defaults.target),
+      command: String(value?.command || defaults.command),
+      expect: String(value?.expect || defaults.expect),
+      timeoutMs: Number(value?.timeoutMs ?? defaults.timeoutMs),
+    }),
   };
   for (const field of controlFlowStepReferenceFields) {
     item[field] = value?.[field] ? String(value[field]) : "";
@@ -970,7 +983,23 @@ function normalizeStep(value) {
   }
   const maxIterations = Number(value?.maxIterations ?? 0);
   item.maxIterations = Number.isFinite(maxIterations) && maxIterations >= 0 ? Math.floor(maxIterations) : 0;
+  return syncLegacyFromStepParams(item);
+}
+
+function syncLegacyFromStepParams(item) {
+  if (!item) return item;
+  Object.assign(item, syncStepParamsToLegacy(item));
   return item;
+}
+
+function syncParamsFromLegacyFields(item) {
+  if (!item) return item;
+  Object.assign(item, syncStepParamsFromLegacy(item));
+  return item;
+}
+
+function projectedLegacyStep(item) {
+  return syncStepParamsToLegacy(item || {});
 }
 
 function normalizeStepFailAction(value, fallback = "stop") {
@@ -2245,6 +2274,7 @@ function duplicateWorkflow() {
         item.target = String(sourceStep.target || "");
       }
     }
+    syncParamsFromLegacyFields(item);
     return item;
   });
   state.workspace.targets.unshift(...clonedTargets);
@@ -2879,6 +2909,7 @@ function cloneStepForInsert(source) {
   item.targetId = source.targetId ? String(source.targetId) : "";
   item.notes = String(source.notes ?? "");
   item.enabled = source.enabled !== false;
+  syncParamsFromLegacyFields(item);
   remapStepControlFlowReferences(item, new Map(), { clearWorkflowReferences: true });
   return item;
 }
@@ -3584,6 +3615,7 @@ function updateSelectedStepFromParams(mutator) {
   const item = selectedStep();
   if (!item) return;
   mutator(item);
+  syncParamsFromLegacyFields(item);
   $("#step-target").value = item.target || "";
   $("#step-command").value = item.command || "";
   $("#step-timeout").value = String(item.timeoutMs ?? 0);
@@ -3638,9 +3670,10 @@ function bindStepEditor() {
     if (!item) return;
     item[field] = coerce(event.target.value);
     if (field === "target" && item.targetId && item.targetId !== item.target) unbindStepTarget(item);
+    if (["target", "command", "expect", "timeoutMs"].includes(field)) syncParamsFromLegacyFields(item);
     markDirty("draft");
     renderSteps();
-    if (["target", "command"].includes(field)) renderStepParamPanel(item);
+    if (["target", "command", "expect", "timeoutMs"].includes(field)) renderStepParamPanel(item);
     if (field === "target") renderTargets();
   };
   $("#step-name").addEventListener("input", update("name"));
@@ -3674,6 +3707,7 @@ function bindStepEditor() {
       item.targetId = "";
     }
     sanitizeStepControlFlowForType(item);
+    syncParamsFromLegacyFields(item);
     markDirty("draft");
     renderSteps();
     renderStepEditor();
@@ -3808,6 +3842,7 @@ function unbindStepTarget(item, options = {}) {
   if (options.clearTarget || (previousId && item.target?.trim() === previousId)) {
     item.target = "";
   }
+  syncParamsFromLegacyFields(item);
   return previousId;
 }
 
@@ -3948,6 +3983,7 @@ function syncTargetDefaultsToBoundSteps(target, options = {}) {
       if (options.clickPoint && ["image_click", "double_click"].includes(item.type)) {
         item.command = commandWithValues(item.command, { point: updates.point });
       }
+      syncParamsFromLegacyFields(item);
     }
   }
 }
@@ -3982,6 +4018,7 @@ function unbindCurrentStepTarget() {
   }
   const previous = targetForStep(item);
   unbindStepTarget(item);
+  syncParamsFromLegacyFields(item);
   markDirty("target");
   renderTargets();
   renderSteps();
@@ -4913,6 +4950,7 @@ function applyClickPointToStep(item, point, button = "left") {
     isDoubleClick ? stepDefaults.double_click.onFail : stepDefaults.click.onFail,
   );
   unbindStepTarget(item);
+  syncParamsFromLegacyFields(item);
 }
 
 function ensureCapturedTargetStep(targetItem) {
@@ -4934,6 +4972,7 @@ function ensureCapturedTargetStep(targetItem) {
       button: targetItem?.click?.button || "left",
       mode: "hwnd-message",
     });
+    syncParamsFromLegacyFields(item);
   }
   const index = selectedStepIndex(workflow);
   const inserted = insertStepAt(item, index >= 0 ? index + 1 : workflow.steps.length);
@@ -5088,6 +5127,7 @@ function bindTargetToStep(item, targetItem, options = {}) {
       button: commandDefaults.button,
       mode: "hwnd-message",
     });
+    syncParamsFromLegacyFields(item);
     return;
   }
   if (item.type === "ocr_assert" || targetItem.kind === "ocr") {
@@ -5095,6 +5135,7 @@ function bindTargetToStep(item, targetItem, options = {}) {
     item.name = item.name || "OCR 确认";
     item.command = commandWithMissingValues(item.command, { lang: "zh" });
     item.expect = item.expect || "text_found";
+    syncParamsFromLegacyFields(item);
     return;
   }
   if (!["image_click", "double_click", "wait_image", "detect_page"].includes(item.type)) {
@@ -5103,6 +5144,7 @@ function bindTargetToStep(item, targetItem, options = {}) {
     item.expect = "screen.changed";
   }
   item.command = commandWithValues(item.command, commandDefaults);
+  syncParamsFromLegacyFields(item);
 }
 
 function saveTargetForStep(incomingTarget, item, options = {}) {
@@ -5466,11 +5508,12 @@ function buildStepValidationIndex(workflow, validation) {
 }
 
 function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
-  const button = commandValue(item.command, "button");
+  const legacy = projectedLegacyStep(item);
+  const button = commandValue(legacy.command, "button");
   if (button && !["left", "l", "primary", "right", "r", "secondary"].includes(button.toLowerCase())) {
     addIssue(`${prefix} 鼠标键只支持 left/right`, item);
   }
-  const threshold = commandValue(item.command, "threshold");
+  const threshold = commandValue(legacy.command, "threshold");
   if (threshold) {
     const value = Number(threshold);
     if (!Number.isFinite(value) || value < 0 || value > 1) {
@@ -5478,24 +5521,24 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
     }
   }
   for (const key of ["preDelay", "postDelay"]) {
-    const raw = commandValue(item.command, key);
+    const raw = commandValue(legacy.command, key);
     if (raw && durationMsFromText(raw) == null) {
       addIssue(`${prefix} ${key} 必须是 300ms、1s 或非负毫秒数字`, item);
     }
   }
   for (const key of ["offsetX", "offsetY"]) {
-    const raw = commandValue(item.command, key);
+    const raw = commandValue(legacy.command, key);
     if (raw && normalizedInteger(raw) == null) {
       addIssue(`${prefix} ${key} 必须是整数像素`, item);
     }
   }
-  const clickPoint = commandValue(item.command, "point");
+  const clickPoint = commandValue(legacy.command, "point");
   if (["image_click", "double_click"].includes(item.type) && clickPoint && !imageClickPointOptions.has(clickPoint)) {
     addIssue(`${prefix} 图像点击点只支持 center/top-left/top-right/bottom-left/bottom-right`, item);
   }
-  const point = parsePointText(item.target) || parsePointText(item.command);
-  const targetId = stepTargetId(item);
-  const targetItem = targetForStep(item);
+  const point = parsePointText(legacy.target) || parsePointText(legacy.command);
+  const targetId = stepTargetId(legacy);
+  const targetItem = targetForStep(legacy);
   const hasRoi = Boolean(targetItem?.roi);
   const hasImage = Boolean(targetItem?.dataUrl);
   if (targetId && !targetItem) {
@@ -5515,7 +5558,7 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
   if (item.type === "ocr_assert") {
     validateOcrStepRuntimeFields(item, prefix, addIssue, addWarning, mode);
   }
-  if (item.type === "delay" && durationMsFromText(item.target) == null && item.timeoutMs <= 0) {
+  if (item.type === "delay" && durationMsFromText(legacy.target) == null && legacy.timeoutMs <= 0) {
     addIssue(`${prefix} 延迟步骤需要有效等待时长`, item);
   }
   if (item.type === "text_input") {
@@ -5527,7 +5570,7 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
     }
   }
   if (item.type === "retry_until") {
-    const interval = commandValue(item.command, "interval");
+    const interval = commandValue(legacy.command, "interval");
     if (interval && durationMsFromText(interval) == null) {
       addIssue(`${prefix} 重试间隔格式应为 800ms 或 1s`, item);
     }
@@ -5538,7 +5581,7 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
   }
   if (item.type === "condition") {
     const guard = evaluateConditionGuard(
-      item,
+      legacy,
       { status: "ok", action: "validation", matched: false, inputSent: false, score: 0 },
       null,
     );
@@ -5559,16 +5602,18 @@ function validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
 }
 
 function validateOcrStepRuntimeFields(item, prefix, addIssue, addWarning, mode) {
-  const texts = ocrExpectedTextsForStep(item);
+  const legacy = projectedLegacyStep(item);
+  const targetItem = targetForStep(legacy);
+  const texts = ocrExpectedTextsForStep(legacy, targetItem);
   if (!texts.length) {
     const message = `${prefix} OCR 需要目标文本，可在目标库 OCR 文本里填写或在步骤目标/expect/text 参数里填写`;
     mode === "background" ? addIssue(message, item) : addWarning(message, item);
   }
-  const lang = ocrLanguageForStep(item);
+  const lang = ocrLanguageForStep(legacy);
   if (lang && !/^[a-z]{2,3}(-[a-z0-9]+)*$/i.test(lang)) {
     addWarning(`${prefix} OCR 语言标记建议使用 zh、zh-Hans、en-US 这类格式`, item);
   }
-  if (mode === "background" && !targetForStep(item)?.roi && isUnboundedOcrRegion(ocrRegionForStep(item))) {
+  if (mode === "background" && !targetItem?.roi && isUnboundedOcrRegion(ocrRegionForStep(legacy))) {
     addWarning(`${prefix} OCR 未限定 ROI，会识别整窗，建议绑定 ROI 或设置 roi=top/panel/dialog`, item);
   }
 }
@@ -5579,6 +5624,7 @@ function isUnboundedOcrRegion(value) {
 }
 
 function ocrExpectedTextsForStep(item, targetItem = targetForStep(item)) {
+  const legacy = projectedLegacyStep(item);
   const texts = [];
   const push = (value) => {
     const text = String(value || "").trim();
@@ -5586,11 +5632,11 @@ function ocrExpectedTextsForStep(item, targetItem = targetForStep(item)) {
     if (!texts.some((item) => item.toLowerCase() === text.toLowerCase())) texts.push(text);
   };
   for (const text of targetItem?.texts || []) push(text);
-  if (!texts.length) push(item?.target);
-  push(item?.expect);
-  push(commandValue(item?.command || "", "text"));
-  push(commandValue(item?.command || "", "contains"));
-  push(commandValue(item?.command || "", "expect"));
+  if (!texts.length) push(legacy?.target);
+  push(legacy?.expect);
+  push(commandValue(legacy?.command || "", "text"));
+  push(commandValue(legacy?.command || "", "contains"));
+  push(commandValue(legacy?.command || "", "expect"));
   return texts;
 }
 
@@ -5604,18 +5650,21 @@ function isGenericOcrExpectation(value) {
 }
 
 function ocrLanguageForStep(item) {
-  return commandValue(item?.command || "", "lang") || commandValue(item?.command || "", "language") || "zh";
+  const legacy = projectedLegacyStep(item);
+  return commandValue(legacy?.command || "", "lang") || commandValue(legacy?.command || "", "language") || "zh";
 }
 
 function ocrRegionForStep(item) {
-  return commandValue(item?.command || "", "roi") || "";
+  const legacy = projectedLegacyStep(item);
+  return commandValue(legacy?.command || "", "roi") || "";
 }
 
 function textInputValueForStep(item) {
+  const legacy = projectedLegacyStep(item);
   return (
-    commandValue(item?.command || "", "text") ||
-    commandValue(item?.command || "", "value") ||
-    String(item?.target || "")
+    commandValue(legacy?.command || "", "text") ||
+    commandValue(legacy?.command || "", "value") ||
+    String(legacy?.target || "")
   ).trim();
 }
 
@@ -6461,7 +6510,8 @@ async function runStepDelay(session, workflow, item, key) {
 }
 
 function stepTimingDelay(item, key) {
-  return Math.max(0, commandDurationMs(item.command, key) ?? 0);
+  const legacy = projectedLegacyStep(item);
+  return Math.max(0, commandDurationMs(legacy.command, key) ?? 0);
 }
 
 function withStepTimingDetail(result, preDelayMs, postDelayMs) {
@@ -6661,8 +6711,9 @@ function activeElapsedMs(session, startedAt, pausedAtStart = 0) {
 }
 
 function retryUntilHasVisualTarget(item) {
-  const targetItem = targetForStep(item);
-  return Boolean(targetItem?.dataUrl || targetItem?.roi || parsePointText(item.target) || parsePointText(item.command));
+  const legacy = projectedLegacyStep(item);
+  const targetItem = targetForStep(legacy);
+  return Boolean(targetItem?.dataUrl || targetItem?.roi || parsePointText(legacy.target) || parsePointText(legacy.command));
 }
 
 function shouldRetryBackgroundStep(item, result) {
@@ -6671,11 +6722,13 @@ function shouldRetryBackgroundStep(item, result) {
 }
 
 function backgroundRetryDelay(item) {
-  return Math.max(50, durationMsFromText(commandValue(item.command, "interval")) ?? 300);
+  const legacy = projectedLegacyStep(item);
+  return Math.max(50, durationMsFromText(commandValue(legacy.command, "interval")) ?? 300);
 }
 
 function backgroundStepDelay(item) {
-  return Math.max(0, durationMsFromText(item.target) ?? item.timeoutMs ?? 0);
+  const legacy = projectedLegacyStep(item);
+  return Math.max(0, durationMsFromText(legacy.target) ?? legacy.timeoutMs ?? 0);
 }
 
 async function executeBackendStep(session, item) {
@@ -6784,14 +6837,15 @@ function windowIdentityMismatchReason(expected, actual) {
 }
 
 function backendStepPayload(item) {
-  const targetItem = targetForStep(item);
-  const targetId = stepTargetId(item);
-  const command = effectiveCommandForStep(item, targetItem);
+  const legacy = projectedLegacyStep(item);
+  const targetItem = targetForStep(legacy);
+  const targetId = stepTargetId(legacy);
+  const command = effectiveCommandForStep(legacy, targetItem);
   const payload = {
-    type: item.type,
-    target: item.target || "",
+    type: legacy.type,
+    target: legacy.target || "",
     command,
-    expect: item.expect || "",
+    expect: legacy.expect || "",
     targetId,
     targetKind: targetItem?.kind || "",
     targetDataUrl: targetItem?.dataUrl || "",
@@ -6800,27 +6854,29 @@ function backendStepPayload(item) {
     assetDataUrl: targetItem?.dataUrl || "",
     roi: targetItem?.roi || null,
   };
-  if (item.type === "ocr_assert") {
-    payload.targetTexts = ocrExpectedTextsForStep(item, targetItem);
-    payload.ocrLanguage = ocrLanguageForStep(item);
-    payload.ocrRegion = ocrRegionForStep(item);
+  if (legacy.type === "ocr_assert") {
+    payload.targetTexts = ocrExpectedTextsForStep(legacy, targetItem);
+    payload.ocrLanguage = ocrLanguageForStep(legacy);
+    payload.ocrRegion = ocrRegionForStep(legacy);
   }
   return payload;
 }
 
-function effectiveCommandForStep(item, targetItem = targetForStep(item)) {
-  if (!targetItem) return item.command || "";
-  const defaults = targetCommandDefaults(targetItem, item.command);
-  if (["image_click", "double_click", "wait_image", "detect_page"].includes(item.type)) {
-    return commandWithMissingValues(item.command, defaults);
+function effectiveCommandForStep(item, targetItem = null) {
+  const legacy = projectedLegacyStep(item);
+  const resolvedTarget = targetItem || targetForStep(legacy);
+  if (!resolvedTarget) return legacy.command || "";
+  const defaults = targetCommandDefaults(resolvedTarget, legacy.command);
+  if (["image_click", "double_click", "wait_image", "detect_page"].includes(legacy.type)) {
+    return commandWithMissingValues(legacy.command, defaults);
   }
-  if (["click", "double_click"].includes(item.type)) {
-    return commandWithMissingValues(item.command, {
+  if (["click", "double_click"].includes(legacy.type)) {
+    return commandWithMissingValues(legacy.command, {
       button: defaults.button,
       mode: "hwnd-message",
     });
   }
-  return item.command || "";
+  return legacy.command || "";
 }
 
 function formatStepLog(index, workflow, item, result) {

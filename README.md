@@ -43,7 +43,7 @@
 - Ctrl+V 图片或 ROI 生成目标时，如果当前步骤不适合绑定图片，会自动在当前步骤下方新建可执行步骤，避免误改延迟/热键等步骤语义；如果 WebView 粘贴事件没有带图片文件，会尝试从 Windows 剪贴板 DIB/DIBV5 后端读取截图。
 - 后台 `delay`、步骤前/后等待、队列错峰和任务间隔都使用真实等待时长，等待期间可响应停止请求；`retry_until` 对绑定图片、ROI 或坐标目标执行轻量等待循环，不发送额外输入，纯状态型目标会在后台校验中阻止执行，避免把未实现的状态判断当成功。
 - 运行中的窗口队列支持暂停/继续；暂停只改变当前 `RunSession`，在步骤边界和等待点生效，不改任务/队列配置，也不会额外截图、OCR 或发送 hwnd 输入；已经进入后端执行的单步会先返回，再停在下一处暂停门闸。
-- 工作区 schema v7 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId` 和 `maxIterations`；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。
+- 工作区 schema v8 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId`、`maxIterations` 和 `steps[].params` 前端结构化参数镜像；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。`params` 会继续投影回 `target/command/expect`，当前 Rust IPC 仍读取旧字段。
 - 前端运行器已改为带 `MAX_CONTROL_FLOW_STEPS` 预算的指令指针模型：`condition` 会按 guard 选择 true/false 目标，普通成功步骤可用 `targetStepId` 跳到同任务步骤；一等 `loop` 步骤可做当前任务内的有限后向循环，必须设置循环目标和 `maxIterations`，本身不发送后台输入；跨任务环内任意未设上限的 `task_jump` 会在 readiness 中阻塞，直到该跳转补上最大循环次数。`onFail=restore` 可跳到同任务 `recoveryStepId` 执行失败恢复分支，默认恢复片段由 `ESC`、等待、页面确认和截图记录组成，且只在恢复分支执行；`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务；计划态 restore 类型本身仍不发送后台输入。
 - 运行状态 pill 和会话卡片会区分 idle/ready/running/paused/blocked/failed，界面日志保留最近 500 条，适合长时间运行时保持可用。
 - 后台就绪面板的待补全项带结构化分类，不只依赖中文文案匹配；缺素材、缺坐标、缺 OCR 文本、缺目标、窗口、权限、计划态和恢复入口都会带稳定 category、聚焦控件和下一步动作。
@@ -80,6 +80,8 @@
 ```powershell
 python scripts\audit_input_safety.py --json
 python scripts\audit_control_flow_schema.py --json
+npm run test:step-params
+npm run audit:step-params
 npm run test:control-flow
 python scripts\audit_workflow_readiness.py --json
 python scripts\audit_readiness_taxonomy.py --json
@@ -92,8 +94,10 @@ python scripts\audit_queue_readiness.py --json
 cd E:\Project\Common\MHXY-ShiKong-Control
 npm install
 npm run build
+npm run test:step-params
 npm run test:control-flow
 npm run test:target-library
+npm run audit:step-params
 npm run audit:input-safety
 npm run audit:control-flow-schema
 npm run audit:workflow-readiness

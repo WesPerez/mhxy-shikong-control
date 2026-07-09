@@ -1,6 +1,6 @@
 # 时空任务编排器产品方案
 
-本文是第二阶段编码前门禁。新增能力进入实现前，必须先补齐本文件对应的小节：目标、非目标、数据结构、运行语义、风险边界、验收证据和回滚策略。当前源码以 `docs/workflow-model.md` 描述的 schema v7 为准，前端 runner 已切到带预算的指令指针模型。
+本文是第二阶段编码前门禁。新增能力进入实现前，必须先补齐本文件对应的小节：目标、非目标、数据结构、运行语义、风险边界、验收证据和回滚策略。当前源码以 `docs/workflow-model.md` 描述的 schema v8 为准，前端 runner 已切到带预算的指令指针模型。
 
 ## 真实目标
 
@@ -28,20 +28,22 @@
 - 已有就绪分类：待补全项会保存稳定 `category`、聚焦控件和下一步动作，覆盖缺图片素材、缺坐标、缺 OCR 文本、目标丢失、窗口/权限、计划态语义、恢复入口、任务跳转和循环控制。
 - 已知缺口：默认恢复片段还需要真实窗口 live 验收和更多场景模板，恢复后重试/继续策略、后端事件流和管理员环境下的双击 live 验收尚未完成；计划态 `restore` 步骤自身仍不发送后台输入。
 - 当前安全语义：`unsupported` 和 `error` 强制停止；识图/OCR/缺素材类失败在重试耗尽后默认停止，只有 `onFail=skip` 才继续。
-- 当前 readiness 会校验 v7 同任务跳转、有限 `loop`、失败恢复入口和任务跳转引用；`loop` 必须指向当前任务内更早的步骤并设置 `maxIterations`，跳回当前任务的 `task_jump` 也必须有 `maxIterations`；跨任务环内任意未设上限的 `task_jump` 会阻塞后台运行，直到该跳转补上最大循环次数。`restore` 步骤本身仍标记为计划态，避免误报成完整返航动作。
+- 当前 readiness 会校验 v8 同任务跳转、有限 `loop`、失败恢复入口和任务跳转引用；`loop` 必须指向当前任务内更早的步骤并设置 `maxIterations`，跳回当前任务的 `task_jump` 也必须有 `maxIterations`；跨任务环内任意未设上限的 `task_jump` 会阻塞后台运行，直到该跳转补上最大循环次数。`restore` 步骤本身仍标记为计划态，避免误报成完整返航动作。
 
 ## 数据方案
 
-schema v7 继续使用结构化 JSON + 原子写入：
+schema v8 继续使用结构化 JSON + 原子写入：
 
 - `workflows[]`: 任务定义，步骤仍保留兼容字段 `target/command/expect`，并保存 `targetStepId/elseTargetStepId/recoveryStepId/jumpWorkflowId/maxIterations` 这些控制流字段。
+- `steps[].params`: 前端结构化参数镜像，用于减少 UI 对 `command` 字符串的直接耦合；保存、导入、复制、目标绑定和运行前仍会投影回 `target/command/expect`。当前 Rust IPC 仍读取旧字段，`params` 不是后端原生执行协议。
 - `targets[]`: 共享目标库，保存图片 data URL、ROI、阈值、点击默认值、OCR 文本和备注。
 - `assignments[]`: 窗口队列，保存 hwnd 与 `windowIdentity` 快照，以及队列项顺序、启用状态和等待参数。
 - `runHistory[]`: 运行报告，保存队列计划、暂停/继续事件、统一 `runEvents` 时间线、控制流 transition、步骤结果、失败原因、暂停次数/时长、开始/结束窗口身份。
 
-当前 v7 边界：
+当前 v8 边界：
 
-- `normalizeStep` 保留新字段，并从旧 `command` 中尽量回填兼容参数。
+- `normalizeStep` 保留控制流字段和 `steps[].params`，旧工作区载入时从 `target/command/expect` 回填兼容参数；v8 工作区载入时以 `params` 为准再投影回旧字段。
+- 编辑旧字段会刷新已知 params 键，但保留未来版本写入的未知 params 键，避免降级/升级来回编辑时丢扩展参数。
 - 复制任务时重映射同任务内 step id 引用，避免跳到原任务步骤。
 - 单步复制会清空控制流引用，避免插入步骤带着旧上下文跳转。
 - 导入会保留并规范化控制流字段；后台 readiness 会校验跳转目标存在、未停用、非自环；同任务 `targetStepId/elseTargetStepId` 会被指令指针 runner 执行，后向跳转必须设置 `maxIterations`。
@@ -49,7 +51,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 
 ## 运行器方案
 
-已落地的 v7 子集：
+已落地的 v8 子集：
 
 - `delay`、pre/post delay、队列等待都必须可取消。
 - 暂停/继续属于运行会话状态，不修改 `Workflow`、`assignments` 或持久化队列 schema；当前全局按钮会暂停/继续所有正在运行的窗口会话。暂停请求在步骤边界、队列错峰、任务后间隔、步骤前后等待、`delay` 和重试等待点生效；暂停期间不截图、不 OCR、不投递 hwnd 输入，并且等待剩余时间会冻结。已经进入 Rust 后端执行的单步不能被前端暂停中断，会先返回并在下一处暂停门闸停住。paused session 仍占用同 hwnd 互斥锁；继续后从同一窗口队列和同一运行会话恢复，停止请求优先级高于暂停，可打断暂停等待。
@@ -65,7 +67,7 @@ schema v7 继续使用结构化 JSON + 原子写入：
 - 每次暂停/继续会写入 `runHistory[].queueEvents[]` 的 `pause/resume` 事件，并汇总 `pauseCount` 与 `pausedDurationMs`，用于证明任务中断、暂停/继续和长时间等待期间没有额外输入。
 - 每次会话启动、任务开始/结束、步骤开始/结束、控制流、任务跳转、暂停/继续、停止请求和最终结束都会追加到 `runHistory[].runEvents[]`，作为复制报告时可按顺序审计的统一证据链；它不替代 `queueEvents/controlFlowTransitions/stepResults`，只补足跨表排序和验收叙事。
 
-未落地的 v7 边界：
+未落地的 v8 边界：
 
 - 默认恢复片段模板已覆盖 `ESC`、等待、页面确认和截图记录；计划态 `restore` 步骤自身仍不发送后台输入，真实返航还需要素材采样、页面确认和 live 验收。
 - 失败恢复当前是“恢复后停止并报告失败”的保守语义，尚未实现恢复后返回失败点重试或继续后续队列。
@@ -114,8 +116,10 @@ schema v7 继续使用结构化 JSON + 原子写入：
 
 ```powershell
 node --check src\main.js
+npm run test:step-params
 npm run test:control-flow
 npm run test:target-library
+npm run audit:step-params
 npm run audit:input-safety
 npm run audit:control-flow-schema
 npm run audit:workflow-readiness
@@ -141,9 +145,9 @@ cargo clippy --all-targets -- -D warnings
 
 ## 实施顺序
 
-1. 继续修 v7 安全和 readiness，确保不会把计划态或失败态当成功。
+1. 继续修 v8 安全和 readiness，确保不会把计划态或失败态当成功。
 2. 用管理员环境补 `double_click` 真实游戏窗口验收，确认游戏对后台双击消息的响应。
-3. 扩展 schema v7 控制流：继续完善有限 loop 的 UI 演练证据，并为恢复后重试/继续队列设计明确语义。
+3. 扩展 schema v8 控制流：继续完善有限 loop 的 UI 演练证据，并为恢复后重试/继续队列设计明确语义。
 4. 继续完善前端 runner，把失败恢复从“恢复后停止”扩展到可选择的重试/继续策略。
 5. 扩展可执行恢复片段模板的场景覆盖，并补失败分析导出、截图证据和恢复后重试/继续策略。
 6. 将 runner 逐步迁到 Rust 事件流，前端只订阅状态和渲染报告。

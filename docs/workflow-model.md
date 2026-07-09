@@ -6,7 +6,7 @@
 
 用户提出的方向是对的：任务不应该写成一串彼此复制的图片点击脚本，而应该抽象成“任务库 + 步骤定义 + 识别目标 + 窗口分配 + 运行会话”。
 
-当前阶段已经落到 schema v7：
+当前阶段已经落到 schema v8：
 
 1. 一个工作区可以保存多个 `Workflow`。
 2. 每个窗口 hwnd 都有独立任务队列，队列内串行，不同窗口并行。
@@ -39,11 +39,11 @@
 - Robot Framework User Guide: https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
 - XState states and transitions: https://stately.ai/docs/states
 
-## 工作区 schema v7
+## 工作区 schema v8
 
 ```json
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "activeWorkflowId": "wf-daily-welfare",
   "workflows": [],
   "assignments": {
@@ -129,7 +129,7 @@
 
 ```json
 {
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "id": "wf-daily-welfare",
   "name": "每日福利领取",
   "category": "日常",
@@ -173,6 +173,15 @@
   "target": "button.welfare",
   "command": "button=left; point=center; offsetX=0; offsetY=0; preDelay=300ms; postDelay=500ms",
   "expect": "welfare.visible",
+  "params": {
+    "imageTarget": "button.welfare",
+    "button": "left",
+    "point": "center",
+    "offsetX": 0,
+    "offsetY": 0,
+    "preDelayMs": 300,
+    "postDelayMs": 500
+  },
   "timeoutMs": 2600,
   "retry": 1,
   "onFail": "retry",
@@ -198,7 +207,7 @@
 - `hotkey`: 快捷键动作。
 - `text_input`: 后台文本输入；通过目标 hwnd 投递 `WM_CHAR`，不抢占前台焦点。
 - `delay`: 延迟等待。
-- `condition`: 条件判断；schema v7 会保存 true/false 跳转目标，前端指令指针 runner 会按 guard 选择同任务内下一步。
+- `condition`: 条件判断；schema v8 会保存 true/false 跳转目标，前端指令指针 runner 会按 guard 选择同任务内下一步。
 - `loop`: 有限循环；只在当前任务内跳到更早的 `targetStepId`，必须设置 `maxIterations`，执行时不发送后台输入，达到上限后顺序进入下一步。
 - `retry_until`: 重试直到成功；后台模式必须绑定图片、ROI 或坐标目标，纯状态目标会被校验为不可执行。
 - `snapshot`: 截图记录占位。
@@ -207,14 +216,14 @@
 
 Ctrl+V 粘贴图片是目标库入口，不是运行时步骤。粘贴后会生成 `Target` 并绑定到当前步骤；如果当前步骤不是可接收图片的图像类步骤，会在当前步骤下方自动创建 `image_click`，避免误改原步骤语义，并同步目标默认阈值、点击键和点击点。文本输入框、JSON 文本框和其它可编辑控件内的粘贴不会被拦截，避免误创建目标。如果 WebView 的粘贴事件没有带图片文件，前端会调用 Rust 后端读取 Windows 剪贴板里的 DIB/DIBV5 位图，再按同一套目标绑定流程导入。
 
-schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId` 和 `maxIterations`。导入、保存和复制任务会保留这些字段；复制任务时同任务内 step 引用会重映射到副本步骤，单步复制会清空控制流引用，避免复制出的步骤意外跳到旧上下文。当前前端 runner 使用指令指针执行同任务 `targetStepId/elseTargetStepId`，并用 `MAX_CONTROL_FLOW_STEPS` 和 `maxIterations` 限制后向跳转；一等 `loop` 复用这套字段，但要求目标步骤位于当前步骤之前且 `maxIterations > 0`。跨任务 `task_jump` 如果形成任务环，环内每条未设上限的跳转都会在 readiness 中要求设置 `maxIterations`，避免只靠全局任务跳转预算兜底。执行结果会写入 `runHistory[].controlFlowTransitions[]`。`onFail=restore` 会在可恢复失败后跳到同任务 `recoveryStepId`，恢复入口可以指向由模板生成的普通可执行步骤；默认片段包含 `ESC`、等待、页面确认和截图记录，正常成功路径会跳过带默认标记的恢复片段。恢复分支执行到任务末尾后停止当前窗口队列并保留失败报告。`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务，不改写持久化窗口队列。`loop` 本身是 no-input 控制步骤；计划态 restore 类型自身的后台输入仍未落地。
+schema v8 继续保留 v7 的控制流定义态字段：`targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId` 和 `maxIterations`。导入、保存和复制任务会保留这些字段；复制任务时同任务内 step 引用会重映射到副本步骤，单步复制会清空控制流引用，避免复制出的步骤意外跳到旧上下文。当前前端 runner 使用指令指针执行同任务 `targetStepId/elseTargetStepId`，并用 `MAX_CONTROL_FLOW_STEPS` 和 `maxIterations` 限制后向跳转；一等 `loop` 复用这套字段，但要求目标步骤位于当前步骤之前且 `maxIterations > 0`。跨任务 `task_jump` 如果形成任务环，环内每条未设上限的跳转都会在 readiness 中要求设置 `maxIterations`，避免只靠全局任务跳转预算兜底。执行结果会写入 `runHistory[].controlFlowTransitions[]`。`onFail=restore` 会在可恢复失败后跳到同任务 `recoveryStepId`，恢复入口可以指向由模板生成的普通可执行步骤；默认片段包含 `ESC`、等待、页面确认和截图记录，正常成功路径会跳过带默认标记的恢复片段。恢复分支执行到任务末尾后停止当前窗口队列并保留失败报告。`jumpWorkflowId`/`task_jump` 会在当前 hwnd 会话内插入目标任务，不改写持久化窗口队列。`loop` 本身是 no-input 控制步骤；计划态 restore 类型自身的后台输入仍未落地。
 
 旧版 `branch` 失败/成功分支字段未接入运行器，编辑器不再生成；后续如果要做状态机，应以显式 `targetStepId` 和 guard 表达式重新设计。
 成功路径默认进入下一启用步骤；如果步骤设置了 `targetStepId` 且执行结果不是失败/停止状态，会跳转到同任务目标步骤。旧版 `onSuccess` 字段已不再由编辑器生成。
 
 `steps[].enabled=false` 表示该步骤不参与校验、观察运行和后台执行；运行进度的 `totalSteps` 只统计启用步骤。这样用户可以临时关闭某个点击或识图环节来调试任务。
 
-前端步骤编辑器已经把高频字段拆成“常用参数”控件，并继续同步到旧的 `target/command` 字符串字段，保证旧 workspace 和当前 Rust IPC 仍可读取。当前控件覆盖：
+前端步骤编辑器已经把高频字段拆成“常用参数”控件。schema v8 会把这些值保存到 `steps[].params`，即每个 `Step.params` 的前端结构化参数镜像；保存、导入、复制、目标绑定和运行前都会继续同步/投影到旧的 `target/command/expect` 字符串字段，保证旧 workspace 和当前 Rust IPC 仍可读取。`Step.params` 不是后端原生执行协议，Rust `WorkflowStepInput` 当前仍只接收旧字段。当前控件覆盖：
 
 - `hotkey`: 快捷键输入，同步到 `target`。
 - `text_input`: 文本内容，同步到 `target`，后端最多接收 500 个字符。
@@ -226,9 +235,9 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 - `retry_until`: 等待目标和重试间隔；绑定图片、ROI 或坐标后才会在后台轮询，否则阻止后台运行。
 - `task_jump`: 目标任务选择器；执行时只改本次 `RunSession` 的待跑计划，不覆盖窗口队列配置。
 - 失败恢复入口：所有步骤可设置 `recoveryStepId`；只有 `onFail=restore` 时会在可恢复失败后进入该分支。编辑器提供默认恢复片段模板，片段步骤只在恢复上下文中执行。
-- 所有步骤都可以设置 `preDelay` 和 `postDelay`，分别表示该步骤执行前/后等待；这些参数继续写入 `command` 字符串，不需要 schema 迁移。
+- 所有步骤都可以设置 `preDelay` 和 `postDelay`，分别表示该步骤执行前/后等待；这些参数会写入 `steps[].params`，并继续投影回 `command` 字符串。
 
-原始 `target/command/expect` 仍保留为兼容入口；旧 `assetId` 会在载入时迁移为 `targetId`。后续迁移到结构化 `params` 时应继续保证旧字段可导入。
+原始 `target/command/expect` 仍保留为兼容入口；旧 `assetId` 会在载入时迁移为 `targetId`。v8 的 `steps[].params` 先作为前端结构化参数镜像落盘：导入旧工作区时从旧字段回填，编辑旧字段时刷新已知 params 键，并保留未来版本可能写入的未知 params 键。
 
 ## Target
 
@@ -271,7 +280,7 @@ schema v7 新增的控制流字段是定义态字段：`targetStepId`、`elseTar
 ```json
 {
   "kind": "mhxy-target-library",
-  "schemaVersion": 7,
+  "schemaVersion": 8,
   "exportedAt": "2026-07-10T00:00:00.000Z",
   "targetCount": 0,
   "targets": []
