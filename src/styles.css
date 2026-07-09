@@ -1001,6 +1001,62 @@ h3 {
   background: #28271d;
 }
 
+.workflow-row.ready:not(.active) {
+  border-color: rgba(72, 133, 100, 0.52);
+}
+
+.workflow-row.warning:not(.active) {
+  border-color: rgba(143, 118, 54, 0.72);
+}
+
+.workflow-row.blocked:not(.active) {
+  border-color: rgba(143, 78, 62, 0.76);
+}
+
+.workflow-row-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-row-head strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.readiness-pill {
+  display: grid;
+  place-items: center;
+  min-width: 58px;
+  height: 23px;
+  border: 1px solid #3a4247;
+  border-radius: 5px;
+  padding: 0 7px;
+  color: #93a0a8;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.readiness-pill.ready {
+  border-color: rgba(72, 133, 100, 0.62);
+  color: #bfe8d0;
+}
+
+.readiness-pill.warning {
+  border-color: rgba(143, 118, 54, 0.72);
+  color: #e4c974;
+}
+
+.readiness-pill.blocked {
+  border-color: rgba(143, 78, 62, 0.76);
+  color: #e7a191;
+}
+
 .compact-row.active {
   border-color: #64c3b4;
   background: #1b2b2c;
@@ -1135,6 +1191,16 @@ h3 {
 .completion-board.ready {
   border-color: #426752;
   background: #111b18;
+}
+
+.completion-board.warning {
+  border-color: #5f522d;
+  background: #1c1a12;
+}
+
+.completion-board.blocked {
+  border-color: #654037;
+  background: #1d1513;
 }
 
 .completion-head {
@@ -1498,6 +1564,42 @@ label {
 .target-row {
   grid-template-columns: 42px minmax(0, 1fr) auto;
   align-items: center;
+}
+
+.target-row.ready:not(.active):not(.bound) {
+  border-color: rgba(72, 133, 100, 0.42);
+}
+
+.target-row.warning:not(.active):not(.bound) {
+  border-color: rgba(143, 118, 54, 0.58);
+}
+
+.target-row.blocked:not(.active):not(.bound) {
+  border-color: rgba(143, 78, 62, 0.62);
+}
+
+.target-row.unused:not(.active):not(.bound) {
+  opacity: 0.72;
+}
+
+.target-readiness {
+  font-weight: 720;
+}
+
+.target-readiness.ready {
+  color: #bfe8d0;
+}
+
+.target-readiness.warning {
+  color: #e4c974;
+}
+
+.target-readiness.blocked {
+  color: #e7a191;
+}
+
+.target-readiness.unused {
+  color: #7e8b92;
 }
 
 .target-row em {

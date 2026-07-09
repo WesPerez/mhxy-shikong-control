@@ -29,6 +29,7 @@ const builtinTargetTemplateBindings = [
   { target: "button.team_up", key: "duiwu/duiwu-zudui.png", kind: "image", name: "组队按钮" },
   { target: "page.team.ready", key: "duiwu/duiwu-duiwu.png", kind: "page", name: "队伍界面判定" },
   { target: "page.bag.ready", key: "beibao/beibao_jiemian_panduan.png", kind: "page", name: "背包界面判定" },
+  { target: "button.sort_material", key: "beibao/beibao_diduan.png", kind: "image", name: "背包整理区", threshold: 0.84 },
   { target: "button.home_clean", key: "jiayuan/dali.png", kind: "image", name: "家园打理按钮" },
   { target: "page.home_yard.ready", key: "jiayuan/dali.png", kind: "page", name: "家园打理页判定" },
   { target: "item.target", key: "beibao/zhenfajuan.png", kind: "image", name: "示例背包物品", threshold: 0.82 },
@@ -36,6 +37,7 @@ const builtinTargetTemplateBindings = [
   { target: "entry.secret_realm", key: "mijing/mijing_moshi.png", kind: "image", name: "秘境入口/模式" },
   { target: "item.realm_material", key: "mijing_cailiao/nanshanyu.png", kind: "image", name: "秘境材料" },
   { target: "target.realm_material", key: "mijing_cailiao/nanshanyu.png", kind: "image", name: "秘境材料确认" },
+  { target: "grid.material_slot", key: "mijing_cailiao/nanshanyu.png", kind: "image", name: "材料格参考", threshold: 0.84 },
   { target: "page.stall.ready", key: "shangcheng/baitan_zhujiemian.png", kind: "page", name: "摆摊界面判定" },
   { target: "page.quest.ready", key: "zonghe/renwu_tanchuang.png", kind: "page", name: "任务面板判定" },
   { target: "item.current_quest", key: "zonghe/rwl_suojin.png", kind: "image", name: "当前任务条目" },
@@ -614,7 +616,7 @@ function createSampleWorkflows() {
       step("realm-07", "hotkey", "打开背包检查材料", "ALT+E", "mode=hwnd-key", "bag.open"),
       step("realm-08", "wait_image", "查找秘境材料", "item.realm_material", "threshold=0.86", "visible"),
       step("realm-09", "wait_image", "确认材料图标", "target.realm_material", "threshold=0.84", "material.visible"),
-      step("realm-10", "click", "选择材料格", "grid.material_slot", "button=left; mode=hwnd-message", "item.selected"),
+      step("realm-10", "image_click", "选择材料格", "grid.material_slot", "button=left; point=center; threshold=0.84", "item.selected"),
       step("realm-11", "retry_until", "等待准备就绪", "state.realm_ready", "interval=1000ms", "true", 9000, 5),
       step("realm-12", "snapshot", "记录准备状态", "window.client", "dry-run log only", "snapshot.recorded"),
       step("realm-13", "restore", "恢复主界面", "restore.home", "safe sequence", "page.home.ready"),
@@ -1310,19 +1312,73 @@ function renderAll() {
   renderOpsDashboard();
 }
 
+function readinessBucketSummary(items = []) {
+  const buckets = {
+    issues: 0,
+    warnings: 0,
+    missingAssets: 0,
+    missingCoords: 0,
+    missingOcrTexts: 0,
+    roiWarnings: 0,
+  };
+  for (const item of items) {
+    if (item.severity === "issue") buckets.issues += 1;
+    if (item.severity === "warning") buckets.warnings += 1;
+    const message = String(item.message || "");
+    if (item.kind === "缺素材" || /Ctrl\+V 图片|图像步骤/.test(message)) buckets.missingAssets += 1;
+    if (item.kind === "坐标" || /后台点击需要/.test(message)) buckets.missingCoords += 1;
+    if (item.kind === "OCR" || /OCR 需要目标文本/.test(message)) buckets.missingOcrTexts += 1;
+    if (/未限定 ROI/.test(message)) buckets.roiWarnings += 1;
+  }
+  return buckets;
+}
+
+function readinessDetailText(summary) {
+  const details = [];
+  if (summary.missingAssets) details.push(`缺素材 ${summary.missingAssets}`);
+  if (summary.missingCoords) details.push(`缺坐标 ${summary.missingCoords}`);
+  if (summary.missingOcrTexts) details.push(`OCR ${summary.missingOcrTexts}`);
+  if (summary.roiWarnings) details.push(`ROI 提醒 ${summary.roiWarnings}`);
+  return details.join(" · ");
+}
+
+function workflowReadinessSummary(workflow, validation = null) {
+  const completion = workflowCompletionState(workflow, validation || validateWorkflow(workflow, "background"));
+  const summary = readinessBucketSummary(completion.items);
+  const level = summary.issues ? "blocked" : summary.warnings ? "warning" : "ready";
+  const label =
+    level === "blocked"
+      ? `需采样 ${summary.issues}`
+      : level === "warning"
+        ? `可执行 · ${summary.warnings} 提醒`
+        : "后台就绪";
+  return {
+    ...summary,
+    level,
+    label,
+    detail: readinessDetailText(summary),
+    completion,
+  };
+}
+
 function renderWorkflowList() {
   $("#workflow-count").textContent = String(state.workspace.workflows.length);
   const list = $("#workflow-list");
   list.replaceChildren();
   for (const item of state.workspace.workflows) {
+    const readiness = workflowReadinessSummary(item);
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "workflow-row";
+    button.className = `workflow-row ${readiness.level}`;
     button.classList.toggle("active", item.id === state.workspace.activeWorkflowId);
+    const detail = readiness.detail || "素材、坐标和 OCR 已满足后台基础要求";
     button.innerHTML = `
-      <strong>${escapeHtml(item.name)}</strong>
+      <div class="workflow-row-head">
+        <strong>${escapeHtml(item.name)}</strong>
+        <em class="readiness-pill ${readiness.level}" title="${escapeHtml(detail)}">${escapeHtml(readiness.label)}</em>
+      </div>
       <span>${escapeHtml(item.category || "未分类")} · ${item.steps.length} 步</span>
-      <small>${escapeHtml(item.description || "无备注")}</small>
+      <small>${escapeHtml(detail)} · ${escapeHtml(item.description || "无备注")}</small>
     `;
     button.addEventListener("click", () => {
       state.workspace.activeWorkflowId = item.id;
@@ -1859,7 +1915,7 @@ function renderSteps(validationOverride = null) {
   if (!state.selectedStepId || !workflow.steps.some((item) => item.id === state.selectedStepId)) {
     state.selectedStepId = workflow.steps[0]?.id || null;
   }
-  const validation = validationOverride || validateWorkflow(workflow);
+  const validation = validationOverride || validateWorkflow(workflow, "background");
   state.stepValidation = buildStepValidationIndex(workflow, validation);
   workflow.steps.forEach((item, index) => {
     const row = document.createElement("button");
@@ -1907,22 +1963,30 @@ function renderWorkflowCompletion(workflow = activeWorkflow(), validation = null
     title.textContent = "待补全";
     summary.textContent = "没有当前任务";
     nextButton.disabled = true;
-    board.classList.remove("ready");
+    board.classList.remove("ready", "warning", "blocked");
     return;
   }
   const completion = workflowCompletionState(workflow, validation || validateWorkflow(workflow, "background"));
-  const issueCount = completion.items.filter((item) => item.severity === "issue").length;
-  const warningCount = completion.items.filter((item) => item.severity === "warning").length;
+  const readiness = readinessBucketSummary(completion.items);
+  const issueCount = readiness.issues;
+  const warningCount = readiness.warnings;
+  const detail = readinessDetailText(readiness);
   board.classList.toggle("ready", completion.items.length === 0);
+  board.classList.toggle("warning", issueCount === 0 && warningCount > 0);
+  board.classList.toggle("blocked", issueCount > 0);
   nextButton.disabled = completion.items.length === 0;
-  title.textContent = completion.items.length ? "待采样 / 待补全" : "后台执行准备";
+  title.textContent = issueCount
+    ? "仍需采样 / 配置"
+    : warningCount
+      ? "可后台执行（有建议）"
+      : "后台真实执行就绪";
   summary.textContent = completion.items.length
-    ? `${completion.items.length} 项待处理 · ${issueCount} 项会阻塞后台执行 · ${warningCount} 项提醒`
-    : `${workflow.name} 已满足后台执行的基础素材要求`;
+    ? `${completion.items.length} 项待处理 · 阻塞 ${issueCount} · 提醒 ${warningCount}${detail ? ` · ${detail}` : ""}`
+    : `${workflow.name} 可直接进入后台执行队列`;
   if (!completion.items.length) {
     const ready = document.createElement("div");
     ready.className = "empty-block compact";
-    ready.textContent = "当前任务没有缺图、缺坐标或缺 OCR 文本";
+    ready.textContent = "当前任务没有缺素材、缺坐标或缺 OCR 文本";
     list.append(ready);
     return;
   }
@@ -2009,7 +2073,7 @@ function isSpecificCompletionGap(message) {
 
 function completionKindForMessage(message) {
   if (message.includes("文本输入")) return "文本";
-  if (message.includes("Ctrl+V 图片")) return "缺图";
+  if (message.includes("Ctrl+V 图片")) return "缺素材";
   if (message.includes("OCR 需要目标文本")) return "OCR";
   if (message.includes("未限定 ROI")) return "ROI";
   if (message.includes("后台点击需要")) return "坐标";
@@ -4104,6 +4168,53 @@ function targetThumbLabel(targetItem) {
   return "?";
 }
 
+function buildTargetReadinessIndex() {
+  const byTargetId = new Map();
+  for (const workflow of state.workspace.workflows || []) {
+    const completion = workflowCompletionState(workflow, validateWorkflow(workflow, "background"));
+    if (!completion.items.length) continue;
+    const stepsById = new Map((workflow.steps || []).map((item) => [item.id, item]));
+    for (const item of completion.items) {
+      const step = stepsById.get(item.stepId);
+      const targetId = stepTargetId(step);
+      if (!targetId) continue;
+      const entry = byTargetId.get(targetId) || [];
+      entry.push(item);
+      byTargetId.set(targetId, entry);
+    }
+  }
+  return byTargetId;
+}
+
+function targetReadinessForDisplay(targetItem, readinessIndex, usageCount = targetUsages(targetItem?.id).length) {
+  const indexedItems = readinessIndex.get(targetItem?.id) || [];
+  if (indexedItems.length) {
+    const summary = readinessBucketSummary(indexedItems);
+    const level = summary.issues ? "blocked" : "warning";
+    const detail = readinessDetailText(summary) || `${summary.issues} 阻塞 · ${summary.warnings} 提醒`;
+    return {
+      level,
+      label: summary.issues ? `阻塞 ${summary.issues}` : `提醒 ${summary.warnings}`,
+      detail,
+    };
+  }
+  if (!usageCount) return { level: "unused", label: "未使用", detail: "未被任何步骤引用" };
+  if (targetItem?.dataUrl) return { level: "ready", label: "已采样", detail: "已有图像素材" };
+  if (targetItem?.roi) return { level: "ready", label: "可定位", detail: "已有 ROI 定位" };
+  if (targetItem?.kind === "ocr") {
+    return (targetItem.texts || []).length
+      ? { level: "ready", label: "OCR 文本", detail: "已有 OCR 期望文本" }
+      : { level: "blocked", label: "缺文本", detail: "OCR 目标缺少期望文本" };
+  }
+  if (["image", "page"].includes(targetItem?.kind)) {
+    return { level: "blocked", label: "缺素材", detail: "需要 Ctrl+V 图片或 ROI 裁剪图" };
+  }
+  if (targetItem?.kind === "click_target") {
+    return { level: "blocked", label: "缺坐标", detail: "后台点击需要 x/y 坐标或 ROI 目标" };
+  }
+  return { level: "ready", label: "已配置", detail: "无需图像素材" };
+}
+
 function renderTargets(options = {}) {
   fillTargetKindSelects();
   $("#target-search").value = state.targetSearch;
@@ -4135,23 +4246,26 @@ function renderTargets(options = {}) {
     return;
   }
   const boundTargetId = stepTargetId(selectedStep());
+  const readinessIndex = buildTargetReadinessIndex();
   for (const targetItem of filteredTargets) {
     const row = document.createElement("button");
     row.type = "button";
     row.className = "compact-row target-row";
     row.classList.toggle("active", targetItem.id === state.selectedTargetId);
     row.classList.toggle("bound", targetItem.id === boundTargetId);
+    const usages = targetUsages(targetItem.id).length;
+    const readiness = targetReadinessForDisplay(targetItem, readinessIndex, usages);
+    row.classList.add(readiness.level);
     const thumb = targetItem.dataUrl
       ? `<img src="${targetItem.dataUrl}" alt="${escapeHtml(targetItem.name)}" />`
       : `<i>${escapeHtml(targetThumbLabel(targetItem))}</i>`;
     const threshold = targetItem.match?.threshold ?? DEFAULT_IMAGE_THRESHOLD;
     const click = `${targetItem.click?.button || "left"}@${targetItem.click?.point || "center"}`;
-    const usages = targetUsages(targetItem.id).length;
     row.innerHTML = `
       ${thumb}
       <span>
         <strong>${escapeHtml(targetItem.name)}</strong>
-        <small>${escapeHtml(targetItem.kind)} · ${targetItem.width || "-"}x${targetItem.height || "-"} · t=${escapeHtml(threshold)} · ${escapeHtml(click)} · ${usages} 处</small>
+        <small>${escapeHtml(targetItem.kind)} · ${targetItem.width || "-"}x${targetItem.height || "-"} · t=${escapeHtml(threshold)} · ${escapeHtml(click)} · ${usages} 处 · <b class="target-readiness ${readiness.level}" title="${escapeHtml(readiness.detail)}">${escapeHtml(readiness.label)}</b></small>
       </span>
       <em>${targetItem.id === boundTargetId ? "已绑定" : "选择"}</em>
     `;
