@@ -34,6 +34,7 @@ REQUIRED_STEP_TYPES = {
     "text_input",
     "delay",
     "condition",
+    "loop",
     "retry_until",
     "snapshot",
     "task_jump",
@@ -440,6 +441,8 @@ def audit(project_root: Path, strict_placeholder_targets: bool = False) -> dict[
     sample_condition_branches = 0
     sample_success_jumps = 0
     sample_backward_limited_jumps = 0
+    sample_loop_steps = 0
+    sample_bounded_loops = 0
     for workflow in sample_workflows:
         workflow_id = str(workflow.get("id", ""))
         steps = list(workflow.get("steps", []))
@@ -461,6 +464,10 @@ def audit(project_root: Path, strict_placeholder_targets: bool = False) -> dict[
                 sample_recovery_sources += 1
             if step_type == "condition" and target_step_id in step_id_set and else_step_id in step_id_set:
                 sample_condition_branches += 1
+            if step_type == "loop":
+                sample_loop_steps += 1
+                if target_step_id in step_index and step_index[target_step_id] < index and max_iterations > 0:
+                    sample_bounded_loops += 1
             if step_type != "condition" and target_step_id in step_id_set:
                 sample_success_jumps += 1
             if target_step_id in step_index and step_index[target_step_id] <= index and max_iterations > 0:
@@ -475,6 +482,8 @@ def audit(project_root: Path, strict_placeholder_targets: bool = False) -> dict[
             "sampleConditionBranches": sample_condition_branches,
             "sampleSuccessJumps": sample_success_jumps,
             "sampleBackwardLimitedJumps": sample_backward_limited_jumps,
+            "sampleLoopSteps": sample_loop_steps,
+            "sampleBoundedLoops": sample_bounded_loops,
         },
     )
     if sample_task_jumps < 1:
@@ -487,6 +496,10 @@ def audit(project_root: Path, strict_placeholder_targets: bool = False) -> dict[
         failures.append("sample workflows must include at least one non-condition success targetStepId jump")
     if sample_backward_limited_jumps < 1:
         failures.append("sample workflows must include at least one backward jump protected by maxIterations")
+    if sample_loop_steps < 1:
+        failures.append("sample workflows must include at least one explicit loop step")
+    if sample_bounded_loops < 1:
+        failures.append("sample workflows must include at least one loop step pointing backward with maxIterations")
 
     all_target_references: list[str] = []
     all_step_types: set[str] = set()

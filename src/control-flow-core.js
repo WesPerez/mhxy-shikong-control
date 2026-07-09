@@ -441,6 +441,14 @@ export function controlFlowDecisionForStep(context, options = {}) {
   ) {
     return buildWorkflowJumpDecision(item.type === "task_jump" ? "task_jump" : "success task_jump");
   } else if (
+    item.type === "loop" &&
+    (isSuccessfulStepResult(result, options) || result?.status === "planned") &&
+    !plannedOnlyStepTypes.has(item.type) &&
+    item.targetStepId
+  ) {
+    targetStepId = item.targetStepId;
+    reason = "loop";
+  } else if (
     isSuccessfulStepResult(result, options) &&
     result?.status !== "planned" &&
     !plannedOnlyStepTypes.has(item.type) &&
@@ -453,8 +461,10 @@ export function controlFlowDecisionForStep(context, options = {}) {
   if (!targetStepId) {
     return {
       nextPc: defaultNextPc,
-      message: "",
-      transition: item.type === "condition" ? buildTransition("fallthrough", defaultNextPc, { skippedReason: "no target step configured" }) : null,
+      message: item.type === "loop" ? `${workflow.name} / ${item.name} 循环步骤未设置循环目标，保持顺序执行` : "",
+      transition: ["condition", "loop"].includes(item.type)
+        ? buildTransition("fallthrough", defaultNextPc, { skippedReason: "no target step configured" })
+        : null,
     };
   }
 
@@ -464,6 +474,22 @@ export function controlFlowDecisionForStep(context, options = {}) {
       nextPc: defaultNextPc,
       message: "",
       transition: buildTransition("skipped", defaultNextPc, { skippedReason: "target step not enabled or missing" }),
+    };
+  }
+
+  if (item.type === "loop" && nextPc >= currentPc) {
+    const reasonText = "循环目标必须位于当前步骤之前";
+    return {
+      nextPc: defaultNextPc,
+      message: `${workflow.name} / ${item.name} 循环到 ${stepLabelForExecution(steps[nextPc], options)} 被跳过：${reasonText}`,
+      transition: buildTransition("skipped", defaultNextPc, {
+        skippedReason: reasonText,
+        requestedToStepId: targetStepId,
+        requestedToIndex: nextPc,
+        backward: false,
+        maxIterations: Math.max(0, Number(item.maxIterations) || 0),
+        iterationCount: null,
+      }),
     };
   }
 

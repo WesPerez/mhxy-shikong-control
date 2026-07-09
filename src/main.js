@@ -96,6 +96,7 @@ const stepTypes = [
   ["text_input", "文本输入"],
   ["delay", "延迟等待"],
   ["condition", "条件判断"],
+  ["loop", "循环"],
   ["retry_until", "重试直到"],
   ["snapshot", "截图记录"],
   ["task_jump", "任务跳转"],
@@ -194,6 +195,15 @@ const stepDefaults = {
     timeoutMs: 1000,
     retry: 0,
     onFail: "skip",
+  },
+  loop: {
+    name: "有限循环",
+    target: "control.loop",
+    command: "mode=control-flow",
+    expect: "bounded.repeat",
+    timeoutMs: 0,
+    retry: 0,
+    onFail: "stop",
   },
   retry_until: {
     name: "重试直到",
@@ -769,7 +779,7 @@ function createSampleWorkflows() {
       step("material-06", "wait_image", "查找目标材料", "item.target_material", "threshold=0.86", "visible"),
       step("material-07", "image_click", "选择目标材料", "item.target_material", "button=left; point=center", "item.selected"),
       step("material-08", "image_click", "移动到整理区", "button.sort_material", "button=left; point=center", "sort.accepted"),
-      step("material-09", "delay", "等待整理反馈并回查一次", "900ms", "reason=server_response", "time.elapsed", 900, 0, "skip", {
+      step("material-09", "loop", "回查材料一次", "control.loop", "mode=control-flow; preDelay=900ms", "bounded.repeat", 0, 0, "stop", {
         targetStepId: "material-06",
         maxIterations: 1,
       }),
@@ -945,6 +955,7 @@ function normalizeStepFailAction(value, fallback = "stop") {
 function sanitizeStepControlFlowForType(item) {
   if (!item) return;
   if (item.type !== "condition") item.elseTargetStepId = "";
+  if (item.type === "loop") item.jumpWorkflowId = "";
   if (plannedOnlyStepTypes.has(item.type)) {
     item.targetStepId = "";
     item.elseTargetStepId = "";
@@ -2394,6 +2405,7 @@ function completionFocusSelector(item, stepItem) {
     return stepItem?.type === "retry_until" ? "#param-retry-interval" : "#param-delay-ms";
   }
   if (item.message.includes("任务跳转")) return "#param-control-workflow-jump";
+  if (item.message.includes("循环步骤必须选择循环目标")) return "#param-control-target-step";
   if (item.message.includes("后向跳转") || item.message.includes("循环")) return "#param-control-max-iterations";
   if (item.message.includes("恢复入口")) return "#param-control-recovery-step";
   if (item.message.includes("缺少目标") || item.message.includes("识别目标已不存在")) return "#param-target-select";
@@ -2687,6 +2699,7 @@ function stepHasCompatibilityDrift(item) {
     "ocr_assert",
     "delay",
     "condition",
+    "loop",
     "retry_until",
   ]);
   return Boolean(
@@ -2788,6 +2801,10 @@ function paramSummaryForStep(item) {
     const refs = controlFlowReferenceSummary(item);
     return `${item.target || "条件标签"} · guard=${commandValue(item.command, "guard") || "未设置"}${refs ? ` · ${refs}` : ""}${timing}`;
   }
+  if (item.type === "loop") {
+    const refs = controlFlowReferenceSummary(item);
+    return `有限循环${refs ? ` · ${refs}` : " · 未设置循环目标/次数"}${timing}`;
+  }
   if (item.type === "task_jump") {
     const refs = controlFlowReferenceSummary(item);
     return `切到 ${workflowNameById(item.jumpWorkflowId) || "未设置目标任务"}${refs ? ` · ${refs}` : ""}${timing}`;
@@ -2806,7 +2823,10 @@ function controlFlowReferenceSummary(item) {
     `${String(index + 1).padStart(2, "0")} ${step.name || stepLabels[step.type] || step.type}`,
   ]));
   const parts = [];
-  if (item.targetStepId) parts.push(`true -> ${byId.get(item.targetStepId) || "断链"}`);
+  if (item.targetStepId) {
+    const label = item.type === "condition" ? "true" : item.type === "loop" ? "loop" : "success";
+    parts.push(`${label} -> ${byId.get(item.targetStepId) || "断链"}`);
+  }
   if (item.elseTargetStepId) parts.push(`false -> ${byId.get(item.elseTargetStepId) || "断链"}`);
   if (item.recoveryStepId) parts.push(`restore -> ${byId.get(item.recoveryStepId) || "断链"}`);
   if (item.jumpWorkflowId) parts.push(`task -> ${workflowNameById(item.jumpWorkflowId) || "断链"}`);
@@ -4784,7 +4804,7 @@ function validateWorkflow(workflow = activeWorkflow(), mode = "definition") {
     if (!stepLabels[item.type]) addIssue(`${prefix} 类型未知`, item);
     if (item.enabled === false) continue;
     if (!item.name.trim()) addIssue(`${prefix} 名称为空`, item);
-    if (!item.target.trim() && !["delay", "snapshot", "text_input", "task_jump"].includes(item.type)) {
+    if (!item.target.trim() && !["delay", "snapshot", "text_input", "task_jump", "loop"].includes(item.type)) {
       addIssue(`${prefix} 缺少目标`, item);
     }
     if (!Number.isFinite(item.timeoutMs) || item.timeoutMs < 0) addIssue(`${prefix} 超时必须是非负数`, item);
@@ -4832,7 +4852,10 @@ function validateStepControlFlowReferences(workflow, item, prefix, addIssue, add
       });
     }
   } else {
-    checkStepReference("targetStepId", item.type === "condition" ? "条件 true 分支" : "成功分支");
+    checkStepReference(
+      "targetStepId",
+      item.type === "condition" ? "条件 true 分支" : item.type === "loop" ? "循环目标" : "成功分支",
+    );
     if (item.type === "condition") {
       checkStepReference("elseTargetStepId", "条件 false 分支");
     } else if (item.elseTargetStepId) {
@@ -4866,6 +4889,25 @@ function validateStepControlFlowReferences(workflow, item, prefix, addIssue, add
   }
   if (item.maxIterations && (!Number.isInteger(Number(item.maxIterations)) || Number(item.maxIterations) < 0)) {
     addReferenceMessage(`${prefix} 最大循环次数必须是非负整数`);
+  }
+  if (item.type === "loop") {
+    const targetId = String(item.targetStepId || "").trim();
+    const targetIndex = steps.findIndex((step) => step.id === targetId);
+    if (!targetId) {
+      addReferenceMessage(`${prefix} 循环步骤必须选择循环目标`);
+    }
+    if (!item.maxIterations) {
+      addReferenceMessage(`${prefix} 循环步骤必须设置最大循环次数`);
+    }
+    if (targetId && targetIndex > currentIndex) {
+      addReferenceMessage(`${prefix} 循环目标应指向当前步骤之前的步骤，避免把跳过流程伪装成循环`);
+    }
+    if (item.elseTargetStepId) {
+      addWarning(`${prefix} 循环步骤不会读取 False 跳转，已保留但不会执行`, item);
+    }
+    if (item.jumpWorkflowId) {
+      addReferenceMessage(`${prefix} 循环步骤不能同时设置任务跳转`);
+    }
   }
 }
 
@@ -5655,6 +5697,15 @@ async function executeBackgroundStep(session, item) {
       status: "ok",
       action: "task_jump",
       detail: `same-window queue jump requested: ${workflowNameById(item.jumpWorkflowId) || item.jumpWorkflowId || "missing target"}`,
+      inputSent: false,
+      matched: false,
+    };
+  }
+  if (item.type === "loop") {
+    return {
+      status: "ok",
+      action: "loop",
+      detail: `bounded loop requested: ${item.targetStepId || "missing target"}; maxIterations=${item.maxIterations || 0}`,
       inputSent: false,
       matched: false,
     };

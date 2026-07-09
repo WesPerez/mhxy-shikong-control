@@ -15,6 +15,7 @@ const labels = {
   condition: "Condition",
   detect_page: "Detect page",
   image_click: "Image click",
+  loop: "Loop",
   restore: "Restore",
   task_jump: "Task jump",
 };
@@ -192,6 +193,42 @@ function testBackwardStepJumpBudget() {
   assert.equal(second.nextPc, 2);
   assert.equal(second.transition.status, "skipped");
   assert.equal(second.transition.iterationCount, 1);
+}
+
+function testLoopStepUsesPlannedNoInputAndBudget() {
+  const session = makeSession();
+  const steps = [
+    { id: "s1", type: "detect_page", name: "Start" },
+    { id: "s2", type: "image_click", name: "Body" },
+    { id: "s3", type: "loop", name: "Loop once", targetStepId: "s2", maxIterations: 1 },
+    { id: "s4", type: "snapshot", name: "After" },
+  ];
+  const planned = { status: "planned", action: "no_input", detail: "no backend input" };
+  const first = decisionFor({ steps, itemIndex: 2, session, result: planned });
+  const second = decisionFor({ steps, itemIndex: 2, session, result: planned });
+
+  assert.equal(first.nextPc, 1);
+  assert.equal(first.transition.reason, "loop");
+  assert.equal(first.transition.backward, true);
+  assert.equal(first.transition.iterationCount, 1);
+  assert.equal(first.transition.maxIterations, 1);
+  assert.equal(second.nextPc, 3);
+  assert.equal(second.transition.status, "skipped");
+  assert.equal(second.transition.iterationCount, 1);
+}
+
+function testLoopStepRejectsForwardTarget() {
+  const steps = [
+    { id: "s1", type: "detect_page", name: "Start" },
+    { id: "s2", type: "loop", name: "Bad loop", targetStepId: "s3", maxIterations: 2 },
+    { id: "s3", type: "snapshot", name: "Forward" },
+  ];
+
+  const decision = decisionFor({ steps, itemIndex: 1, result: { status: "planned", action: "no_input" } });
+
+  assert.equal(decision.nextPc, 2);
+  assert.equal(decision.transition.status, "skipped");
+  assert.equal(decision.transition.skippedReason, "循环目标必须位于当前步骤之前");
 }
 
 function testConditionBranchesAndTaskJump() {
@@ -425,6 +462,8 @@ const tests = [
   testPlannedTaskJumpDoesNotTriggerWorkflowJump,
   testSelfTaskJumpRequiresAndHonorsMaxIterations,
   testBackwardStepJumpBudget,
+  testLoopStepUsesPlannedNoInputAndBudget,
+  testLoopStepRejectsForwardTarget,
   testConditionBranchesAndTaskJump,
   testUnsupportedConditionFallsThroughWithEvidence,
   testRecoveryOnlyRunsForRecoverableFailures,

@@ -171,6 +171,16 @@ RUNNER_SEMANTIC_TOKENS = [
     "status: \"missing_asset\"",
     "type: \"wait_image\"",
 ]
+LOOP_SEMANTIC_TOKENS = [
+    "item.type === \"loop\"",
+    "action: \"loop\"",
+    "bounded loop requested",
+    "inputSent: false",
+    "matched: false",
+    "循环步骤必须设置最大循环次数",
+    "循环目标应指向当前步骤之前的步骤",
+    "循环目标必须位于当前步骤之前",
+]
 STEP_TIMING_TOKENS = [
     "param-pre-delay-ms",
     "param-post-delay-ms",
@@ -336,6 +346,7 @@ def main() -> int:
     paste_auto_step = scan_tokens(files, PASTE_AUTO_STEP_TOKENS)
     clipboard_fallback = scan_tokens(files, CLIPBOARD_FALLBACK_TOKENS)
     runner_semantics = scan_tokens(files, RUNNER_SEMANTIC_TOKENS)
+    loop_semantics = scan_tokens(files, LOOP_SEMANTIC_TOKENS)
     step_timing = scan_tokens(files, STEP_TIMING_TOKENS)
     image_click_point = scan_tokens(files, IMAGE_CLICK_POINT_TOKENS)
     completion_board = scan_tokens(files, COMPLETION_BOARD_TOKENS)
@@ -400,6 +411,10 @@ def main() -> int:
     runner_semantics_seen = {hit["token"] for hit in runner_semantics}
     runner_semantics_missing = [
         token for token in RUNNER_SEMANTIC_TOKENS if token not in runner_semantics_seen
+    ]
+    loop_semantics_seen = {hit["token"] for hit in loop_semantics}
+    loop_semantics_missing = [
+        token for token in LOOP_SEMANTIC_TOKENS if token not in loop_semantics_seen
     ]
     step_timing_seen = {hit["token"] for hit in step_timing}
     step_timing_missing = [
@@ -484,6 +499,8 @@ def main() -> int:
         "clipboardFallbackMissing": clipboard_fallback_missing,
         "runnerSemanticEvidence": runner_semantics,
         "runnerSemanticMissing": runner_semantics_missing,
+        "loopSemanticEvidence": loop_semantics,
+        "loopSemanticMissing": loop_semantics_missing,
         "stepTimingEvidence": step_timing,
         "stepTimingMissing": step_timing_missing,
         "imageClickPointEvidence": image_click_point,
@@ -523,6 +540,7 @@ def main() -> int:
             and not paste_auto_step_missing
             and not clipboard_fallback_missing
             and not runner_semantics_missing
+            and not loop_semantics_missing
             and not step_timing_missing
             and not image_click_point_missing
             and not completion_board_missing
@@ -543,7 +561,7 @@ def main() -> int:
             "When hwnd input exists, expectedWindow identity evidence must also be present. "
             "expectedWindow.hwnd must be required and checked before dispatch. "
             "image_click must recheck expectedWindow after matching and before posting a click. "
-            "Step editing, validation badge, paste-to-step, clipboard fallback, runner semantic, step timing, image click point controls, workflow blueprint, independent workflow duplicate targets, target library import/export, batch queue, queue timing, run report, text input, double click, and UI stability tokens catch visible UI or modeled-step regressions."
+            "Step editing, validation badge, paste-to-step, clipboard fallback, runner semantic, loop semantic, step timing, image click point controls, workflow blueprint, independent workflow duplicate targets, target library import/export, batch queue, queue timing, run report, text input, double click, and UI stability tokens catch visible UI or modeled-step regressions."
         ),
     }
     if args.json:
@@ -578,6 +596,8 @@ def main() -> int:
         print(f"clipboardFallbackMissing={len(clipboard_fallback_missing)}")
         print(f"runnerSemanticEvidence={len(runner_semantics)}")
         print(f"runnerSemanticMissing={len(runner_semantics_missing)}")
+        print(f"loopSemanticEvidence={len(loop_semantics)}")
+        print(f"loopSemanticMissing={len(loop_semantics_missing)}")
         print(f"stepTimingEvidence={len(step_timing)}")
         print(f"stepTimingMissing={len(step_timing_missing)}")
         print(f"imageClickPointEvidence={len(image_click_point)}")
@@ -641,6 +661,9 @@ def main() -> int:
         if runner_semantics_missing:
             for token in runner_semantics_missing:
                 print(f"MISSING_RUNNER_SEMANTIC {token}")
+        if loop_semantics_missing:
+            for token in loop_semantics_missing:
+                print(f"MISSING_LOOP_SEMANTIC {token}")
         if step_timing_missing:
             for token in step_timing_missing:
                 print(f"MISSING_STEP_TIMING {token}")

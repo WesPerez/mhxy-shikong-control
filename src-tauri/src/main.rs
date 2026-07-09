@@ -402,13 +402,15 @@ fn execute_workflow_step(
                 ),
             ))
         }
-        "delay" | "condition" | "retry_until" | "task_jump" | "restore" => Ok(step_result(
-            hwnd,
-            &step.step_type,
-            "planned",
-            "no_input",
-            "step is represented in the runner but has no direct backend input in this build",
-        )),
+        "delay" | "condition" | "loop" | "retry_until" | "task_jump" | "restore" => {
+            Ok(step_result(
+                hwnd,
+                &step.step_type,
+                "planned",
+                "no_input",
+                "step is represented in the runner but has no direct backend input in this build",
+            ))
+        }
         "ocr_assert" => dispatch_ocr_step(hwnd, &step),
         other => Ok(step_result(
             hwnd,

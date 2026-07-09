@@ -130,7 +130,7 @@ def audit(project_root: Path) -> dict[str, object]:
         failures.append("src/main.js WORKSPACE_SCHEMA_VERSION is not 7")
     if not re.search(r"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*7\b", rust):
         failures.append("src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not 7")
-    require_contains(rust, ["task_jump", "planned", "no_input"], failures, "src-tauri/src/main.rs")
+    require_contains(rust, ["task_jump", "loop", "planned", "no_input"], failures, "src-tauri/src/main.rs")
 
     try:
         planned_only = set_literals(main, "plannedOnlyStepTypes")
@@ -144,7 +144,13 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(main, CONTROL_FLOW_STEP_FIELDS, failures, "src/main.js")
     require_contains(main, CONTROL_FLOW_WORKFLOW_FIELDS, failures, "src/main.js")
     require_contains(main, ["maxIterations"], failures, "src/main.js")
-    require_contains(main, ["sanitizeStepControlFlowForType", "item.type !== \"condition\"", "plannedOnlyStepTypes.has(item.type)"], failures, "src/main.js")
+    require_contains(
+        main,
+        ["sanitizeStepControlFlowForType", "item.type !== \"condition\"", "item.type === \"loop\"", "plannedOnlyStepTypes.has(item.type)"],
+        failures,
+        "src/main.js",
+    )
+    require_contains(main, ['["loop", "循环"]', "loop: {", "action: \"loop\"", "bounded loop requested"], failures, "src/main.js loop")
 
     try:
         normalize_body = function_body(main, "normalizeStep")
@@ -183,6 +189,9 @@ def audit(project_root: Path) -> dict[str, object]:
                 "指向已停用步骤",
                 "不能指向当前步骤",
                 "后向跳转，必须设置最大循环次数",
+                "循环步骤必须选择循环目标",
+                "循环步骤必须设置最大循环次数",
+                "循环目标应指向当前步骤之前的步骤",
                 "plannedOnlyStepTypes",
                 "不能驱动成功/条件/任务跳转",
             ],
@@ -296,6 +305,7 @@ def audit(project_root: Path) -> dict[str, object]:
             decision_body,
             [
                 "evaluateConditionGuard",
+                "item.type === \"loop\"",
                 "item.targetStepId",
                 "item.elseTargetStepId",
                 "session.controlFlowCounts",
@@ -309,6 +319,7 @@ def audit(project_root: Path) -> dict[str, object]:
                 "unsupported guard expression",
                 "result?.status !== \"planned\"",
                 "plannedOnlyStepTypes",
+                "循环目标必须位于当前步骤之前",
                 "buildWorkflowJumpDecision",
                 "item.jumpWorkflowId",
                 "workflowJumpId",
@@ -400,16 +411,19 @@ def audit(project_root: Path) -> dict[str, object]:
         "param-control-max-iterations",
     ]
     require_contains(html, ui_ids, failures, "index.html")
+    require_contains(html, ["data-step-types=\"detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition loop", "循环只在当前任务内跳转"], failures, "index.html loop")
     require_contains(main, [f'$("#{item}").addEventListener' for item in ui_ids], failures, "bindStepParamEditor")
 
     docs_text = "\n".join([workflow_docs, product_docs, readme])
     require_contains(docs_text, ["schema v7", "targetStepId", "elseTargetStepId", "recoveryStepId", "jumpWorkflowId", "maxIterations"], failures, "docs")
     require_contains(
         docs_text,
-        ["指令指针", "condition", "后向跳转", "失败恢复", "任务跳转", "跨任务环", "controlFlowTransitions"],
+        ["指令指针", "condition", "loop", "有限循环", "后向跳转", "失败恢复", "任务跳转", "跨任务环", "controlFlowTransitions"],
         failures,
         "docs",
     )
+    test_control_flow = read_text(project_root / "scripts/test_control_flow_core.mjs")
+    require_contains(test_control_flow, ["testLoopStepUsesPlannedNoInputAndBudget", "type: \"loop\"", "循环目标必须位于当前步骤之前"], failures, "scripts/test_control_flow_core.mjs loop")
 
     scripts = package.get("scripts", {})
     if scripts.get("audit:control-flow-schema") != "python scripts/audit_control_flow_schema.py":

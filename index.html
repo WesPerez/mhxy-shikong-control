@@ -391,13 +391,13 @@
                         <input id="param-condition-guard" type="text" placeholder="true 或 >0" />
                       </label>
                     </div>
-                    <div class="param-section-title" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition retry_until snapshot task_jump restore">
+                    <div class="param-section-title" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition loop retry_until snapshot task_jump restore">
                       <strong>流程</strong>
                       <span>默认执行下一步，只配置需要改变顺序的地方</span>
                     </div>
-                    <div class="param-grid" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition retry_until snapshot">
+                    <div class="param-grid" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition loop retry_until snapshot">
                       <label>
-                        成功/True 跳转
+                        目标步骤
                         <select id="param-control-target-step"></select>
                       </label>
                     </div>
@@ -407,16 +407,16 @@
                         <select id="param-control-else-step"></select>
                       </label>
                     </div>
-                    <div class="param-grid" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition retry_until snapshot task_jump restore">
+                    <div class="param-grid" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition loop retry_until snapshot task_jump restore">
                       <label>
                         失败恢复入口
                         <select id="param-control-recovery-step"></select>
                       </label>
                     </div>
-                    <details id="step-flow-advanced" class="advanced-fields flow-advanced" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition retry_until snapshot task_jump">
+                    <details id="step-flow-advanced" class="advanced-fields flow-advanced" data-step-types="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition loop retry_until snapshot task_jump">
                       <summary>跨任务 / 循环保护</summary>
                       <div class="param-grid">
-                        <label>
+                        <label data-param-for="detect_page wait_image image_click double_click ocr_assert click hotkey text_input delay condition retry_until snapshot task_jump">
                           任务跳转
                           <select id="param-control-workflow-jump"></select>
                         </label>
@@ -438,6 +438,7 @@
                     </div>
                     <p class="hint" data-step-types="ocr_assert">OCR 会截图识别目标文字，不发送鼠标或键盘输入。</p>
                     <p class="hint" data-step-types="condition">条件会按 guard 在同一任务内跳转；后向跳转必须设置最大循环次数，False 跳转只对 condition 生效。</p>
+                    <p class="hint" data-step-types="loop">循环只在当前任务内跳转，不发送后台输入；必须选择前面的循环目标并设置最大循环次数。</p>
                     <p class="hint" data-step-types="task_jump">任务跳转会结束当前任务余下步骤，并把目标任务插入本次 hwnd 会话的下一项；不改写持久化窗口队列。跳回当前任务必须设置最大循环次数。</p>
                     <p class="hint" data-step-types="double_click">双击会向目标 hwnd 投递后台鼠标双击消息，不移动真实鼠标。</p>
                     <p class="hint" data-step-types="text_input">文本输入会向目标 hwnd 投递 WM_CHAR 消息，不抢占前台焦点。</p>
