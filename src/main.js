@@ -9,6 +9,7 @@ const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
 const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page", "click", "ocr_assert"]);
 const capturedImageStepTypes = new Set(["image_click", "wait_image", "detect_page"]);
+const stepFailActions = new Set(["stop", "retry", "skip", "restore"]);
 const targetKindOptions = ["image", "roi", "page", "ocr", "click_target", "state", "unknown"];
 
 const stepTypes = [
@@ -350,7 +351,6 @@ function workflow(id, name, category, description, steps) {
     description,
     tags: [category, "示例"],
     initialCheck: "page.home.ready",
-    restorePolicy: "restore_home",
     targetPolicy: {
       titleNeedle: TARGET_TITLE,
       inputMode: "hwnd-message",
@@ -448,7 +448,6 @@ function normalizeWorkflow(value) {
     description: String(value?.description || ""),
     tags: Array.isArray(value?.tags) ? value.tags.map(String) : [],
     initialCheck: String(value?.initialCheck || "page.home.ready"),
-    restorePolicy: String(value?.restorePolicy || "restore_home"),
     targetPolicy: {
       titleNeedle: String(value?.targetPolicy?.titleNeedle || TARGET_TITLE),
       inputMode: String(value?.targetPolicy?.inputMode || "hwnd-message"),
@@ -472,11 +471,18 @@ function normalizeStep(value) {
     expect: String(value?.expect || defaults.expect),
     timeoutMs: Number(value?.timeoutMs ?? defaults.timeoutMs),
     retry: Number(value?.retry ?? defaults.retry),
-    onFail: String(value?.onFail || defaults.onFail),
+    onFail: normalizeStepFailAction(value?.onFail, defaults.onFail),
     enabled: value?.enabled !== false,
     targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
   };
+}
+
+function normalizeStepFailAction(value, fallback = "stop") {
+  const action = String(value || "").trim();
+  if (stepFailActions.has(action)) return action;
+  const fallbackAction = String(fallback || "").trim();
+  return stepFailActions.has(fallbackAction) ? fallbackAction : "stop";
 }
 
 function normalizeTarget(value) {
@@ -798,7 +804,6 @@ function renderWorkflowForm() {
   $("#workflow-name").value = workflow.name;
   $("#workflow-category").value = workflow.category || "";
   $("#workflow-initial-check").value = workflow.initialCheck || "";
-  $("#workflow-restore-policy").value = workflow.restorePolicy || "restore_home";
   $("#workflow-concurrency").value = workflow.targetPolicy?.concurrency || "per-window-exclusive";
   $("#workflow-description").value = workflow.description || "";
 }
@@ -808,7 +813,6 @@ function bindWorkflowInputs() {
     ["#workflow-name", "name"],
     ["#workflow-category", "category"],
     ["#workflow-initial-check", "initialCheck"],
-    ["#workflow-restore-policy", "restorePolicy"],
     ["#workflow-description", "description"],
   ];
   for (const [selector, field] of updates) {
@@ -910,6 +914,7 @@ function renderSteps(validationOverride = null) {
     empty.className = "empty-block";
     empty.textContent = "暂无步骤";
     list.append(empty);
+    renderWorkflowCompletion(workflow);
     return;
   }
   if (!state.selectedStepId || !workflow.steps.some((item) => item.id === state.selectedStepId)) {
@@ -948,6 +953,243 @@ function renderSteps(validationOverride = null) {
     });
     list.append(row);
   });
+  renderWorkflowCompletion(workflow);
+}
+
+function renderWorkflowCompletion(workflow = activeWorkflow(), validation = null) {
+  const board = $("#workflow-completion");
+  if (!board) return;
+  const title = $("#completion-title");
+  const summary = $("#completion-summary");
+  const list = $("#completion-list");
+  const nextButton = $("#focus-next-gap");
+  list.replaceChildren();
+  if (!workflow) {
+    title.textContent = "待补全";
+    summary.textContent = "没有当前任务";
+    nextButton.disabled = true;
+    board.classList.remove("ready");
+    return;
+  }
+  const completion = workflowCompletionState(workflow, validation || validateWorkflow(workflow, "background"));
+  const issueCount = completion.items.filter((item) => item.severity === "issue").length;
+  const warningCount = completion.items.filter((item) => item.severity === "warning").length;
+  board.classList.toggle("ready", completion.items.length === 0);
+  nextButton.disabled = completion.items.length === 0;
+  title.textContent = completion.items.length ? "待采样 / 待补全" : "后台执行准备";
+  summary.textContent = completion.items.length
+    ? `${completion.items.length} 项待处理 · ${issueCount} 项会阻塞后台执行 · ${warningCount} 项提醒`
+    : `${workflow.name} 已满足后台执行的基础素材要求`;
+  if (!completion.items.length) {
+    const ready = document.createElement("div");
+    ready.className = "empty-block compact";
+    ready.textContent = "当前任务没有缺图、缺坐标或缺 OCR 文本";
+    list.append(ready);
+    return;
+  }
+  for (const item of completion.items.slice(0, 8)) {
+    const row = document.createElement("button");
+    row.type = "button";
+    row.className = `completion-item ${item.severity}`;
+    row.title = item.message;
+    row.innerHTML = `
+      <em>${escapeHtml(item.kind)}</em>
+      <span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <small>${escapeHtml(completionMessageDetail(item.message))}</small>
+      </span>
+      <b>${escapeHtml(item.action)}</b>
+    `;
+    row.addEventListener("click", () => {
+      selectCompletionItem(item);
+    });
+    list.append(row);
+  }
+  if (completion.items.length > 8) {
+    const more = document.createElement("div");
+    more.className = "empty-block compact";
+    more.textContent = `还有 ${completion.items.length - 8} 项，补完上面的项后会继续显示`;
+    list.append(more);
+  }
+}
+
+function workflowCompletionState(workflow, validation = validateWorkflow(workflow, "background")) {
+  const items = [];
+  const stepMessages = new Set();
+  const steps = workflow?.steps || [];
+  for (const [index, item] of steps.entries()) {
+    const messages = [
+      ...(validation.stepIssues?.[item.id] || []).map((message) => ({ message, severity: "issue" })),
+      ...(validation.stepWarnings?.[item.id] || []).map((message) => ({ message, severity: "warning" })),
+    ];
+    const hasSpecificGap = messages.some(({ message }) => isSpecificCompletionGap(message));
+    for (const { message, severity } of messages) {
+      stepMessages.add(message);
+      if (hasSpecificGap && message.includes("缺少目标")) continue;
+      items.push({
+        stepId: item.id,
+        stepIndex: index,
+        severity,
+        kind: completionKindForMessage(message),
+        title: `${String(index + 1).padStart(2, "0")} ${item.name || stepLabels[item.type] || item.type}`,
+        action: completionActionForMessage(message),
+        message,
+      });
+    }
+  }
+  for (const message of validation.issues || []) {
+    if (!stepMessages.has(message)) items.push(workflowCompletionItem(message, "issue", workflow));
+  }
+  for (const message of validation.warnings || []) {
+    if (!stepMessages.has(message)) items.push(workflowCompletionItem(message, "warning", workflow));
+  }
+  items.sort((left, right) => {
+    if (left.severity !== right.severity) return left.severity === "issue" ? -1 : 1;
+    return (left.stepIndex ?? 9999) - (right.stepIndex ?? 9999);
+  });
+  return { items, validation };
+}
+
+function workflowCompletionItem(message, severity, workflow) {
+  return {
+    stepId: "",
+    stepIndex: null,
+    severity,
+    kind: completionKindForMessage(message),
+    title: workflow?.name || "当前任务",
+    action: completionActionForMessage(message),
+    message,
+  };
+}
+
+function isSpecificCompletionGap(message) {
+  return /Ctrl\+V 图片|OCR 需要目标文本|后台点击需要|绑定的识别目标已不存在|匹配阈值|鼠标键|重试间隔|延迟步骤/.test(
+    message,
+  );
+}
+
+function completionKindForMessage(message) {
+  if (message.includes("Ctrl+V 图片")) return "缺图";
+  if (message.includes("OCR 需要目标文本")) return "OCR";
+  if (message.includes("未限定 ROI")) return "ROI";
+  if (message.includes("后台点击需要")) return "坐标";
+  if (message.includes("识别目标已不存在") || message.includes("缺少目标")) return "目标";
+  if (message.includes("快捷键")) return "热键";
+  if (message.includes("阈值")) return "阈值";
+  if (message.includes("鼠标键")) return "鼠标";
+  if (message.includes("延迟") || message.includes("间隔")) return "时间";
+  if (message.includes("少于 10 步") || message.includes("步骤")) return "步骤";
+  return message.includes("提醒") ? "提醒" : "检查";
+}
+
+function completionActionForMessage(message) {
+  if (message.includes("Ctrl+V 图片")) return "粘贴图";
+  if (message.includes("OCR 需要目标文本")) return "填文本";
+  if (message.includes("未限定 ROI")) return "设 ROI";
+  if (message.includes("后台点击需要")) return "填坐标";
+  if (message.includes("识别目标已不存在") || message.includes("缺少目标")) return "绑目标";
+  if (message.includes("快捷键")) return "改热键";
+  if (message.includes("阈值")) return "改阈值";
+  if (message.includes("鼠标键")) return "改按钮";
+  if (message.includes("延迟") || message.includes("间隔")) return "改时间";
+  if (message.includes("少于 10 步")) return "加步骤";
+  return "定位";
+}
+
+function completionMessageDetail(message) {
+  return String(message || "").replace(/^第\s+\d+\s+步\s*/, "");
+}
+
+function focusNextCompletionGap() {
+  const workflow = activeWorkflow();
+  const item = workflowCompletionState(workflow, validateWorkflow(workflow, "background")).items[0];
+  if (!item) {
+    setStatus("当前任务没有待补全项");
+    return;
+  }
+  selectCompletionItem(item);
+}
+
+function selectCompletionItem(item) {
+  const workflow = activeWorkflow();
+  if (!workflow) return;
+  if (item.stepId) {
+    const stepItem = workflow.steps.find((step) => step.id === item.stepId);
+    if (!selectStepAndTarget(stepItem)) return;
+    revealCompletionTarget(stepItem, item);
+    renderSteps();
+    renderStepEditor();
+    renderTargets();
+    focusCompletionField(item, stepItem);
+    setStatus(completionStatusMessage(item));
+    return;
+  }
+  renderWorkflowForm();
+  if (item.message.includes("少于 10 步")) {
+    $("#step-block-preset")?.focus();
+    setStatus("可插入完整任务骨架或继续添加步骤");
+  } else {
+    $("#workflow-name")?.focus();
+    setStatus("已定位任务属性");
+  }
+}
+
+function revealCompletionTarget(stepItem, completionItem) {
+  const targetId = stepTargetId(stepItem);
+  const target = targetId ? state.workspace.targets.find((item) => item.id === targetId) : null;
+  if (target) {
+    state.selectedTargetId = target.id;
+    if (!targetPassesCurrentFilters(target)) {
+      state.targetSearch = "";
+      state.targetKindFilter = "all";
+    }
+    return;
+  }
+  if (completionItem.message.includes("缺少目标") || completionItem.message.includes("识别目标已不存在")) {
+    state.selectedTargetId = "";
+  }
+}
+
+function targetPassesCurrentFilters(target) {
+  if (!target) return false;
+  const query = state.targetSearch.trim().toLowerCase();
+  if (state.targetKindFilter !== "all" && target.kind !== state.targetKindFilter) return false;
+  return !query || targetSearchText(target).includes(query);
+}
+
+function focusCompletionField(item, stepItem) {
+  window.requestAnimationFrame(() => {
+    const selector = completionFocusSelector(item, stepItem);
+    const element = selector ? $(selector) : null;
+    if (!element) return;
+    element.focus();
+    if (typeof element.select === "function") element.select();
+  });
+}
+
+function completionFocusSelector(item, stepItem) {
+  if (item.message.includes("OCR 需要目标文本")) {
+    return targetForStep(stepItem) ? "#target-texts" : "#step-expect";
+  }
+  if (item.message.includes("后台点击需要")) return "#param-click-x";
+  if (item.message.includes("快捷键")) return "#param-hotkey";
+  if (item.message.includes("阈值")) return "#param-image-threshold";
+  if (item.message.includes("鼠标键")) {
+    return stepItem?.type === "image_click" ? "#param-image-button" : "#param-click-button";
+  }
+  if (item.message.includes("延迟") || item.message.includes("间隔")) {
+    return stepItem?.type === "retry_until" ? "#param-retry-interval" : "#param-delay-ms";
+  }
+  if (item.message.includes("缺少目标") || item.message.includes("识别目标已不存在")) return "#param-target-select";
+  return "";
+}
+
+function completionStatusMessage(item) {
+  if (item.message.includes("Ctrl+V 图片")) return "已定位缺图步骤：复制图片后直接 Ctrl+V，或在预览中框 ROI 后存为目标";
+  if (item.message.includes("OCR 需要目标文本")) return "已定位 OCR 步骤：填写目标文本后即可用于后台识别";
+  if (item.message.includes("后台点击需要")) return "已定位点击步骤：填写 x/y 坐标或绑定 ROI 目标";
+  if (item.message.includes("未限定 ROI")) return "已定位 OCR ROI 提醒：可绑定 ROI 或在命令里设置 roi=top/panel/dialog";
+  return `已定位：${completionMessageDetail(item.message)}`;
 }
 
 function createStep(type) {
@@ -977,7 +1219,7 @@ function selectStepAndTarget(item) {
   if (!item) return false;
   state.selectedStepId = item.id;
   const boundTarget = targetForStep(item);
-  if (boundTarget) state.selectedTargetId = boundTarget.id;
+  state.selectedTargetId = boundTarget ? boundTarget.id : "";
   return true;
 }
 
@@ -1698,6 +1940,7 @@ function updateSelectedTarget(mutator, options = {}) {
   markDirty("target");
   renderTargets({ preserveEditor: true });
   renderStepEditor();
+  renderWorkflowCompletion();
 }
 
 function syncTargetDefaultsToBoundSteps(target, options = {}) {
@@ -2651,9 +2894,14 @@ function validateOcrStepRuntimeFields(item, prefix, addIssue, addWarning, mode) 
   if (lang && !/^[a-z]{2,3}(-[a-z0-9]+)*$/i.test(lang)) {
     addWarning(`${prefix} OCR 语言标记建议使用 zh、zh-Hans、en-US 这类格式`, item);
   }
-  if (mode === "background" && !targetForStep(item)?.roi && !ocrRegionForStep(item)) {
+  if (mode === "background" && !targetForStep(item)?.roi && isUnboundedOcrRegion(ocrRegionForStep(item))) {
     addWarning(`${prefix} OCR 未限定 ROI，会识别整窗，建议绑定 ROI 或设置 roi=top/panel/dialog`, item);
   }
+}
+
+function isUnboundedOcrRegion(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return !normalized || ["auto", "full", "window"].includes(normalized);
 }
 
 function ocrExpectedTextsForStep(item, targetItem = targetForStep(item)) {
@@ -3242,6 +3490,7 @@ $("#insert-step-block").addEventListener("click", insertStepBlock);
 $("#move-step-up").addEventListener("click", () => moveSelectedStep(-1));
 $("#move-step-down").addEventListener("click", () => moveSelectedStep(1));
 $("#delete-step").addEventListener("click", deleteSelectedStep);
+$("#focus-next-gap").addEventListener("click", focusNextCompletionGap);
 $("#validate-workflow").addEventListener("click", validateActiveWorkflow);
 $("#validate-all-workflows").addEventListener("click", validateAllWorkflows);
 $("#dry-run-selected").addEventListener("click", dryRunSelected);

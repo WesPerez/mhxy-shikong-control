@@ -824,8 +824,7 @@ fn matched_ocr_text(recognized: &str, expected_texts: &[String]) -> Option<Strin
         .iter()
         .find(|expected| {
             let expected = normalize_ocr_text(expected);
-            !expected.is_empty()
-                && (recognized.contains(&expected) || expected.contains(&recognized))
+            !expected.is_empty() && recognized.contains(&expected)
         })
         .cloned()
 }
@@ -1640,6 +1639,7 @@ mod tests {
             matched_ocr_text("bangpai福利", &expected),
             Some("Bang Pai 福利".to_string())
         );
+        assert!(matched_ocr_text("福利", &expected).is_none());
         assert!(matched_ocr_text("完全不同", &expected).is_none());
     }
 

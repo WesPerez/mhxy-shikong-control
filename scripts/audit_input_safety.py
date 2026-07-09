@@ -116,6 +116,16 @@ RUNNER_SEMANTIC_TOKENS = [
     "retryUntilHasVisualTarget",
     "type: \"wait_image\"",
 ]
+COMPLETION_BOARD_TOKENS = [
+    "workflow-completion",
+    "completion-list",
+    "focus-next-gap",
+    "workflowCompletionState",
+    "renderWorkflowCompletion",
+    "focusNextCompletionGap",
+    ".completion-board",
+    ".completion-item.issue",
+]
 OCR_CONTRACT_TOKENS = [
     "dispatch_ocr_step",
     "recognize_ocr_text",
@@ -156,6 +166,7 @@ def main() -> int:
     step_validation = scan_tokens(files, STEP_VALIDATION_TOKENS)
     paste_auto_step = scan_tokens(files, PASTE_AUTO_STEP_TOKENS)
     runner_semantics = scan_tokens(files, RUNNER_SEMANTIC_TOKENS)
+    completion_board = scan_tokens(files, COMPLETION_BOARD_TOKENS)
     ocr_contract = scan_tokens(files, OCR_CONTRACT_TOKENS)
     ui_stability = scan_tokens(files, UI_STABILITY_TOKENS)
     identity_required = bool(hwnd)
@@ -186,6 +197,10 @@ def main() -> int:
     runner_semantics_seen = {hit["token"] for hit in runner_semantics}
     runner_semantics_missing = [
         token for token in RUNNER_SEMANTIC_TOKENS if token not in runner_semantics_seen
+    ]
+    completion_board_seen = {hit["token"] for hit in completion_board}
+    completion_board_missing = [
+        token for token in COMPLETION_BOARD_TOKENS if token not in completion_board_seen
     ]
     ocr_contract_seen = {hit["token"] for hit in ocr_contract}
     ocr_contract_missing = [
@@ -218,6 +233,8 @@ def main() -> int:
         "pasteAutoStepMissing": paste_auto_step_missing,
         "runnerSemanticEvidence": runner_semantics,
         "runnerSemanticMissing": runner_semantics_missing,
+        "completionBoardEvidence": completion_board,
+        "completionBoardMissing": completion_board_missing,
         "ocrContractEvidence": ocr_contract,
         "ocrContractMissing": ocr_contract_missing,
         "uiStabilityEvidence": ui_stability,
@@ -232,6 +249,7 @@ def main() -> int:
             and not step_validation_missing
             and not paste_auto_step_missing
             and not runner_semantics_missing
+            and not completion_board_missing
             and not ocr_contract_missing
             and not ui_stability_missing
         ),
@@ -265,6 +283,8 @@ def main() -> int:
         print(f"pasteAutoStepMissing={len(paste_auto_step_missing)}")
         print(f"runnerSemanticEvidence={len(runner_semantics)}")
         print(f"runnerSemanticMissing={len(runner_semantics_missing)}")
+        print(f"completionBoardEvidence={len(completion_board)}")
+        print(f"completionBoardMissing={len(completion_board_missing)}")
         print(f"ocrContractEvidence={len(ocr_contract)}")
         print(f"ocrContractMissing={len(ocr_contract_missing)}")
         print(f"uiStabilityEvidence={len(ui_stability)}")
@@ -296,6 +316,9 @@ def main() -> int:
         if runner_semantics_missing:
             for token in runner_semantics_missing:
                 print(f"MISSING_RUNNER_SEMANTIC {token}")
+        if completion_board_missing:
+            for token in completion_board_missing:
+                print(f"MISSING_COMPLETION_BOARD {token}")
         if ocr_contract_missing:
             for token in ocr_contract_missing:
                 print(f"MISSING_OCR_CONTRACT {token}")

@@ -130,6 +130,16 @@
               <button id="move-step-down" type="button">下移</button>
               <button id="delete-step" type="button" class="danger">删除</button>
             </div>
+            <div id="workflow-completion" class="completion-board" aria-live="polite">
+              <div class="completion-head">
+                <div>
+                  <strong id="completion-title">待补全</strong>
+                  <span id="completion-summary">等待任务校验</span>
+                </div>
+                <button id="focus-next-gap" type="button">补下一项</button>
+              </div>
+              <div id="completion-list" class="completion-list"></div>
+            </div>
             <div id="step-list" class="step-list"></div>
           </section>
 
@@ -157,14 +167,6 @@
                   <label class="wide">
                     初始检查
                     <input id="workflow-initial-check" type="text" />
-                  </label>
-                  <label>
-                    恢复策略
-                    <select id="workflow-restore-policy">
-                      <option value="none">none</option>
-                      <option value="restore_home">restore_home</option>
-                      <option value="restart_flow">restart_flow</option>
-                    </select>
                   </label>
                   <label>
                     窗口策略

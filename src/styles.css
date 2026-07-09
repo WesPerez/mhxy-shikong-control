@@ -270,7 +270,7 @@ h3 {
 .step-panel {
   grid-area: steps;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   border-right: 1px solid #2a3034;
 }
 
@@ -687,6 +687,137 @@ h3 {
 .step-toolbar button {
   flex: 0 0 auto;
   white-space: nowrap;
+}
+
+.completion-board {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 10px;
+  border: 1px solid #30383d;
+  border-radius: 8px;
+  background: #111619;
+  padding: 8px;
+}
+
+.completion-board.ready {
+  border-color: #426752;
+  background: #111b18;
+}
+
+.completion-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.completion-head > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.completion-head strong {
+  overflow: hidden;
+  color: #f1ecdf;
+  font-size: 12px;
+  font-weight: 740;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completion-head span {
+  overflow: hidden;
+  color: #93a0a8;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completion-head button {
+  min-height: 30px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+.completion-list {
+  display: grid;
+  gap: 5px;
+  max-height: 106px;
+  overflow: auto;
+}
+
+.completion-item {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid #273035;
+  border-radius: 6px;
+  background: #15191c;
+  padding: 5px 6px;
+  text-align: left;
+}
+
+.completion-item:hover {
+  border-color: #58666d;
+}
+
+.completion-item.issue {
+  border-color: #654037;
+}
+
+.completion-item.warning {
+  border-color: #5f522d;
+}
+
+.completion-item em {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  height: 22px;
+  border-radius: 5px;
+  background: #20272b;
+  color: #d7a94b;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 760;
+}
+
+.completion-item.issue em {
+  color: #e99a8d;
+}
+
+.completion-item span {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.completion-item strong,
+.completion-item small,
+.completion-item b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.completion-item strong {
+  color: #f2ecdf;
+  font-size: 12px;
+  font-weight: 680;
+}
+
+.completion-item small {
+  color: #93a0a8;
+  font-size: 11px;
+}
+
+.completion-item b {
+  color: #87949c;
+  font-size: 11px;
+  font-weight: 680;
 }
 
 .step-row {

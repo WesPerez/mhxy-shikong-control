@@ -12,7 +12,7 @@
 2. 每个窗口 hwnd 都有独立任务队列，队列内串行，不同窗口并行。
 3. 每个 hwnd 的运行会话独立，且同 hwnd 同时只允许一个 active session。
 4. `Target` 目标库承接粘贴图片、ROI、默认阈值和默认点击点；旧 `assets` 会在载入时迁移。
-5. 后台运行 beta 已接入 `PostMessageW` 点击/热键和轻量图像匹配；OCR 仍是明确占位。
+5. 后台运行 beta 已接入 `PostMessageW` 点击/热键、轻量图像匹配和 Windows OCR 文本确认。
 6. 后台运行会在每步执行前校验窗口身份快照，防止 hwnd 漂移、进程重启或窗口尺寸变化后继续投递输入。
 
 ## 参考模式
@@ -107,7 +107,6 @@
   "description": "从主界面进入活动与福利页，领取可见奖励后恢复首页。",
   "tags": ["日常", "示例"],
   "initialCheck": "page.home.ready",
-  "restorePolicy": "restore_home",
   "targetPolicy": {
     "titleNeedle": "梦幻西游：时空",
     "inputMode": "hwnd-message",
@@ -121,7 +120,7 @@
 
 - `targetPolicy.inputMode` 固定表达“目标设计是 hwnd 后台消息”。观察运行不发送输入，后台运行 beta 只投递 hwnd 消息。
 - `targetPolicy.concurrency=per-window-exclusive` 表示同 hwnd 只有一个 active session；窗口内任务队列串行消费，不同 hwnd 可并行。
-- `restorePolicy` 后续会引用共享恢复流程。
+- 恢复动作应通过显式 `restore` 步骤表达；旧版 `restorePolicy` 未接入运行器，编辑器不再生成。
 
 ## Step
 
