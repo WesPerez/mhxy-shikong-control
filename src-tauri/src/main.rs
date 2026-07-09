@@ -210,7 +210,7 @@ struct TemplateMatch {
     score: f32,
 }
 
-const WORKSPACE_SCHEMA_VERSION: u32 = 6;
+const WORKSPACE_SCHEMA_VERSION: u32 = 7;
 const DEFAULT_IMAGE_THRESHOLD: f32 = 0.86;
 const MAX_TEMPLATE_DATA_URL_CHARS: usize = 5 * 1024 * 1024;
 const MAX_TEMPLATE_BYTES: usize = 4 * 1024 * 1024;

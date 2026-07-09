@@ -41,7 +41,8 @@
 - `image_click` 和 `double_click` 支持用 Ctrl+V 图片或 ROI 裁剪图做轻量模板匹配，匹配后按目标默认点击点点击或双击；点位支持模板中心和四角，并可用 `offsetX/offsetY` 微调。ROI 也可以绑定到后台点击/双击步骤并使用 ROI 中心。
 - Ctrl+V 图片或 ROI 生成目标时，如果当前步骤不适合绑定图片，会自动在当前步骤下方新建可执行步骤，避免误改延迟/热键等步骤语义；如果 WebView 粘贴事件没有带图片文件，会尝试从 Windows 剪贴板 DIB/DIBV5 后端读取截图。
 - 后台 `delay`、步骤前/后等待、队列错峰和任务间隔都使用真实等待时长，等待期间可响应停止请求；`retry_until` 对绑定图片、ROI 或坐标目标执行轻量等待循环，不发送额外输入，纯状态型目标会在后台校验中阻止执行，避免把未实现的状态判断当成功。
-- 后台 readiness 会区分“输入链路就绪”和“流程语义计划态”：`condition`、`restore` 以及 `onFail=restore` 会显示计划态/恢复计划提醒，当前不会改变真实执行路径或自动执行恢复序列。
+- 工作区 schema v7 已保存 `targetStepId`、`elseTargetStepId`、`recoveryStepId`、`jumpWorkflowId` 和 `maxIterations`；复制任务会重映射同任务步骤引用，单步复制会清空控制流引用。
+- 前端运行器已改为带 `MAX_CONTROL_FLOW_STEPS` 预算的指令指针模型：`condition` 会按 guard 选择 true/false 目标，普通成功步骤可用 `targetStepId` 跳到同任务步骤；后向跳转必须设置 `maxIterations`。`restore`、`onFail=restore`、跨任务 `jumpWorkflowId` 和专用 `loop/task_jump` 仍是计划态。
 - 运行状态 pill 和会话卡片会区分 idle/ready/running/blocked/failed，界面日志保留最近 500 条，适合长时间运行时保持可用。
 - 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、每步状态、失败点、耗时、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
 - `ocr_assert` 会截图、按 ROI 或命名区域裁剪后调用 Windows OCR；识别未命中或系统 OCR/语言包不可用都会明确失败，不会伪装成可识别。
@@ -74,6 +75,7 @@
 
 ```powershell
 python scripts\audit_input_safety.py --json
+python scripts\audit_control_flow_schema.py --json
 python scripts\audit_workflow_readiness.py --json
 python scripts\audit_queue_readiness.py --json
 ```
@@ -85,6 +87,7 @@ cd E:\Project\Common\MHXY-ShiKong-Control
 npm install
 npm run build
 npm run audit:input-safety
+npm run audit:control-flow-schema
 npm run audit:workflow-readiness
 npm run audit:queue-readiness
 cd src-tauri

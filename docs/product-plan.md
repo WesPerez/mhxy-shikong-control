@@ -1,6 +1,6 @@
 # 时空任务编排器产品方案
 
-本文是第二阶段编码前门禁。新增能力进入实现前，必须先补齐本文件对应的小节：目标、非目标、数据结构、运行语义、风险边界、验收证据和回滚策略。当前源码仍以 `docs/workflow-model.md` 描述的 schema v6 为准。
+本文是第二阶段编码前门禁。新增能力进入实现前，必须先补齐本文件对应的小节：目标、非目标、数据结构、运行语义、风险边界、验收证据和回滚策略。当前源码以 `docs/workflow-model.md` 描述的 schema v7 为准，前端 runner 已切到带预算的指令指针模型。
 
 ## 真实目标
 
@@ -24,49 +24,43 @@
 - 已有实体：`Workflow`、`Step`、`Target`、`WindowAssignment`、`RunSession`、`runHistory`。
 - 已有运行：观察运行、后台运行 beta、每 hwnd 互斥、不同 hwnd 并行、队列错峰和任务后间隔。
 - 已有后台动作：`hotkey`、`text_input`、`click`、`double_click`、`image_click`、`wait_image`、`detect_page`、`ocr_assert`、`snapshot`、`delay`、`retry_until` 的视觉目标等待。
-- 已知缺口：真实 `condition`、`loop`、`task_jump`、显式恢复流程、后端事件流和管理员环境下的双击 live 验收尚未完成。
+- 已知缺口：专用 `loop`、跨任务 `task_jump`、显式恢复流程、后端事件流和管理员环境下的双击 live 验收尚未完成。
 - 当前安全语义：`unsupported` 和 `error` 强制停止；识图/OCR/缺素材类失败在重试耗尽后默认停止，只有 `onFail=skip` 才继续。
-- 当前 readiness 已显式标记 `condition`、`restore` 和 `onFail=restore` 为计划态/恢复计划，避免把输入链路就绪误报成真实控制流完成。
+- 当前 readiness 会校验 v7 同任务跳转引用，后向跳转必须有 `maxIterations`；`restore`、`jumpWorkflowId` 和 `onFail=restore` 仍标记为计划态/恢复计划，避免误报成完整恢复或跨任务跳转。
 
 ## 数据方案
 
-schema v6 继续使用结构化 JSON + 原子写入：
+schema v7 继续使用结构化 JSON + 原子写入：
 
-- `workflows[]`: 任务定义，步骤仍保留兼容字段 `target/command/expect`。
+- `workflows[]`: 任务定义，步骤仍保留兼容字段 `target/command/expect`，并保存 `targetStepId/elseTargetStepId/recoveryStepId/jumpWorkflowId/maxIterations` 这些控制流字段。
 - `targets[]`: 共享目标库，保存图片 data URL、ROI、阈值、点击默认值、OCR 文本和备注。
 - `assignments[]`: 窗口队列，保存 hwnd 与 `windowIdentity` 快照，以及队列项顺序、启用状态和等待参数。
 - `runHistory[]`: 运行报告，保存队列计划、步骤结果、失败原因、开始/结束窗口身份。
 
-需要 schema v7 的条件：
-
-- 新增会改变执行路径的结构化字段，如 `targetStepId`、`elseTargetStepId`、`jumpWorkflowId`、`loopCount`、`maxIterations`、`recoveryStepId`。
-- 运行器从线性步骤改成指令指针或状态机。
-- 导入导出必须保留并校验控制流引用。
-
-v7 迁移要求：
+当前 v7 边界：
 
 - `normalizeStep` 保留新字段，并从旧 `command` 中尽量回填兼容参数。
 - 复制任务时重映射同任务内 step id 引用，避免跳到原任务步骤。
-- 导入时校验跳转目标存在、未停用、循环有上限，失败时阻止导入或标成不可执行。
+- 单步复制会清空控制流引用，避免插入步骤带着旧上下文跳转。
+- 导入和后台 readiness 会校验跳转目标存在、未停用、非自环；同任务 `targetStepId/elseTargetStepId` 会被指令指针 runner 执行，后向跳转必须设置 `maxIterations`。
 - 保存仍使用临时文件 + rename；损坏 JSON 应保留错误提示，不自动覆盖用户数据。
 
 ## 运行器方案
 
-短期 v6：
+已落地的 v7 子集：
 
-- 线性执行启用步骤。
 - `delay`、pre/post delay、队列等待都必须可取消。
 - `retry_until` 只对图片、ROI 或坐标目标做等待循环；纯状态目标阻止后台运行。
-- `condition` 和 `restore` 只作为计划态步骤，UI 显示提醒，不承诺真实分支或恢复。
-
-v7 控制流：
-
 - 使用 `pc` 指令指针执行，而不是 `for...of`。
-- 每次 transition 记录 `fromStepId`、`toStepId`、原因、结果状态、循环轮次。
 - 设置全局 `MAX_CONTROL_FLOW_STEPS` 和每个 loop 的 `maxIterations`，防止无限循环。
 - `condition` 根据结构化 guard 和上一步/会话状态决定 true/false 目标。
-- `loop` 只能跳到同一 workflow 内的已启用步骤，必须有次数上限或明确退出条件。
-- `task_jump` 只能跳到队列中允许的任务或显式选择的 workflow，必须记录来源和目标。
+- 普通成功步骤可用 `targetStepId` 跳到同一 workflow 内已启用步骤；后向跳转必须有次数上限。
+
+未落地的 v7 边界：
+
+- 每次 transition 还未写入 `runHistory` 独立事件，只进入会话日志和步骤结果。
+- 专用 `loop` 步骤尚未进入下拉框；当前用同任务后向跳转和 `maxIterations` 表达有限循环。
+- `task_jump` 只能保存 `jumpWorkflowId`，尚未接入队列调度。
 - `restore` 应是普通可执行恢复步骤或恢复流程，不应再由 `onFail=restore` 隐式承诺。
 
 ## 双击方案
@@ -134,10 +128,10 @@ cargo clippy --all-targets -- -D warnings
 
 ## 实施顺序
 
-1. 继续修 v6 安全和 readiness，确保不会把计划态或失败态当成功。
+1. 继续修 v7 安全和 readiness，确保不会把计划态或失败态当成功。
 2. 用管理员环境补 `double_click` 真实游戏窗口验收，确认游戏对后台双击消息的响应。
-3. 设计并升级 schema v7，加入结构化控制流字段和迁移。
-4. 把前端 runner 改成带预算的指令指针模型，先支持同任务内 `condition/loop/task_jump`。
+3. 扩展 schema v7 控制流：补 runHistory transition、专用 loop 和跨任务 task_jump。
+4. 继续完善前端 runner，逐步把恢复流程和任务跳转纳入队列调度。
 5. 实现显式 `restore` 恢复流程和失败恢复报告。
 6. 将 runner 逐步迁到 Rust 事件流，前端只订阅状态和渲染报告。
 

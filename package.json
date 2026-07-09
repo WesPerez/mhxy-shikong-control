@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "audit:input-safety": "python scripts/audit_input_safety.py",
+    "audit:control-flow-schema": "python scripts/audit_control_flow_schema.py",
     "audit:workflow-readiness": "python scripts/audit_workflow_readiness.py",
     "audit:queue-readiness": "python scripts/audit_queue_readiness.py",
     "tauri:dev": "tauri dev",

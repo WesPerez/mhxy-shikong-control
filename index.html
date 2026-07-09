@@ -398,6 +398,24 @@
                         Guard
                         <input id="param-condition-guard" type="text" placeholder="true 或 >0" />
                       </label>
+                      <label>
+                        True 跳转
+                        <select id="param-control-target-step"></select>
+                      </label>
+                      <label>
+                        False 跳转
+                        <select id="param-control-else-step"></select>
+                      </label>
+                    </div>
+                    <div class="param-grid" data-step-types="condition restore">
+                      <label>
+                        恢复入口（计划）
+                        <select id="param-control-recovery-step"></select>
+                      </label>
+                      <label>
+                        最大循环次数
+                        <input id="param-control-max-iterations" type="number" min="0" step="1" />
+                      </label>
                     </div>
                     <div class="param-grid" data-step-types="retry_until">
                       <label>
@@ -410,7 +428,7 @@
                       </label>
                     </div>
                     <p class="hint" data-step-types="ocr_assert">OCR 会截图识别目标文字，不发送鼠标或键盘输入。</p>
-                    <p class="hint" data-step-types="condition">条件当前是计划态说明，不会改变真实执行路径；后续 schema v7 会接入分支目标。</p>
+                    <p class="hint" data-step-types="condition">条件会按 guard 在同一任务内跳转；后向跳转必须设置最大循环次数。</p>
                     <p class="hint" data-step-types="double_click">双击会向目标 hwnd 投递后台鼠标双击消息，不移动真实鼠标。</p>
                     <p class="hint" data-step-types="text_input">文本输入会向目标 hwnd 投递 WM_CHAR 消息，不抢占前台焦点。</p>
                     <p class="hint" data-step-types="snapshot restore">此类型当前没有可直接投递的后台输入；restore 不会自动恢复失败步骤。</p>

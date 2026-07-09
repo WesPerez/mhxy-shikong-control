@@ -3,12 +3,13 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
-const WORKSPACE_SCHEMA_VERSION = 6;
+const WORKSPACE_SCHEMA_VERSION = 7;
 const DEFAULT_IMAGE_THRESHOLD = 0.86;
 const WINDOW_CLIENT_SIZE_TOLERANCE = 2;
 const MAX_LOG_ROWS = 500;
 const MAX_SESSION_STEP_RESULTS = 300;
 const MAX_TEXT_INPUT_CHARS = 500;
+const MAX_CONTROL_FLOW_STEPS = 500;
 const targetBackedStepTypes = new Set([
   "image_click",
   "double_click",
@@ -31,7 +32,9 @@ const backgroundFailureStatuses = new Set([
   "ocr_unavailable",
   "missing_expect",
 ]);
-const plannedOnlyStepTypes = new Set(["condition", "restore"]);
+const plannedOnlyStepTypes = new Set(["restore"]);
+const controlFlowStepReferenceFields = ["targetStepId", "elseTargetStepId", "recoveryStepId"];
+const controlFlowWorkflowReferenceFields = ["jumpWorkflowId"];
 const builtinTargetTemplateBindings = [
   { target: "page.home.ready", key: "zonghe/jiahao.png", kind: "page", name: "主界面判定", threshold: 0.86 },
   { target: "target.activity.icon", key: "zonghe/huodong1.png", kind: "image", name: "活动入口" },
@@ -864,7 +867,7 @@ function normalizeWorkflow(value) {
 function normalizeStep(value) {
   const type = stepLabels[value?.type] ? value.type : "detect_page";
   const defaults = stepDefaults[type];
-  return {
+  const item = {
     id: String(value?.id || randomId("step")),
     type,
     name: String(value?.name || defaults.name),
@@ -878,6 +881,15 @@ function normalizeStep(value) {
     targetId: value?.targetId ? String(value.targetId) : value?.assetId ? String(value.assetId) : "",
     notes: String(value?.notes || ""),
   };
+  for (const field of controlFlowStepReferenceFields) {
+    item[field] = value?.[field] ? String(value[field]) : "";
+  }
+  for (const field of controlFlowWorkflowReferenceFields) {
+    item[field] = value?.[field] ? String(value[field]) : "";
+  }
+  const maxIterations = Number(value?.maxIterations ?? 0);
+  item.maxIterations = Number.isFinite(maxIterations) && maxIterations >= 0 ? Math.floor(maxIterations) : 0;
+  return item;
 }
 
 function normalizeStepFailAction(value, fallback = "stop") {
@@ -1794,11 +1806,14 @@ function duplicateWorkflow() {
   copy.name = `${source.name} 副本`;
   copy.createdAt = now;
   copy.updatedAt = copy.createdAt;
+  const stepIdMap = new Map(source.steps.map((step) => [step.id, randomId("step")]));
   copy.steps = source.steps.map((sourceStep) => {
     const item = normalizeStep({
       ...JSON.parse(JSON.stringify(sourceStep)),
-      id: randomId("step"),
+      id: stepIdMap.get(sourceStep.id) || randomId("step"),
     });
+    remapStepControlFlowReferences(item, stepIdMap, { clearWorkflowReferences: false });
+    if (item.jumpWorkflowId === source.id) item.jumpWorkflowId = copy.id;
     const oldTargetId = stepTargetId(sourceStep);
     const newTargetId = cloneTargetId(oldTargetId, sourceStep);
     if (newTargetId) {
@@ -1821,6 +1836,18 @@ function duplicateWorkflow() {
   markDirty("draft");
   renderAll();
   appendLog("info", `复制任务：${copy.name}，已克隆 ${clonedTargets.length} 个识别目标`);
+}
+
+function remapStepControlFlowReferences(item, stepIdMap, options = {}) {
+  for (const field of controlFlowStepReferenceFields) {
+    const current = item[field];
+    item[field] = current && stepIdMap.has(current) ? stepIdMap.get(current) : "";
+  }
+  if (options.clearWorkflowReferences) {
+    for (const field of controlFlowWorkflowReferenceFields) {
+      item[field] = "";
+    }
+  }
 }
 
 function cloneWorkflowTargetForDuplicate(existingTarget, oldTargetId, sourceStep, sourceWorkflowName, timestamp) {
@@ -2452,6 +2479,7 @@ function cloneStepForInsert(source) {
   item.targetId = source.targetId ? String(source.targetId) : "";
   item.notes = String(source.notes ?? "");
   item.enabled = source.enabled !== false;
+  remapStepControlFlowReferences(item, new Map(), { clearWorkflowReferences: true });
   return item;
 }
 
@@ -2537,6 +2565,7 @@ function renderStepParamPanel(item) {
 
   $("#step-param-summary").textContent = paramSummaryForStep(item);
   renderTargetSelect(item);
+  renderControlFlowSelects(item);
   $("#param-pre-delay-ms").value = commandDurationMs(item.command, "preDelay") ?? "";
   $("#param-post-delay-ms").value = commandDurationMs(item.command, "postDelay") ?? "";
   $("#param-hotkey").value = item.type === "hotkey" ? item.target || "" : "";
@@ -2562,6 +2591,7 @@ function renderStepParamPanel(item) {
   $("#param-delay-reason").value = commandValue(item.command, "reason") || "";
   $("#param-condition-target").value = item.type === "condition" ? item.target || "" : "";
   $("#param-condition-guard").value = commandValue(item.command, "guard") || "";
+  $("#param-control-max-iterations").value = item.maxIterations || "";
   $("#param-retry-target").value = item.type === "retry_until" ? item.target || "" : "";
   $("#param-retry-interval").value = durationMsFromText(commandValue(item.command, "interval")) ?? "";
 }
@@ -2582,6 +2612,34 @@ function renderTargetSelect(item) {
     select.append(option);
   }
   select.value = state.workspace.targets.some((target) => target.id === currentId) ? currentId : "";
+}
+
+function renderControlFlowSelects(item) {
+  const workflow = activeWorkflow();
+  const options = (workflow?.steps || []).map((step, index) => ({
+    value: step.id,
+    label: `${String(index + 1).padStart(2, "0")} · ${step.name || stepLabels[step.type] || step.type} · ${stepLabels[step.type] || step.type}`,
+  }));
+  const fill = (selector, value, emptyLabel) => {
+    const select = $(selector);
+    if (!select) return;
+    select.replaceChildren();
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = emptyLabel;
+    select.append(empty);
+    for (const optionData of options) {
+      if (optionData.value === item.id) continue;
+      const option = document.createElement("option");
+      option.value = optionData.value;
+      option.textContent = optionData.label;
+      select.append(option);
+    }
+    select.value = options.some((optionData) => optionData.value === value) && value !== item.id ? value : "";
+  };
+  fill("#param-control-target-step", item.targetStepId || "", "未设置，继续下一步");
+  fill("#param-control-else-step", item.elseTargetStepId || "", "未设置，继续下一步");
+  fill("#param-control-recovery-step", item.recoveryStepId || "", "未设置恢复入口");
 }
 
 function paramSummaryForStep(item) {
@@ -2606,7 +2664,29 @@ function paramSummaryForStep(item) {
   if (item.type === "hotkey") return `${item.target || "输入快捷键"}${timing}`;
   if (item.type === "text_input") return `${textInputValueForStep(item) || "输入文本"}${timing}`;
   if (item.type === "delay") return `${durationMsFromText(item.target) ?? item.timeoutMs ?? 0} ms${timing}`;
+  if (item.type === "condition") {
+    const refs = controlFlowReferenceSummary(item);
+    return `${item.target || "状态目标"} · guard=${commandValue(item.command, "guard") || "未设置"}${refs ? ` · ${refs}` : ""}${timing}`;
+  }
+  if (item.type === "restore") {
+    const refs = controlFlowReferenceSummary(item);
+    return `恢复计划${refs ? ` · ${refs}` : ""}${timing}`;
+  }
   return `保留为编排语义，当前后端不直接输入${timing}`;
+}
+
+function controlFlowReferenceSummary(item) {
+  const workflow = activeWorkflow();
+  const byId = new Map((workflow?.steps || []).map((step, index) => [
+    step.id,
+    `${String(index + 1).padStart(2, "0")} ${step.name || stepLabels[step.type] || step.type}`,
+  ]));
+  const parts = [];
+  if (item.targetStepId) parts.push(`true -> ${byId.get(item.targetStepId) || "断链"}`);
+  if (item.elseTargetStepId) parts.push(`false -> ${byId.get(item.elseTargetStepId) || "断链"}`);
+  if (item.recoveryStepId) parts.push(`restore -> ${byId.get(item.recoveryStepId) || "断链"}`);
+  if (item.maxIterations) parts.push(`max ${item.maxIterations}`);
+  return parts.join(" / ");
 }
 
 function timingSummaryForStep(item) {
@@ -2720,6 +2800,26 @@ function bindStepParamEditor() {
   $("#param-condition-guard").addEventListener("input", (event) => {
     updateSelectedStepFromParams((item) => {
       item.command = commandWithValues(item.command, { guard: event.target.value.trim() });
+    });
+  });
+  $("#param-control-target-step").addEventListener("change", (event) => {
+    updateSelectedStepFromParams((item) => {
+      item.targetStepId = event.target.value;
+    });
+  });
+  $("#param-control-else-step").addEventListener("change", (event) => {
+    updateSelectedStepFromParams((item) => {
+      item.elseTargetStepId = event.target.value;
+    });
+  });
+  $("#param-control-recovery-step").addEventListener("change", (event) => {
+    updateSelectedStepFromParams((item) => {
+      item.recoveryStepId = event.target.value;
+    });
+  });
+  $("#param-control-max-iterations").addEventListener("input", (event) => {
+    updateSelectedStepFromParams((item) => {
+      item.maxIterations = normalizedNonNegativeInteger(event.target.value) ?? 0;
     });
   });
   $("#param-retry-target").addEventListener("input", (event) => {
@@ -4499,9 +4599,49 @@ function validateWorkflow(workflow = activeWorkflow(), mode = "definition") {
     if (item.type === "hotkey" && !/[+]/.test(item.target)) {
       addWarning(`${prefix} 快捷键建议使用 ALT+N 这类组合格式`, item);
     }
+    validateStepControlFlowReferences(workflow, item, prefix, addIssue, addWarning, mode);
     validateStepRuntimeFields(item, prefix, addIssue, addWarning, mode);
   }
   return result;
+}
+
+function validateStepControlFlowReferences(workflow, item, prefix, addIssue, addWarning, mode) {
+  const steps = workflow?.steps || [];
+  const byId = new Map(steps.map((step) => [step.id, step]));
+  const currentIndex = steps.findIndex((step) => step.id === item.id);
+  const workflowIds = new Set((state.workspace?.workflows || []).map((workflowItem) => workflowItem.id));
+  const addReferenceMessage = (message, options = {}) => {
+    mode === "background" && options.executable !== false ? addIssue(message, item) : addWarning(message, item);
+  };
+  const checkStepReference = (field, label, options = {}) => {
+    const targetId = String(item[field] || "").trim();
+    if (!targetId) return;
+    const targetStep = byId.get(targetId);
+    if (!targetStep) {
+      addReferenceMessage(`${prefix} ${label} 指向不存在的步骤`, options);
+      return;
+    }
+    if (targetStep.id === item.id) {
+      addReferenceMessage(`${prefix} ${label} 不能指向当前步骤`, options);
+    }
+    if (targetStep.enabled === false) {
+      addReferenceMessage(`${prefix} ${label} 指向已停用步骤`, options);
+    }
+    const targetIndex = steps.findIndex((step) => step.id === targetId);
+    if (options.executable !== false && currentIndex >= 0 && targetIndex >= 0 && targetIndex < currentIndex && !item.maxIterations) {
+      addReferenceMessage(`${prefix} ${label} 是后向跳转，必须设置最大循环次数`, options);
+    }
+  };
+  checkStepReference("targetStepId", "成功分支");
+  checkStepReference("elseTargetStepId", "失败/否则分支");
+  checkStepReference("recoveryStepId", "恢复入口", { executable: false });
+  const jumpWorkflowId = String(item.jumpWorkflowId || "").trim();
+  if (jumpWorkflowId && !workflowIds.has(jumpWorkflowId)) {
+    addReferenceMessage(`${prefix} 任务跳转指向不存在的任务；跨任务跳转尚未接入运行器`, { executable: false });
+  }
+  if (item.maxIterations && (!Number.isInteger(Number(item.maxIterations)) || Number(item.maxIterations) < 0)) {
+    addReferenceMessage(`${prefix} 最大循环次数必须是非负整数`);
+  }
 }
 
 function buildStepValidationIndex(workflow, validation) {
@@ -4830,6 +4970,7 @@ async function startRunForWindow(target, runEntries, mode, source) {
     failedStepName: "",
     endedWindowIdentity: null,
     endedWindowIdentityError: "",
+    controlFlowCounts: {},
     cancelRequested: false,
   };
   state.sessions[key] = session;
@@ -4842,88 +4983,8 @@ async function startRunForWindow(target, runEntries, mode, source) {
 
 async function runSession(session, runPlan) {
   for (const entry of runPlan) {
-    const workflow = entry.workflow;
-    const queueItem = entry.queueItem;
-    if (session.cancelRequested || session.status === "failed") break;
-    session.currentWorkflowName = workflow.name;
-    if (queueItem.startDelayMs > 0) {
-      const completed = await runQueueDelay(session, workflow, "start", queueItem.startDelayMs);
-      if (!completed) break;
-    }
-    const steps = workflow.steps.filter((item) => item.enabled !== false);
-    for (const item of steps) {
-      if (session.cancelRequested) break;
-      session.currentStep += 1;
-      const stepStartedAt = new Date();
-      let result = null;
-      let stopAfterResult = false;
-      const preDelay = await runStepDelay(session, workflow, item, "preDelay");
-      if (!preDelay.completed) {
-        result = withStepTimingDetail(
-          {
-            status: "stopped",
-            action: "pre_delay",
-            detail: "interrupted after stop request during step preDelay",
-            inputSent: false,
-            matched: false,
-          },
-          preDelay.elapsedMs,
-          0,
-        );
-        recordSessionStepResult(session, workflow, item, result, stepStartedAt, new Date());
-        renderSessions();
-        break;
-      }
-      if (session.mode === "background") {
-        result = await executeBackgroundStepWithRetries(session, item).catch((error) => ({
-          status: "error",
-          action: "backend",
-          detail: String(error),
-          inputSent: false,
-          matched: false,
-        }));
-        session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
-        stopAfterResult = shouldStopAfterResult(item, result);
-        if (stopAfterResult) {
-          session.cancelRequested = true;
-          session.status = "failed";
-          session.failureReason = result.detail || `${result.status}/${result.action}`;
-          session.failedWorkflowName = workflow.name;
-          session.failedStepName = item.name || stepLabels[item.type] || item.type;
-        }
-      } else {
-        result = {
-          status: "observed",
-          action: "dry_run",
-          detail: "observation run only; no backend screenshot or input was invoked",
-          inputSent: false,
-          matched: false,
-        };
-        session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
-        await cancellableSleep(session, dryRunDelay(item));
-      }
-      const postDelay =
-        session.cancelRequested || stopAfterResult
-          ? { completed: true, elapsedMs: 0 }
-          : await runStepDelay(session, workflow, item, "postDelay");
-      if (!postDelay.completed) {
-        result = {
-          ...result,
-          status: "stopped",
-          action: "post_delay",
-          detail: `${result?.detail || ""}; interrupted after stop request during step postDelay`,
-        };
-      }
-      result = withStepTimingDetail(result, preDelay.elapsedMs, postDelay.elapsedMs);
-      recordSessionStepResult(session, workflow, item, result, stepStartedAt, new Date());
-      renderSessions();
-      if (session.status === "failed") break;
-    }
-    if (session.cancelRequested || session.status === "failed") break;
-    if (queueItem.afterDelayMs > 0) {
-      const completed = await runQueueDelay(session, workflow, "after", queueItem.afterDelayMs);
-      if (!completed) break;
-    }
+    const completed = await runWorkflowEntry(session, entry);
+    if (!completed) break;
   }
   if (session.status !== "failed") {
     session.status = session.cancelRequested ? "stopped" : "done";
@@ -4942,6 +5003,181 @@ async function runSession(session, runPlan) {
     session.status === "done" ? "info" : "warn",
     `${modeLabel(session.mode)} ${session.status}：${session.display}`,
   );
+}
+
+async function runWorkflowEntry(session, entry) {
+  const workflow = entry.workflow;
+  const queueItem = entry.queueItem;
+  if (session.cancelRequested || session.status === "failed") return false;
+  session.currentWorkflowName = workflow.name;
+  if (queueItem.startDelayMs > 0) {
+    const completed = await runQueueDelay(session, workflow, "start", queueItem.startDelayMs);
+    if (!completed) return false;
+  }
+  const steps = workflow.steps.filter((item) => item.enabled !== false);
+  const stepIndexById = new Map(steps.map((item, index) => [item.id, index]));
+  let pc = 0;
+  let previousResult = null;
+  let executedSteps = 0;
+  while (pc >= 0 && pc < steps.length) {
+    if (session.cancelRequested) return false;
+    if (executedSteps >= MAX_CONTROL_FLOW_STEPS) {
+      failSession(session, workflow, steps[pc], `${workflow.name} 控制流超过 ${MAX_CONTROL_FLOW_STEPS} 步预算`);
+      session.logs.unshift(`${workflow.name} / 控制流预算耗尽，已停止窗口会话`);
+      renderSessions();
+      return false;
+    }
+    const item = steps[pc];
+    const currentPc = pc;
+    executedSteps += 1;
+    session.currentStep += 1;
+    const stepStartedAt = new Date();
+    let result = null;
+    let stopAfterResult = false;
+    const preDelay = await runStepDelay(session, workflow, item, "preDelay");
+    if (!preDelay.completed) {
+      result = withStepTimingDetail(
+        {
+          status: "stopped",
+          action: "pre_delay",
+          detail: "interrupted after stop request during step preDelay",
+          inputSent: false,
+          matched: false,
+        },
+        preDelay.elapsedMs,
+        0,
+      );
+      recordSessionStepResult(session, workflow, item, result, stepStartedAt, new Date());
+      renderSessions();
+      return false;
+    }
+    if (session.mode === "background") {
+      result = await executeBackgroundStepWithRetries(session, item).catch((error) => ({
+        status: "error",
+        action: "backend",
+        detail: String(error),
+        inputSent: false,
+        matched: false,
+      }));
+      session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
+      stopAfterResult = shouldStopAfterResult(item, result);
+      if (stopAfterResult) {
+        failSession(session, workflow, item, result.detail || `${result.status}/${result.action}`);
+      }
+    } else {
+      result = {
+        status: "observed",
+        action: "dry_run",
+        detail: "observation run only; no backend screenshot or input was invoked",
+        inputSent: false,
+        matched: false,
+      };
+      session.logs.unshift(formatStepLog(session.currentStep - 1, workflow, item, result));
+      await cancellableSleep(session, dryRunDelay(item));
+    }
+    const postDelay =
+      session.cancelRequested || stopAfterResult
+        ? { completed: true, elapsedMs: 0 }
+        : await runStepDelay(session, workflow, item, "postDelay");
+    if (!postDelay.completed) {
+      result = {
+        ...result,
+        status: "stopped",
+        action: "post_delay",
+        detail: `${result?.detail || ""}; interrupted after stop request during step postDelay`,
+      };
+    }
+    result = withStepTimingDetail(result, preDelay.elapsedMs, postDelay.elapsedMs);
+    recordSessionStepResult(session, workflow, item, result, stepStartedAt, new Date());
+    const decision = controlFlowDecisionForStep({
+      session,
+      workflow,
+      steps,
+      stepIndexById,
+      item,
+      currentPc,
+      result,
+      previousResult,
+    });
+    previousResult = result;
+    if (decision.message) session.logs.unshift(decision.message);
+    renderSessions();
+    if (session.status === "failed" || session.cancelRequested) return false;
+    pc = Number.isInteger(decision.nextPc) ? decision.nextPc : currentPc + 1;
+  }
+  if (session.cancelRequested || session.status === "failed") return false;
+  if (queueItem.afterDelayMs > 0) {
+    const completed = await runQueueDelay(session, workflow, "after", queueItem.afterDelayMs);
+    if (!completed) return false;
+  }
+  return true;
+}
+
+function failSession(session, workflow, item, reason) {
+  session.cancelRequested = true;
+  session.status = "failed";
+  session.failureReason = reason;
+  session.failedWorkflowName = workflow?.name || "";
+  session.failedStepName = item?.name || stepLabels[item?.type] || item?.type || "";
+}
+
+function controlFlowDecisionForStep(context) {
+  const { session, workflow, steps, stepIndexById, item, currentPc, result, previousResult } = context;
+  let targetStepId = "";
+  let reason = "";
+  if (item.type === "condition") {
+    const passed = evaluateConditionGuard(item, result, previousResult);
+    targetStepId = passed ? item.targetStepId : item.elseTargetStepId;
+    reason = `condition ${passed ? "true" : "false"}`;
+  } else if (isSuccessfulStepResult(result) && item.targetStepId) {
+    targetStepId = item.targetStepId;
+    reason = "success";
+  }
+  if (!targetStepId) return { nextPc: currentPc + 1, message: "" };
+  const nextPc = stepIndexById.get(targetStepId);
+  if (!Number.isInteger(nextPc)) return { nextPc: currentPc + 1, message: "" };
+  if (nextPc <= currentPc) {
+    const maxIterations = Math.max(0, Number(item.maxIterations) || 0);
+    const key = `${workflow.id}:${item.id}:${targetStepId}`;
+    const currentCount = Number(session.controlFlowCounts?.[key] || 0);
+    if (maxIterations <= 0 || currentCount >= maxIterations) {
+      const limit = maxIterations <= 0 ? "未设置后向跳转上限" : `已达到 maxIterations=${maxIterations}`;
+      return {
+        nextPc: currentPc + 1,
+        message: `${workflow.name} / ${item.name} ${reason} 后向跳转到 ${stepLabelForExecution(steps[nextPc])} 被跳过：${limit}`,
+      };
+    }
+    session.controlFlowCounts ||= {};
+    session.controlFlowCounts[key] = currentCount + 1;
+  }
+  return {
+    nextPc,
+    message: `${workflow.name} / ${item.name} ${reason} 跳转到 ${stepLabelForExecution(steps[nextPc])}`,
+  };
+}
+
+function evaluateConditionGuard(item, result, previousResult) {
+  const raw = (commandValue(item.command, "guard") || item.expect || "true").trim().toLowerCase();
+  const last = previousResult || result || {};
+  if (["true", "1", "yes", "y", "continue", "pass", "passed", "ready", "ready=true"].includes(raw)) return true;
+  if (["false", "0", "no", "n", "stop", "fail", "failed", "blocked"].includes(raw)) return false;
+  if (["matched", "last.matched"].includes(raw)) return Boolean(last.matched);
+  if (["!matched", "not matched", "last.!matched", "!last.matched"].includes(raw)) return !last.matched;
+  if (["inputsent", "input_sent", "last.inputsent", "last.input_sent"].includes(raw)) return Boolean(last.inputSent);
+  const statusMatch = raw.match(/^(?:last\.)?status\s*={1,2}\s*([a-z0-9_-]+)$/);
+  if (statusMatch) return String(last.status || "").toLowerCase() === statusMatch[1];
+  const actionMatch = raw.match(/^(?:last\.)?action\s*={1,2}\s*([a-z0-9_-]+)$/);
+  if (actionMatch) return String(last.action || "").toLowerCase() === actionMatch[1];
+  return true;
+}
+
+function isSuccessfulStepResult(result) {
+  const status = result?.status || "unknown";
+  return !terminalBackendStatuses.has(status) && !backgroundFailureStatuses.has(status) && status !== "stopped";
+}
+
+function stepLabelForExecution(item) {
+  return item ? `${item.name || stepLabels[item.type] || item.type} [${item.type}]` : "未知步骤";
 }
 
 function recordSessionStepResult(session, workflow, item, result, startedAt, endedAt) {
