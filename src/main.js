@@ -11,6 +11,7 @@ const targetBackedStepTypes = new Set(["image_click", "wait_image", "detect_page
 const capturedImageStepTypes = new Set(["image_click", "wait_image", "detect_page"]);
 const stepFailActions = new Set(["stop", "retry", "skip", "restore"]);
 const targetKindOptions = ["image", "roi", "page", "ocr", "click_target", "state", "unknown"];
+const workflowConcurrencyOptions = new Set(["per-window-exclusive"]);
 
 const stepTypes = [
   ["detect_page", "检测页面"],
@@ -440,6 +441,7 @@ function normalizeWorkspace(value) {
 
 function normalizeWorkflow(value) {
   const typeSafeSteps = Array.isArray(value?.steps) ? value.steps.map(normalizeStep) : [];
+  const concurrency = String(value?.targetPolicy?.concurrency || "per-window-exclusive");
   return {
     schemaVersion: WORKSPACE_SCHEMA_VERSION,
     id: String(value?.id || randomId("wf")),
@@ -451,7 +453,7 @@ function normalizeWorkflow(value) {
     targetPolicy: {
       titleNeedle: String(value?.targetPolicy?.titleNeedle || TARGET_TITLE),
       inputMode: String(value?.targetPolicy?.inputMode || "hwnd-message"),
-      concurrency: String(value?.targetPolicy?.concurrency || "per-window-exclusive"),
+      concurrency: workflowConcurrencyOptions.has(concurrency) ? concurrency : "per-window-exclusive",
     },
     steps: typeSafeSteps,
     createdAt: value?.createdAt || new Date().toISOString(),
@@ -828,7 +830,9 @@ function bindWorkflowInputs() {
   $("#workflow-concurrency").addEventListener("change", (event) => {
     const workflow = activeWorkflow();
     if (!workflow) return;
-    workflow.targetPolicy.concurrency = event.target.value;
+    workflow.targetPolicy.concurrency = workflowConcurrencyOptions.has(event.target.value)
+      ? event.target.value
+      : "per-window-exclusive";
     markDirty("draft");
   });
 }
