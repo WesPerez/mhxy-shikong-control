@@ -109,7 +109,7 @@
 - `workflows`: 用户创建和导入的任务库。
 - `assignments`: 窗口 hwnd 到任务队列的分配表。旧版 `workflowId` 会在载入时迁移成单项 `queue`。
 - `targets`: 粘贴图片、ROI、后续模板图和 OCR 文本等可复用识别目标。旧版 `assets` 会在载入时迁移成 `targets`。
-- `runHistory`: 观察运行或真实运行的最近报告，包含每步结果、控制流跳转、暂停/继续事件、失败点、耗时和结束窗口身份。
+- `runHistory`: 观察运行或真实运行的最近报告，包含每步结果、控制流跳转、暂停/继续事件、失败点、耗时和结束窗口身份。失败证据包不新增 schema 字段，而是从单条报告派生导出。
 
 当前保存位置是 Tauri AppData 下的 `workspace.json`。保存使用临时文件写入、flush 后替换原文件，并在覆盖前保留上一版 `workspace.json.bak`。前端载入和 JSON 导入会显示迁移审计摘要：schema v9 规范化、旧 `assets` 合并到 `targets`、`runHistory` 裁剪到最近 80 条、失效队列项/空窗口队列过滤以及最近备份路径都会出现在工作区状态区。第一阶段不用 SQLite，是为了让格式可读、易迁移、好调试；等任务历史、资产索引、运行日志变多后再迁移数据库。
 
@@ -341,7 +341,7 @@ schema v9 继续保留 v7 的控制流定义态字段：`targetStepId`、`elseTa
 - 后台步骤返回 `error` 或 `unsupported` 时一律停止窗口会话。`missing_asset`、`below_threshold`、`text_miss`、`ocr_unavailable`、`missing_expect` 等失败状态在重试耗尽后默认停止，只有步骤显式设置 `onFail=skip` 才会继续下一步。
 - `onFail=restore` 会跳到显式 `recoveryStepId`，但只作为失败恢复分支调度；默认 `recoveryAction=stop` 不会把原失败任务改判为成功，也不会继续消费后续队列。用户显式选择 `retry` 或 `continue` 后，runner 会在恢复边界返回原失败步骤或返回正常下一步；`retry` 必须设置 `maxIterations`，避免恢复后无限重跑。要真正返回主界面，需要用户把恢复入口配置为可执行的热键、识图点击、等待和确认步骤；默认模板已提供低风险 `ESC + 等待 + 页面确认 + 截图记录` 片段，但真实返航仍依赖用户素材采样、窗口身份稳定和 live 验收。单独的 `restore` 类型仍只记录计划语义。
 
-`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/runEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份、事件数量和控制流摘要；展开详情后会列出队列计划、队列事件、暂停/继续事件、统一运行时间线、控制流 transition 和最近步骤结果，作为验收和排障证据。如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为可持久化事件流。
+`runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/runEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份、事件数量和控制流摘要；展开详情后会列出队列计划、队列事件、暂停/继续事件、统一运行时间线、控制流 transition 和最近步骤结果，作为验收和排障证据。如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON 或复制证据包。失败证据包会保留 `fullReport`，同时裁剪最近 `runEvents`、`controlFlowTransitions`、队列事件、暂停事件和步骤结果，便于排障时既能快速读摘要，也能回到完整原始报告。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为可持久化事件流。
 
 每条 `controlFlowTransitions[]` 会记录来源步骤、目标步骤或目标任务、guard 结果、跳转原因、状态 `taken/skipped/fallthrough`、后向跳转次数、任务跳转次数和跳过原因。它用于解释一次运行为什么跳到某一步、为什么插入了另一个任务，或为什么没有跳；它不是任务定义的一部分，也不会跨运行复用。
 

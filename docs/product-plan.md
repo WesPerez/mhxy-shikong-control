@@ -25,7 +25,7 @@
 - 已有运行：观察运行、后台运行 beta、每 hwnd 互斥、不同 hwnd 并行、队列错峰和任务后间隔。
 - 已有后台动作：`hotkey`、`text_input`、`click`、`double_click`、`image_click`、`wait_image`、`detect_page`、`ocr_assert`、`snapshot`、`delay`、`retry_until` 的视觉目标等待。
 - 已有 quick-step 快捷动作区：通过同一套 `createStep` / `createStepBlock` 插入快捷键、坐标点击、识图点击链、OCR 判断、文本输入、右键物品、条件检查、失败恢复和 10 步任务骨架，并继续复用目标库占位和 `Step.params` 同步。
-- 已有报告：运行面板会从 `runHistory` 提取失败/停止报告，显示失败原因、失败步骤、窗口身份、最近步骤轨迹和控制流摘要，并支持展开查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，或定位步骤与复制单条报告 JSON。
+- 已有报告：运行面板会从 `runHistory` 提取失败/停止报告，显示失败原因、失败步骤、窗口身份、最近步骤轨迹和控制流摘要，并支持展开查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，或定位步骤、复制单条报告 JSON 与复制失败证据包。
 - 已有就绪分类：待补全项会保存稳定 `category`、聚焦控件和下一步动作，覆盖缺图片素材、缺坐标、缺 OCR 文本、目标丢失、窗口/权限、计划态语义、恢复入口、任务跳转和循环控制。
 - 已知缺口：默认恢复片段还需要真实窗口 live 验收和更多场景模板，恢复策略还需要真实窗口回归样例，后端事件流和管理员环境下的双击 live 验收尚未完成；计划态 `restore` 步骤自身仍不发送后台输入。
 - 当前安全语义：`unsupported` 和 `error` 强制停止；识图/OCR/缺素材类失败在重试耗尽后默认停止，只有 `onFail=skip` 才继续。
@@ -40,6 +40,7 @@ schema v9 继续使用结构化 JSON + 原子写入：
 - `targets[]`: 共享目标库，保存图片 data URL、ROI、阈值、点击默认值、OCR 文本和备注。
 - `assignments[]`: 窗口队列，保存 hwnd 与 `windowIdentity` 快照，以及队列项顺序、启用状态和等待参数。
 - `runHistory[]`: 运行报告，保存队列计划、暂停/继续事件、统一 `runEvents` 时间线、控制流 transition、步骤结果、失败原因、暂停次数/时长、开始/结束窗口身份。
+- 失败证据包：从单条 `runHistory` 派生导出，不改变 schema；包内包含摘要、窗口身份、证据计数、最近 `runEvents`、`controlFlowTransitions`、队列/暂停/步骤结果片段和 `fullReport`。
 
 当前 v9 边界：
 
@@ -88,7 +89,7 @@ schema v9 继续使用结构化 JSON + 原子写入：
 
 - 左侧：窗口列表和窗口队列，显示 hwnd、标题、PID、权限、队列数量和运行状态。
 - 中部：任务库和步骤时间线，支持新增、复制、排序、禁用、校验和演练。
-- 右侧：步骤参数、素材/目标库、预览验证和失败报告；运行区应能直接定位失败步骤，展开诊断证据，并复制报告 JSON。
+- 右侧：步骤参数、素材/目标库、预览验证和失败报告；运行区应能直接定位失败步骤，展开诊断证据，并复制报告 JSON 或失败证据包。
 - 顶部：后台就绪状态，按任务和步骤提示缺图片、缺坐标、缺 OCR 文本、缺窗口、权限不足、计划态步骤和可执行提醒。
 - 就绪提示必须保留结构化分类，不允许只靠文案正则决定 UI 聚焦和统计；后续改中文提示时，`category` 仍应稳定驱动“下一步动作”和审计门。
 - 常用动作少步骤完成：粘贴图片、采点、绑定目标、quick-step 插入步骤/片段、分配窗口、观察运行、后台运行。快捷动作只能复用已有步骤模型和片段模型，不允许绕过 normalize、目标库占位、readiness 或 `Step.params` 投影。
@@ -117,10 +118,12 @@ schema v9 继续使用结构化 JSON + 原子写入：
 
 ```powershell
 node --check src\main.js
+npm run test:failure-evidence
 npm run test:step-params
 npm run test:workspace-migration
 npm run test:control-flow
 npm run test:target-library
+npm run audit:failure-evidence
 npm run audit:step-params
 npm run audit:quick-steps
 npm run audit:workspace-migration
@@ -153,7 +156,7 @@ cargo clippy --all-targets -- -D warnings
 2. 用管理员环境补 `double_click` 真实游戏窗口验收，确认游戏对后台双击消息的响应。
 3. 继续完善 schema v9 控制流的 UI 演练证据，尤其是有限 loop、任务跳转和恢复后策略的报告证据。
 4. 继续完善前端 runner，把恢复后策略扩展到更细的“重试前重采样/继续后队列策略”。
-5. 扩展可执行恢复片段模板的场景覆盖，并补失败分析导出、截图证据和真实恢复验收。
+5. 扩展可执行恢复片段模板的场景覆盖，并补截图证据、素材证据和真实恢复验收。
 6. 将 runner 逐步迁到 Rust 事件流，前端只订阅状态和渲染报告。
 
 ## 回滚策略

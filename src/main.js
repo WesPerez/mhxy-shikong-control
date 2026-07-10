@@ -30,6 +30,11 @@ import {
   workspaceMigrationAudit,
   workspaceMigrationSummaryText,
 } from "./workspace-migration-core.js";
+import {
+  failureEvidenceBundle,
+  failureEvidenceSummaryText,
+  failureStepFromReport as failureStepFromReportCore,
+} from "./failure-evidence-core.js";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
@@ -7715,6 +7720,7 @@ function renderFailureReports() {
   }
   for (const report of reports) {
     const failedStep = failureStepFromRecord(report);
+    const canFocusFailedStep = Boolean(failedStep?.workflowId && failedStep?.stepId);
     const identity = failureIdentitySummary(report);
     const steps = failureStepTrail(report);
     const transitions = historyTransitionSummary(report).slice(0, 2);
@@ -7736,8 +7742,9 @@ function renderFailureReports() {
       ${transitions.length ? `<small class="history-detail">${escapeHtml(transitions.join(" / "))}</small>` : ""}
       ${expanded ? failureReportDetailHtml(report, failedStep, identity) : ""}
       <div class="failure-report-actions">
-        <button type="button" data-report-action="focus" data-report-id="${escapeHtml(report.id)}"${failedStep ? "" : " disabled"}>定位步骤</button>
+        <button type="button" data-report-action="focus" data-report-id="${escapeHtml(report.id)}"${canFocusFailedStep ? "" : " disabled"}>定位步骤</button>
         <button type="button" data-report-action="copy" data-report-id="${escapeHtml(report.id)}">复制报告</button>
+        <button type="button" data-report-action="evidence" data-report-id="${escapeHtml(report.id)}">复制证据包</button>
         <button type="button" data-report-action="toggle" data-report-id="${escapeHtml(report.id)}">${expanded ? "收起详情" : "展开详情"}</button>
       </div>
     `;
@@ -7767,24 +7774,7 @@ function failureReasonSummary(record) {
 }
 
 function failureStepFromRecord(record) {
-  const steps = Array.isArray(record.stepResults) ? record.stepResults : [];
-  const explicit = [...steps].reverse().find((item) => {
-    if (record.failedWorkflowName && item.workflowName !== record.failedWorkflowName) return false;
-    if (record.failedStepName && item.stepName === record.failedStepName) return true;
-    return false;
-  });
-  if (explicit) return explicit;
-  return [...steps].reverse().find((item) => isFailureStepResult(item)) || steps.at(-1) || null;
-}
-
-function isFailureStepResult(result) {
-  const status = result?.status || "";
-  return (
-    status === "stopped" ||
-    terminalBackendStatuses.has(status) ||
-    backgroundFailureStatuses.has(status) ||
-    Boolean(result?.detail && /失败|error|unsupported|identity|threshold|missing/i.test(result.detail))
-  );
+  return failureStepFromReportCore(record);
 }
 
 function failureIdentitySummary(record) {
@@ -7897,6 +7887,10 @@ function handleFailureReportAction(event) {
     copyFailureReport(report);
     return;
   }
+  if (button.dataset.reportAction === "evidence") {
+    copyFailureEvidenceBundle(report);
+    return;
+  }
   if (button.dataset.reportAction === "focus") {
     focusFailureReportStep(report);
   }
@@ -7916,6 +7910,15 @@ function copyFailureReport(report) {
   $("#workspace-json").value = json;
   navigator.clipboard?.writeText(json).catch(() => {});
   setStatus("已复制失败报告 JSON，并放入工作区文本框");
+}
+
+function copyFailureEvidenceBundle(report) {
+  const bundle = failureEvidenceBundle(report, { schemaVersion: WORKSPACE_SCHEMA_VERSION });
+  const json = JSON.stringify(bundle, null, 2);
+  const summary = failureEvidenceSummaryText(bundle);
+  $("#workspace-json").value = json;
+  navigator.clipboard?.writeText(json).catch(() => {});
+  setStatus(`已复制失败证据包，并放入工作区文本框${summary ? `：${summary}` : ""}`);
 }
 
 function focusFailureReportStep(report) {

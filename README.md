@@ -51,7 +51,8 @@
 - 后台就绪面板的待补全项带结构化分类，不只依赖中文文案匹配；缺素材、缺坐标、缺 OCR 文本、缺目标、窗口、权限、计划态和恢复入口都会带稳定 category、聚焦控件和下一步动作。
 - 待补全面板会把当前缺口转成动作坞按钮：缺图可直接从剪贴板绑定、ROI 存为目标或接入内置素材；缺坐标可开启预览采点或写入 ROI 中心；窗口、权限、OCR、目标库和演练入口也能从同一区域触达。
 - 运行结束会写入 `runHistory` 报告，记录队列计划、错峰等待事件、暂停/继续事件、统一 `runEvents` 时间线、控制流 `controlFlowTransitions`、每步状态、失败点、耗时、暂停次数/时长、启动窗口身份和结束窗口身份，便于排查多窗口长时间运行。
-- 运行面板会从 `runHistory` 自动提取失败/停止报告，显示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；展开详情可查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，并支持一键定位到当前任务库中的失败步骤或复制单条报告 JSON。
+- 运行面板会从 `runHistory` 自动提取失败/停止报告，显示失败原因、失败步骤、最近步骤轨迹、窗口身份和控制流摘要；展开详情可查看队列计划、队列事件、统一运行时间线、暂停/继续、控制流和最近步骤证据，并支持一键定位到当前任务库中的失败步骤、复制单条报告 JSON 或复制失败证据包。
+- 失败证据包是从单条 `runHistory` 报告派生的排障 JSON，包含摘要、窗口身份、证据数量、最近 `runEvents`、`controlFlowTransitions`、队列/暂停/步骤结果片段，以及 `fullReport` 原始报告，方便把失败现场交给审计或回归脚本复盘。
 - `ocr_assert` 会截图、按 ROI 或命名区域裁剪后调用 Windows OCR；识别未命中或系统 OCR/语言包不可用都会明确失败，不会伪装成可识别。
 - `127.0.0.1:47638` 是桌面应用单实例唤醒端口，不是前端页面。浏览器访问它会显示说明页；真实界面在标题为“时空任务编排器”的 Tauri 桌面窗口里。开发浏览器预览请启动 Vite 后访问 `http://127.0.0.1:5173/`。
 
@@ -83,6 +84,8 @@
 ```powershell
 python scripts\audit_input_safety.py --json
 python scripts\audit_control_flow_schema.py --json
+npm run test:failure-evidence
+npm run audit:failure-evidence
 npm run test:step-params
 npm run audit:step-params
 npm run audit:quick-steps
@@ -99,9 +102,11 @@ python scripts\audit_queue_readiness.py --json
 cd E:\Project\Common\MHXY-ShiKong-Control
 npm install
 npm run build
+npm run test:failure-evidence
 npm run test:step-params
 npm run test:control-flow
 npm run test:target-library
+npm run audit:failure-evidence
 npm run audit:step-params
 npm run audit:quick-steps
 npm run audit:completion-action-dock
@@ -147,7 +152,7 @@ E:\Project\Common
 
 ## 后续路线
 
-1. 按 [docs/product-plan.md](docs/product-plan.md) 的方案门禁扩展恢复片段模板覆盖面、补真实窗口 live 验收和更完整的失败分析导出。
+1. 按 [docs/product-plan.md](docs/product-plan.md) 的方案门禁扩展恢复片段模板覆盖面、补真实窗口 live 验收和失败截图/素材证据。
 2. 扩展 `targets` 文件化模板、批量导入导出和 OCR 文本目标实测。
 3. 继续完善后台 hwnd 输入执行器：增加 Rust 后端 runner、事件流、停止/失败恢复和真实游戏反馈验证。
 4. 接入 OCR 实测，每补一个真实任务都保留观察运行、运行报告和输入安全审计。
