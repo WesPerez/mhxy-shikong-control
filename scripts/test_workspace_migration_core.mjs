@@ -8,9 +8,11 @@ import {
   workspaceMigrationSummaryText,
 } from "../src/workspace-migration-core.js";
 
+const CURRENT_SCHEMA_VERSION = 9;
+
 function testNumericSchemaVersion() {
-  assert.equal(numericSchemaVersion("8"), 8);
-  assert.equal(numericSchemaVersion(8.9), 8);
+  assert.equal(numericSchemaVersion("9"), 9);
+  assert.equal(numericSchemaVersion(9.9), 9);
   assert.equal(numericSchemaVersion("bad", 7), 7);
   assert.equal(numericSchemaVersion(-1, 7), 7);
 }
@@ -28,7 +30,7 @@ function testAssignmentQueueCountingSupportsLegacyShape() {
 
 function testMigrationAuditFlagsLegacyWorkspaceNormalization() {
   const source = {
-    schemaVersion: 7,
+    schemaVersion: 8,
     workflows: [{ id: "wf.keep" }],
     assets: [{ id: "button.old" }],
     targets: [{ id: "button.existing" }],
@@ -39,7 +41,7 @@ function testMigrationAuditFlagsLegacyWorkspaceNormalization() {
     runHistory: Array.from({ length: 90 }, (_, index) => ({ id: `run.${index}` })),
   };
   const normalized = {
-    schemaVersion: 8,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     workflows: [{ id: "wf.keep" }],
     targets: [{ id: "button.old" }, { id: "button.existing" }],
     assignments: {
@@ -48,7 +50,7 @@ function testMigrationAuditFlagsLegacyWorkspaceNormalization() {
     runHistory: source.runHistory.slice(0, 80),
   };
 
-  const audit = workspaceMigrationAudit(source, normalized, 8);
+  const audit = workspaceMigrationAudit(source, normalized, CURRENT_SCHEMA_VERSION);
 
   assert.equal(audit.upgraded, true);
   assert.equal(audit.shouldSave, true);
@@ -66,7 +68,7 @@ function testMigrationAuditFlagsLegacyWorkspaceNormalization() {
 
 function testMigrationAuditRecognizesStableWorkspace() {
   const source = {
-    schemaVersion: 8,
+    schemaVersion: CURRENT_SCHEMA_VERSION,
     workflows: [{ id: "wf.keep" }],
     targets: [{ id: "button.existing" }],
     assignments: {
@@ -74,7 +76,7 @@ function testMigrationAuditRecognizesStableWorkspace() {
     },
     runHistory: [{ id: "run.1" }],
   };
-  const audit = workspaceMigrationAudit(source, source, 8);
+  const audit = workspaceMigrationAudit(source, source, CURRENT_SCHEMA_VERSION);
 
   assert.equal(audit.shouldSave, false);
   assert.equal(audit.upgraded, false);
@@ -83,7 +85,11 @@ function testMigrationAuditRecognizesStableWorkspace() {
 }
 
 function testMigrationAuditWarnsOnFutureSchema() {
-  const audit = workspaceMigrationAudit({ schemaVersion: 99 }, { schemaVersion: 8 }, 8);
+  const audit = workspaceMigrationAudit(
+    { schemaVersion: 99 },
+    { schemaVersion: CURRENT_SCHEMA_VERSION },
+    CURRENT_SCHEMA_VERSION,
+  );
 
   assert.equal(audit.futureSchema, true);
   assert.equal(audit.shouldSave, false);
@@ -92,13 +98,13 @@ function testMigrationAuditWarnsOnFutureSchema() {
 
 function testMigrationSummaryMentionsUserVisibleEvidence() {
   const audit = workspaceMigrationAudit(
-    { schemaVersion: 7, assets: [{ id: "a" }], runHistory: [{}, {}] },
-    { schemaVersion: 8, targets: [{ id: "a" }], runHistory: [{}] },
-    8,
+    { schemaVersion: 8, assets: [{ id: "a" }], runHistory: [{}, {}] },
+    { schemaVersion: CURRENT_SCHEMA_VERSION, targets: [{ id: "a" }], runHistory: [{}] },
+    CURRENT_SCHEMA_VERSION,
   );
   const summary = workspaceMigrationSummaryText(audit, { backupPath: "workspace.json.bak" });
 
-  assert.match(summary, /schema 7 -> 8/);
+  assert.match(summary, /schema 8 -> 9/);
   assert.match(summary, /迁移旧 assets 1/);
   assert.match(summary, /裁剪运行记录 1/);
   assert.match(summary, /备份 workspace\.json\.bak/);

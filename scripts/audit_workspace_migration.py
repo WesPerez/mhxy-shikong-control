@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CURRENT_SCHEMA_VERSION = 9
 
 
 def read_text(path: str) -> str:
@@ -69,6 +70,13 @@ def audit() -> dict[str, object]:
         if needle not in test:
             failures.append(f"workspace migration test missing {needle}")
 
+    if f"CURRENT_SCHEMA_VERSION = {CURRENT_SCHEMA_VERSION}" not in test:
+        failures.append(f"workspace migration test must pin CURRENT_SCHEMA_VERSION = {CURRENT_SCHEMA_VERSION}")
+    if f"schemaVersion: CURRENT_SCHEMA_VERSION" not in test:
+        failures.append("workspace migration test must use CURRENT_SCHEMA_VERSION for normalized/current workspaces")
+    if "schemaVersion: 8" not in test:
+        failures.append("workspace migration test must cover v8 -> current migration")
+
     for needle in [
         "workspaceMigrationAudit(",
         "state.workspaceMigration",
@@ -79,6 +87,9 @@ def audit() -> dict[str, object]:
     ]:
         if needle not in main:
             failures.append(f"src/main.js missing {needle}")
+
+    if not re.search(rf"WORKSPACE_SCHEMA_VERSION\s*=\s*{CURRENT_SCHEMA_VERSION}\b", main):
+        failures.append(f"src/main.js WORKSPACE_SCHEMA_VERSION is not {CURRENT_SCHEMA_VERSION}")
 
     if 'id="workspace-migration"' not in html:
         failures.append("index.html missing workspace-migration status line")
@@ -91,6 +102,9 @@ def audit() -> dict[str, object]:
     ]:
         if needle not in rust:
             failures.append(f"Rust workspace persistence missing {needle}")
+
+    if not re.search(rf"WORKSPACE_SCHEMA_VERSION:\s*u32\s*=\s*{CURRENT_SCHEMA_VERSION}\b", rust):
+        failures.append(f"src-tauri/src/main.rs WORKSPACE_SCHEMA_VERSION is not {CURRENT_SCHEMA_VERSION}")
 
     scripts = package.get("scripts", {})
     if scripts.get("test:workspace-migration") != "node scripts/test_workspace_migration_core.mjs":

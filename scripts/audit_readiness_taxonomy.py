@@ -19,6 +19,7 @@ REQUIRED_FUNCTIONS = [
     "workbenchReadinessItems",
     "workflowReadinessSummary",
     "queueReadinessSummary",
+    "queueRuntimeReadinessItems",
     "workflowCompletionState",
     "isSpecificCompletionGap",
     "completionKindForMessage",
@@ -261,6 +262,7 @@ def audit(project_root: Path) -> dict[str, object]:
     workbench_readiness = bodies["workbenchReadinessItems"]
     workflow_summary = bodies["workflowReadinessSummary"]
     queue_summary = bodies["queueReadinessSummary"]
+    queue_runtime = bodies["queueRuntimeReadinessItems"]
     completion_state = bodies["workflowCompletionState"]
     specific_gap = bodies["isSpecificCompletionGap"]
     kind_for_message = bodies["completionKindForMessage"]
@@ -449,6 +451,15 @@ def audit(project_root: Path) -> dict[str, object]:
     require_contains(failures, render_assignments, "queueReadinessSummary(assignment)", "window queues must render queue readiness")
     require_contains(failures, render_assignments, "workflowReadinessSummary(workflow)", "queue items must render per-workflow readiness")
     require_contains(failures, render_assignments, "readiness-pill", "queue UI must render readiness pills")
+    require_contains(
+        failures,
+        queue_summary,
+        "queueRuntimeReadinessItems(assignment)",
+        "queue readiness must include runtime environment items",
+    )
+    require_contains(failures, queue_runtime, "windowForAssignment(assignment)", "queue runtime readiness must bind assignment to live window")
+    require_contains(failures, queue_runtime, "currentProcessElevated", "queue runtime readiness must include admin privilege state")
+    require_contains(failures, queue_runtime, "windowIdentityMismatchReason", "queue runtime readiness must include window identity state")
 
     require_contains(failures, target_index, "workflowCompletionState(workflow", "target readiness index must derive from workflow completion items")
     require_contains(failures, target_readiness, "readinessBucketSummary(indexedItems)", "target readiness must reuse taxonomy buckets")

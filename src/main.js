@@ -1409,6 +1409,10 @@ function assignmentForHwnd(hwnd) {
   return state.workspace.assignments[String(hwnd)] || null;
 }
 
+function windowForAssignment(assignment) {
+  return (state.windows || []).find((item) => String(item.hwnd) === String(assignment?.hwnd)) || null;
+}
+
 function ensureAssignment(target) {
   const key = String(target.hwnd);
   const existing = state.workspace.assignments[key];
@@ -1976,6 +1980,38 @@ function workbenchReadinessItems(completion = null) {
   return items;
 }
 
+function queueRuntimeReadinessItems(assignment) {
+  const items = [];
+  if (!assignment?.hwnd) {
+    items.push(readinessRuntimeItem("窗口队列缺少 hwnd，请刷新窗口后重新分配队列", "issue", "窗口队列"));
+    return items;
+  }
+  const target = windowForAssignment(assignment);
+  const label = assignment.display || assignment.title || `hwnd=${assignment.hwnd}`;
+  if (!target) {
+    items.push(readinessRuntimeItem(`${label} 当前不在窗口列表中，请刷新窗口后确认队列`, "issue", "窗口队列"));
+    return items;
+  }
+  const expected = normalizeWindowIdentity(assignment.windowIdentity || assignment);
+  const current = windowIdentityForTarget(target);
+  const expectedIssue = requiredBackgroundWindowIdentityIssue(expected);
+  if (expectedIssue) {
+    items.push(readinessRuntimeItem(`${label} 队列窗口身份不完整：${expectedIssue}`, "issue", "窗口队列"));
+  }
+  const currentIssue = requiredBackgroundWindowIdentityIssue(current);
+  if (currentIssue) {
+    items.push(readinessRuntimeItem(`${target.display || label} 当前窗口身份不完整：${currentIssue}`, "issue", "窗口队列"));
+  }
+  const mismatch = windowIdentityMismatchReason(expected, current);
+  if (mismatch) {
+    items.push(readinessRuntimeItem(`${target.display || label} 队列窗口身份不匹配：${mismatch}`, "issue", "窗口队列"));
+  }
+  if (target.elevated === true && state.privilege?.currentProcessElevated === false) {
+    items.push(readinessRuntimeItem(`${target.display || label} 是管理员目标窗口，请用管理员权限运行编排器`, "issue", "窗口队列"));
+  }
+  return items;
+}
+
 function workflowReadinessSummary(workflow, validation = null) {
   const completion = workflowCompletionState(workflow, validation || validateWorkflow(workflow, "background"));
   const summary = readinessBucketSummary(completion.items);
@@ -1999,6 +2035,8 @@ function workflowReadinessSummary(workflow, validation = null) {
 
 function queueReadinessSummary(assignment) {
   const queue = (assignment?.queue || []).map(normalizeQueueItem);
+  const runtimeItems = queueRuntimeReadinessItems(assignment);
+  const runtimeBuckets = readinessBucketSummary(runtimeItems);
   const enabledItems = queue.filter((item) => item.enabled !== false);
   const runnableEntries = enabledItems
     .map((item) => ({ item, workflow: workflowById(item.workflowId) }))
@@ -2013,8 +2051,13 @@ function queueReadinessSummary(assignment) {
   for (const workflow of workflows) {
     addReadinessBuckets(readinessBuckets, workflowReadinessSummary(workflow));
   }
-  const issueCount = validation.issues.length + missingWorkflowCount + (queue.length && !workflows.length ? 1 : 0);
-  const warningCount = validation.warnings.length + disabledCount;
+  addReadinessBuckets(readinessBuckets, runtimeBuckets);
+  const issueCount =
+    validation.issues.length +
+    missingWorkflowCount +
+    runtimeBuckets.issues +
+    (queue.length && !workflows.length ? 1 : 0);
+  const warningCount = validation.warnings.length + disabledCount + runtimeBuckets.warnings;
   const level = issueCount ? "blocked" : warningCount ? "warning" : "ready";
   const label =
     level === "blocked"
@@ -2028,6 +2071,8 @@ function queueReadinessSummary(assignment) {
   if (disabledCount) details.push(`停用 ${disabledCount}`);
   if (validation.issues.length) details.push(`校验阻塞 ${validation.issues.length}`);
   if (validation.warnings.length) details.push(`校验提醒 ${validation.warnings.length}`);
+  if (runtimeBuckets.issues) details.push(`运行环境 ${runtimeBuckets.issues}`);
+  if (runtimeBuckets.warnings) details.push(`环境提醒 ${runtimeBuckets.warnings}`);
   const classifiedDetail = readinessDetailText(readinessBuckets);
   if (classifiedDetail) details.push(classifiedDetail);
   const plannedWarningCount = validation.warnings.filter(isPlannedSemanticMessage).length;
@@ -2046,12 +2091,16 @@ function queueReadinessSummary(assignment) {
     warningCount,
     missingWorkflowCount,
     disabledCount,
+    runtimeItems,
+    runtimeBuckets,
     readinessBuckets,
     detail: details.join(" · ") || "后台链路满足基础要求",
     firstBlockingMessage:
       validation.issues[0] ||
+      runtimeItems.find((item) => item.severity === "issue")?.message ||
       (missingWorkflowCount ? "队列里有已删除或不可用任务" : "") ||
       validation.warnings[0] ||
+      runtimeItems[0]?.message ||
       "",
   };
 }

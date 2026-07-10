@@ -14,6 +14,7 @@ REQUIRED_FUNCTIONS = [
     "ensureAssignment",
     "prepareExerciseWorkspace",
     "queueReadinessSummary",
+    "queueRuntimeReadinessItems",
     "readinessBucketSummary",
     "workflowCompletionState",
     "workflowCompletionItem",
@@ -187,6 +188,7 @@ def audit(project_root: Path) -> dict[str, object]:
     ensure_assignment = bodies["ensureAssignment"]
     prepare_exercise = bodies["prepareExerciseWorkspace"]
     queue_readiness = bodies["queueReadinessSummary"]
+    queue_runtime = bodies["queueRuntimeReadinessItems"]
     readiness_bucket = bodies["readinessBucketSummary"]
     workflow_completion = bodies["workflowCompletionState"]
     workflow_completion_item = bodies["workflowCompletionItem"]
@@ -271,8 +273,40 @@ def audit(project_root: Path) -> dict[str, object]:
     )
     require_contains(failures, queue_readiness, "missingWorkflowCount", "queue readiness must count missing workflows")
     require_contains(failures, queue_readiness, "disabledCount", "queue readiness must count disabled queue items")
+    require_contains(
+        failures,
+        queue_readiness,
+        "queueRuntimeReadinessItems(assignment)",
+        "queue readiness must include queue runtime readiness",
+    )
+    require_contains(failures, queue_readiness, "runtimeBuckets.issues", "queue readiness must block on runtime issues")
+    require_contains(failures, queue_readiness, "runtimeItems", "queue readiness must expose runtime items")
     require_contains(failures, queue_readiness, "level", "queue readiness must produce a level")
     require_contains(failures, queue_readiness, "firstBlockingMessage", "queue readiness must expose first blocking message")
+    require_contains(
+        failures,
+        queue_runtime,
+        "windowForAssignment(assignment)",
+        "queue runtime readiness must find the live window for an assignment",
+    )
+    require_contains(
+        failures,
+        queue_runtime,
+        "requiredBackgroundWindowIdentityIssue",
+        "queue runtime readiness must check identity completeness",
+    )
+    require_contains(
+        failures,
+        queue_runtime,
+        "windowIdentityMismatchReason",
+        "queue runtime readiness must check identity drift",
+    )
+    require_contains(
+        failures,
+        queue_runtime,
+        "currentProcessElevated",
+        "queue runtime readiness must check controller elevation",
+    )
 
     required_gap_categories = [
         "missing_asset",
