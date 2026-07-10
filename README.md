@@ -87,6 +87,7 @@ python scripts\audit_input_safety.py --json
 python scripts\audit_control_flow_schema.py --json
 npm run test:failure-evidence
 npm run audit:failure-evidence
+npm run audit:live-validation
 npm run test:step-params
 npm run audit:step-params
 npm run audit:quick-steps
@@ -107,7 +108,10 @@ npm run test:failure-evidence
 npm run test:step-params
 npm run test:control-flow
 npm run test:target-library
+npm run live:hotkey:preflight
+npm run validate:live-hotkey
 npm run audit:failure-evidence
+npm run audit:live-validation
 npm run audit:step-params
 npm run audit:quick-steps
 npm run audit:completion-action-dock
@@ -122,6 +126,19 @@ cargo check
 cargo test
 cargo clippy --all-targets -- -D warnings
 ```
+
+## Live 验收
+
+`npm run live:hotkey:preflight` 和兼容旧入口 `npm run validate:live-hotkey` 默认只做预检和写报告，不会默认发送后台输入，也不会设置 `MHXY_LIVE_GAME_TEST`。报告写入 `assets/resource/ShiKong/reports/live-background-hotkey-*.json` 和 `.md`，会记录 commit、控制器是否管理员、目标进程快照、计划的 Rust ignored 测试命令，以及预检状态或真实执行结果。
+
+在确认两个目标梦幻窗口可用于测试，并且控制器/测试终端以管理员权限运行后，再显式执行真实后台热键验收：
+
+```powershell
+npm run live:hotkey:allow-input
+npm run live:hotkey:allow-both
+```
+
+这些命令只会通过 Rust ignored live tests 走 hwnd 后台热键路径，并且只在 `--allow-input` 分支里给子进程设置 `MHXY_LIVE_GAME_TEST=1`。`--require-executed` 下如果因为未授权、权限不足或缺少两个 live 游戏窗口而没有真正执行，脚本返回退出码 `2`，并在报告中写入 `input_not_allowed` 或 `blocked_by_privilege_or_setup`；真实执行失败返回 `1`，普通预检或通过返回 `0`。
 
 打包：
 

@@ -345,6 +345,8 @@ schema v9 继续保留 v7 的控制流定义态字段：`targetStepId`、`elseTa
 
 `runHistory[]` 保存完成后的报告：`mode/source/hwnd/display/workflowIds/workflowNames/queueLength/status/completedSteps/totalSteps/durationMs/pauseCount/pausedDurationMs/failureReason/windowIdentity/endedWindowIdentity/queuePlan/queueEvents/pauseEvents/runEvents/controlFlowTransitions/stepResults/startedAt/endedAt`。运行面板会从这些记录中提取失败/停止报告，展示失败原因、失败步骤、最近步骤轨迹、窗口身份、事件数量和控制流摘要；展开详情后会列出队列计划、队列事件、暂停/继续事件、统一运行时间线、控制流 transition 和最近步骤结果，作为验收和排障证据。如果对应任务和步骤仍在当前任务库中，用户可以直接定位回步骤编辑器，也可以复制单条报告 JSON 或复制证据包。失败证据包会保留 `fullReport`，同时裁剪最近 `runEvents`、`controlFlowTransitions`、队列事件、暂停事件和步骤结果，便于排障时既能快速读摘要，也能回到完整原始报告。运行中的 `state.sessions` 仍是内存态，后续 Rust 后端 runner 接管后再扩展为可持久化事件流。
 
+失败证据包证明的是应用内部运行事件链和报告内容；它不能单独证明真实环境里没有抢占前台焦点或移动真实鼠标。真实游戏窗口验收还需要外部 live 报告配套，当前 `scripts/live_background_hotkey_validation.py` 会把 commit、管理员状态、进程快照、精确 Rust ignored 测试命令、权限跳过或执行结果写入 `assets/resource/ShiKong/reports/live-background-hotkey-*.json/.md`。
+
 每条 `controlFlowTransitions[]` 会记录来源步骤、目标步骤或目标任务、guard 结果、跳转原因、状态 `taken/skipped/fallthrough`、后向跳转次数、任务跳转次数和跳过原因。它用于解释一次运行为什么跳到某一步、为什么插入了另一个任务，或为什么没有跳；它不是任务定义的一部分，也不会跨运行复用。
 
 每条 `queueEvents[]` 会记录队列项启动前错峰、任务后间隔、暂停和继续的 phase、delayMs、状态和耗时。暂停事件使用 `phase=pause`，继续事件使用 `phase=resume`，并汇总到 `pauseCount/pausedDurationMs`。每条 `stepResults[]` 会记录 workflow、step、状态、动作、详情、是否发送输入、匹配分数、坐标和耗时；如果步骤有前/后等待，详情中会带 `timing preDelay=... postDelay=...`。运行结束时前端会通过只读 `current_window_identity` 再读取一次 hwnd 身份，写入 `endedWindowIdentity` 或 `endedWindowIdentityError`，便于排查长时间多窗口运行后的 hwnd 漂移、窗口关闭和权限变化。
@@ -352,6 +354,8 @@ schema v9 继续保留 v7 的控制流定义态字段：`targetStepId`、`elseTa
 每条 `runEvents[]` 是按 `order` 追加的统一时间线，串起 `session_start/workflow_start/step_start/step_result/control_flow/task_jump/pause/resume/queue_event/stop_request/session_failure/session_end` 等事件。它不替代 `queueEvents`、`controlFlowTransitions` 或 `stepResults`，而是把这些来源的关键字段扁平化到同一条审计链，便于复制报告后按时间顺序证明暂停期间没有额外输入、失败前最后一步是什么、任务跳转何时插入，以及停止请求发生在什么位置。当前前端最多保留每个会话最近 800 条 `runEvents`，避免长循环报告无限增长。
 
 后台就绪 UI 中的待补全项会保留结构化 `category`，而不是只靠中文提示字符串归类。当前分类覆盖 `missing_asset`、`missing_coordinate`、`missing_ocr_text`、`missing_target`、`roi_warning`、`planned_semantic`、`restore_plan`、`missing_window`、`permission`、`task_jump`、`loop_control`、`recovery_entry` 等；每个分类同时提供用户可读动作、默认聚焦控件和状态提示。这样任务级统计、目标库状态、下一步定位和审计脚本可以共享同一套语义，后续调整文案时不应改变 readiness 判断结果。
+
+live 后台热键验收通过 `scripts/live_background_hotkey_validation.py` 生成独立 JSON/Markdown 证据。`npm run live:hotkey:preflight` 和兼容旧入口 `npm run validate:live-hotkey` 默认只记录计划命令、git 状态和进程快照，不设置 `MHXY_LIVE_GAME_TEST`，也不运行会发送输入的 ignored Rust 测试；只有显式 `--allow-input` 的 `npm run live:hotkey:allow-input` 或 `npm run live:hotkey:allow-both` 才会设置 `MHXY_LIVE_GAME_TEST=1`。脚本报告落在 `assets/resource/ShiKong/reports`，状态区分 `preflight_only`、`input_not_allowed`、`blocked_by_privilege_or_setup`、`passed`、`failed`，并用退出码 `2` 表示 `--require-executed` 下因权限、窗口或未授权而没有真正执行。
 
 ## 输入安全原则
 

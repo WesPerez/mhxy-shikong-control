@@ -145,11 +145,15 @@ cargo clippy --all-targets -- -D warnings
 
 真实游戏窗口验收应记录：
 
+- 当前 commit hash、执行命令、报告文件路径，以及是否使用 `--allow-input --require-executed`。
+- 控制器/测试终端是否管理员，每个目标窗口是否 elevated；权限不足时必须记录“投递前跳过”而不是写成通过。
 - 枚举到的窗口数量、标题、hwnd、PID、权限状态。
 - 每个窗口的队列计划和运行报告。
 - 是否因权限不足跳过或失败。
 - 是否验证后台输入不抢焦点、不移动真实鼠标。
 - 失败场景：缺图片、OCR 不匹配、窗口丢失、权限不足、任务中断、暂停/继续。
+
+`npm run live:hotkey:preflight` 和兼容旧入口 `npm run validate:live-hotkey` 只能作为默认安全预检和报告生成入口，不设置 `MHXY_LIVE_GAME_TEST`，不会默认发送后台输入。真实后台输入验收必须显式运行 `npm run live:hotkey:allow-input` 或 `npm run live:hotkey:allow-both`，并且只在用户确认的窗口和管理员权限匹配后执行。报告写入 `assets/resource/ShiKong/reports`，并用 `input_not_allowed`、`blocked_by_privilege_or_setup`、`passed`、`failed` 和退出码 `0/1/2` 区分预检、通过、失败和未真正执行。
 
 ## 实施顺序
 
