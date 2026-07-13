@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:bc0f6451cb6bc7ca6efdd143b06ed023eb9d18aa34f085e4225d393ad638c917 -->
-<!-- checkpoint-id: CP-0020 -->
+<!-- state-digest: sha256:30e6a279c2b9d70024fec59dbf6633685500f661eff27c21c9517150d11a9cab -->
+<!-- checkpoint-id: CP-0021 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -8,26 +8,26 @@
 
 ## 恢复首屏
 
-- 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-13T07:43:46Z`
-- 更新时间（北京时间）：`2026-07-13T15:43:46+08:00`
+- 恢复结论：**STOP：存在未决副作用，只允许只读对账**
+- 更新时间（UTC）：`2026-07-13T08:06:00Z`
+- 更新时间（北京时间）：`2026-07-13T16:06:00+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
-- 当前阶段：`P2`
-- 当前切片：`P2-S2` - 五视口真实渲染与检查器交互验收
-- 阶段状态：`verified`；切片状态：`verified`；动作状态：`succeeded`
+- 当前阶段：`P3`
+- 当前切片：`P3-S1` - health-verified capture providers and black/stale frame gates
+- 阶段状态：`verifying`；切片状态：`verified`；动作状态：`running`
 - 当前切片验收：已满足 `4`，待验证或阻塞 `0`，合计 `4`
 - 本轮是否发送真实游戏输入：`false`
-- 当前工作：当前没有副作用动作在执行，停在下一动作之前
-- 最新当前有效证据：最近事件：副作用动作 ACT-COMMIT-P2S2-FINAL-LEDGER-001 -> succeeded（EVT-0247；不是当前验收通过证据）
-- 唯一下一动作：Start P3 health-verified capture provider work
-- 当前切片执行 blocker：缺少本地预览进程启动与只读 UI 测试授权
+- 当前工作：未决动作 `ACT-COMMIT-P3S1-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：P3-S1 after capture health changes: Vite production build green（EVD-0091，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-P3S1-001；结果明确前禁止重放
+- 当前切片执行 blocker：none
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
-- 最新 checkpoint：`CP-0020`；safeToResume=`true`；safeToRunLiveInput=`false`
-- 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
-- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`133016s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 最新 checkpoint：`CP-0021`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 当前允许：只读审计、连续性元数据对账。
+- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
+- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`134350s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -50,7 +50,7 @@
 | `P0` 数据保护与可重复基线 | `verified` | 保护真实 v6 工作区、建立匿名迁移 fixture 和可重复验证基线。 |
 | `P1` 运行安全硬化 | `verified` | 消除窗口身份、权限、误跑和输入安全 P0/P1 风险。 |
 | `P2` 工作台可达性与单步调试 | `verified` | 重构默认窗口下的操作路径，建立每个功能即时可见、可测的工作台。 |
-| `P3` 严格捕获和视觉引擎 | `pending` | 修复捕获、ROI、模板、OCR 和预览一致性。 |
+| `P3` 严格捕获和视觉引擎 | `verifying` | 修复捕获、ROI、模板、OCR 和预览一致性。 |
 | `P4` 第一个真实纵向任务 | `pending` | 以家园活力完成 UI 到游戏后置验证的真实闭环。 |
 | `P5` 持久化和素材文件化 | `pending` | 按方案评估 SQLite/结构化 JSON，补版本迁移、原子写入和备份。 |
 | `P6` 第二至第五个真实任务 | `pending` | 逐个纵向闭环更多真实任务，不用草稿数量代替可用性。 |
@@ -62,32 +62,43 @@
 
 ### 范围
 
-- index.html,src/styles.css,src/main.js,Playwright screenshots and viewport metrics
+- src-tauri/src/platform.rs
+- src-tauri/src/runtime/capture_health.rs
+- src/capture-policy-core.js
+- scripts/audit_capture_policy.py
+- scripts/test_capture_policy_core.mjs
 
 ### 非目标
 
-- 本切片不启动 Tauri 应用、不读取或迁移真实 AppData、不枚举游戏窗口、不发送输入
+- Do not implement full OpenCV template engine in this slice
+- Do not send live game input or migrate AppData
+- Do not require Tauri app live window capture for slice close; unit/static proof is enough for provider health policy
 
 ### 安全边界
 
-- 只启动本任务拥有的 localhost 预览进程；完成后仅停止该 PID；浏览器只做只读 UI 交互
+- Desktop capture remains preview-only and never authorizes control decisions
+- Control capture fails closed on black, uniform, size-mismatch, or stale frames
 
 ### 验收条件
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P2-S2-C1` | 当前工作树 Vite 预览以可核验 PID/命令启动并可访问 | `passed` | `app_runtime`, `test` | `EVD-0077`, `EVD-0081`, `EVD-0084` |
-| `P2-S2-C2` | 1460x880、1280x720、1120x720、920x680、820x720 均无页面级横向滚动且任务/步骤列表可达 | `passed` | `test` | `EVD-0077`, `EVD-0081`, `EVD-0084` |
-| `P2-S2-C3` | 检查器 tab 鼠标和键盘切换、补全定位与失败步骤定位能揭示正确面板 | `passed` | `test` | `EVD-0077`, `EVD-0081`, `EVD-0084` |
-| `P2-S2-C4` | 视觉发现的布局问题修复后 Node/Python/Vite 回归继续通过 | `passed` | `build`, `test` | `EVD-0078`, `EVD-0079`, `EVD-0080`, `EVD-0082`, `EVD-0083`, `EVD-0085`, `EVD-0086` |
+| `P3-S1-C1` | Capture policy exposes health-verified target providers and never trusts desktop/preview frames for control | `passed` | `source_audit`, `test` | `EVD-0090` |
+| `P3-S1-C2` | Black, uniform, size-mismatch, and stale frames are classified and block control decisions | `passed` | `test` | `EVD-0090` |
+| `P3-S1-C3` | PrintWindow/GDI strict capture path is covered by unit/static audits and fails closed without fallback for control | `passed` | `test` | `EVD-0090` |
+| `P3-S1-C4` | Node/Python capture audits and core regression remain green after the provider change | `passed` | `build`, `test` | `EVD-0090`, `EVD-0091` |
 
 ## 当前动作
 
-- 当前没有未决副作用动作。
+- actionId：`ACT-COMMIT-P3S1-001`
+- 类型：`git_commit`
+- 目标：`P3-S1 health-verified capture providers`
+- 副作用级别：`git_commit`
+- 状态：`running`
 
 ## 下一步
 
-- 唯一下一动作：Start P3 health-verified capture provider work
+- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-P3S1-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -103,19 +114,27 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`cc03c5f9bf908f21c5041deb610d0c97dae567bf`
+- observed HEAD：`794a4fab5225bb5b27b41174a613655ffd4919dd`
 - verified HEAD：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:8ee2a10dfd22e048ceacbae4a89a1163fccea63b632f027b33b4cac9edeec22b`
-- 最新 checkpoint：`CP-0020` (state_snapshot)
+- working tree fingerprint：`sha256:495bef0e9d73075208f598fcaa4b57a53ad2d5bd5882ef65f5f55ea448d93eed`
+- 最新 checkpoint：`CP-0021` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
+- `docs/execution/checkpoints/CP-0021-p3-s1-verified.json`
 - `docs/execution/events.jsonl`
+- `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
+- `scripts/audit_capture_policy.py`
+- `scripts/test_capture_policy_core.mjs`
+- `src-tauri/src/platform.rs`
+- `src-tauri/src/runtime/capture_health.rs`
+- `src-tauri/src/runtime/mod.rs`
+- `src/capture-policy-core.js`
 
 ## 运行进程与产物
 
@@ -146,29 +165,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0079` | `test` | `passed` | `stale` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0080` | `test` | `passed` | `stale` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0081` | `test` | `passed` | `stale` | P2-S2 rebind on HEAD: Playwright 10/10 five-viewport verification<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0082` | `build` | `passed` | `stale` | P2-S2 rebind on HEAD: Vite production build<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0083` | `test` | `passed` | `stale` | P2-S2 rebind on HEAD: full core regression<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0084` | `test` | `passed` | `stale` | P2-S2 final HEAD rebind: Playwright 10/10<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0085` | `build` | `passed` | `stale` | P2-S2 final HEAD rebind: Vite build<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0086` | `test` | `passed` | `stale` | P2-S2 final HEAD rebind: core regression<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0087` | `test` | `passed` | `stale` | P2-S2 working-tree rebind after final ledger commits: Playwright 10/10<br>证据工作树指纹与当前现场不同 |
+| `EVD-0088` | `build` | `passed` | `stale` | P2-S2 working-tree rebind: Vite build<br>证据工作树指纹与当前现场不同 |
+| `EVD-0089` | `test` | `passed` | `stale` | P2-S2 working-tree rebind: core regression<br>证据工作树指纹与当前现场不同 |
+| `EVD-0090` | `test` | `passed` | `valid` | P3-S1 health-verified capture providers and black/stale frame gates: full core regression green<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0091` | `build` | `passed` | `valid` | P3-S1 after capture health changes: Vite production build green<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 238 | `2026-07-13T07:41:30Z` | `test_run` | P2-S2 rebind on HEAD: full core regression |
-| 239 | `2026-07-13T07:41:54Z` | `checkpoint` | 创建 CP-0019：Rebound P2-S2 evidence to HEAD 1f99f57 |
-| 240 | `2026-07-13T07:42:06Z` | `action_intent` | 登记副作用动作 ACT-COMMIT-P2S2-REBIND-001 |
-| 241 | `2026-07-13T07:42:07Z` | `action_result` | 副作用动作 ACT-COMMIT-P2S2-REBIND-001 -> succeeded |
-| 242 | `2026-07-13T07:42:37Z` | `test_run` | P2-S2 final HEAD rebind: Playwright 10/10 |
-| 243 | `2026-07-13T07:42:38Z` | `test_run` | P2-S2 final HEAD rebind: Vite build |
-| 244 | `2026-07-13T07:43:27Z` | `test_run` | P2-S2 final HEAD rebind: core regression |
-| 245 | `2026-07-13T07:43:43Z` | `checkpoint` | 创建 CP-0020：Final P2-S2 evidence rebound to HEAD 60b5e75 |
-| 246 | `2026-07-13T07:43:44Z` | `action_intent` | 登记副作用动作 ACT-COMMIT-P2S2-FINAL-LEDGER-001 |
-| 247 | `2026-07-13T07:43:45Z` | `action_result` | 副作用动作 ACT-COMMIT-P2S2-FINAL-LEDGER-001 -> succeeded |
+| 248 | `2026-07-13T07:44:13Z` | `test_run` | P2-S2 working-tree rebind after final ledger commits: Playwright 10/10 |
+| 249 | `2026-07-13T07:44:15Z` | `test_run` | P2-S2 working-tree rebind: Vite build |
+| 250 | `2026-07-13T07:45:04Z` | `test_run` | P2-S2 working-tree rebind: core regression |
+| 251 | `2026-07-13T07:46:31Z` | `slice_started` | 开始切片 P3-S1：health-verified capture providers and black/stale frame gates |
+| 252 | `2026-07-13T07:55:23Z` | `test_run` | P3-S1 health-verified capture providers and black/stale frame gates: full core regression green |
+| 253 | `2026-07-13T07:55:25Z` | `test_run` | P3-S1 after capture health changes: Vite production build green |
+| 254 | `2026-07-13T08:05:47Z` | `slice_state_changed` | P3-S1 health-verified capture providers complete: PrintWindow+GDI chain, black/stale health gates, unit and core evidence EVD-0090/0091 |
+| 255 | `2026-07-13T08:05:48Z` | `checkpoint` | 创建 CP-0021：P3-S1 criteria passed with health-verified capture provider implementation |
+| 256 | `2026-07-13T08:05:49Z` | `decision` | P3-S1 implemented PrintWindow primary + GDI secondary with black/uniform/stale health fail-closed |
+| 257 | `2026-07-13T08:06:00Z` | `action_intent` | 登记副作用动作 ACT-COMMIT-P3S1-001 |
 
 ## 异常恢复
 

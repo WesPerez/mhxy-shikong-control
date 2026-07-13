@@ -25,6 +25,14 @@ function testOnlyHealthVerifiedTargetCapturePasses() {
   assert.equal(controlCaptureEligible(result), true);
   assert.equal(targetVerificationPassed(result), true);
   assert.equal(targetVerificationPassed({ ...result, matched: false }), false);
+  assert.equal(controlCaptureEligible({
+    ...result,
+    captureProvider: "window_print",
+  }), true);
+  assert.equal(controlCaptureEligible({
+    ...result,
+    captureReliability: "target_window_unverified",
+  }), false);
 }
 
 function testPreviewSummaryExposesUntrustedFallback() {

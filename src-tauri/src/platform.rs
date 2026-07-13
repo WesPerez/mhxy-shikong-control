@@ -31,6 +31,7 @@ pub struct RgbFrame {
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum CaptureProvider {
+    WindowPrint,
     WindowGdi,
     DesktopVisibleGdi,
 }
@@ -69,7 +70,10 @@ enum CapturePurpose {
 
 impl CaptureMetadata {
     pub fn is_strict_target_source(&self) -> bool {
-        self.provider == CaptureProvider::WindowGdi && !self.fallback_used
+        matches!(
+            self.provider,
+            CaptureProvider::WindowPrint | CaptureProvider::WindowGdi
+        ) && !self.fallback_used
     }
 
     pub fn permits_control_decision(&self) -> bool {
@@ -106,36 +110,71 @@ fn captured_frame(
     }
 }
 
+fn assess_target_frame_health(rgb: &RgbFrame) -> CaptureReliability {
+    // Keep assessment self-contained so platform unit tests do not depend on runtime module wiring.
+    if rgb.width == 0 || rgb.height == 0 || rgb.pixels.len() < (rgb.width as usize * rgb.height as usize * 3) {
+        return CaptureReliability::TargetWindowUnverified;
+    }
+    let mut min_luma: u8 = 255;
+    let mut max_luma: u8 = 0;
+    let mut black_pixels: u64 = 0;
+    let sample_count = (rgb.width as u64).saturating_mul(rgb.height as u64).max(1);
+    for pixel in rgb.pixels.chunks_exact(3) {
+        let luma = ((u16::from(pixel[0]) * 30) + (u16::from(pixel[1]) * 59) + (u16::from(pixel[2]) * 11)) / 100;
+        let luma = luma.min(255) as u8;
+        min_luma = min_luma.min(luma);
+        max_luma = max_luma.max(luma);
+        if luma <= 8 {
+            black_pixels += 1;
+        }
+    }
+    let dynamic_range = max_luma.saturating_sub(min_luma);
+    let black_ratio_bps = ((black_pixels.saturating_mul(10_000)) / sample_count).min(10_000);
+    if black_ratio_bps >= 9_700 || dynamic_range <= 6 {
+        CaptureReliability::TargetWindowUnverified
+    } else {
+        CaptureReliability::HealthVerified
+    }
+}
+
 fn capture_with_policy(
     purpose: CapturePurpose,
-    primary: impl FnOnce() -> Result<RgbFrame, String>,
-    fallback: impl FnOnce() -> Result<RgbFrame, String>,
+    providers: &[(CaptureProvider, &dyn Fn() -> Result<RgbFrame, String>)],
+    desktop_fallback: impl FnOnce() -> Result<RgbFrame, String>,
 ) -> Result<CapturedFrame, String> {
-    match primary() {
-        Ok(rgb) => Ok(captured_frame(
-            rgb,
-            CaptureProvider::WindowGdi,
-            CaptureReliability::TargetWindowUnverified,
-            false,
-        )),
-        Err(primary_error) if purpose == CapturePurpose::Control => {
-            Err(format!("strict target-window capture unavailable: {primary_error}"))
+    let mut errors: Vec<String> = Vec::new();
+    for (provider, capture_fn) in providers {
+        match capture_fn() {
+            Ok(rgb) => {
+                let reliability = assess_target_frame_health(&rgb);
+                return Ok(captured_frame(rgb, *provider, reliability, false));
+            }
+            Err(error) => errors.push(format!("{:?}: {error}", provider)),
         }
-        Err(primary_error) => fallback()
-            .map(|rgb| {
-                captured_frame(
-                    rgb,
-                    CaptureProvider::DesktopVisibleGdi,
-                    CaptureReliability::PreviewOnly,
-                    true,
-                )
-            })
-            .map_err(|fallback_error| {
-                format!(
-                    "window capture failed: {primary_error}; desktop preview fallback failed: {fallback_error}"
-                )
-            }),
     }
+
+    if purpose == CapturePurpose::Control {
+        return Err(format!(
+            "strict target-window capture unavailable: {}",
+            errors.join("; ")
+        ));
+    }
+
+    desktop_fallback()
+        .map(|rgb| {
+            captured_frame(
+                rgb,
+                CaptureProvider::DesktopVisibleGdi,
+                CaptureReliability::PreviewOnly,
+                true,
+            )
+        })
+        .map_err(|fallback_error| {
+            format!(
+                "window capture failed: {}; desktop preview fallback failed: {fallback_error}",
+                errors.join("; ")
+            )
+        })
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -185,9 +224,14 @@ pub fn window_for_hwnd(hwnd: isize) -> Result<AppWindow, String> {
 
 #[cfg(windows)]
 pub fn capture_client_rgb(hwnd: isize) -> Result<CapturedFrame, String> {
+    let print_capture = || windows_impl::capture_client_rgb_print(hwnd);
+    let gdi_capture = || windows_impl::capture_client_rgb_primary(hwnd);
     capture_with_policy(
         CapturePurpose::Preview,
-        || windows_impl::capture_client_rgb_primary(hwnd),
+        &[
+            (CaptureProvider::WindowPrint, &print_capture),
+            (CaptureProvider::WindowGdi, &gdi_capture),
+        ],
         || windows_impl::capture_client_rgb_fallback(hwnd),
     )
 }
@@ -199,9 +243,14 @@ pub fn capture_client_rgb(_hwnd: isize) -> Result<CapturedFrame, String> {
 
 #[cfg(windows)]
 pub fn capture_client_rgb_strict(hwnd: isize) -> Result<CapturedFrame, String> {
+    let print_capture = || windows_impl::capture_client_rgb_print(hwnd);
+    let gdi_capture = || windows_impl::capture_client_rgb_primary(hwnd);
     capture_with_policy(
         CapturePurpose::Control,
-        || windows_impl::capture_client_rgb_primary(hwnd),
+        &[
+            (CaptureProvider::WindowPrint, &print_capture),
+            (CaptureProvider::WindowGdi, &gdi_capture),
+        ],
         || windows_impl::capture_client_rgb_fallback(hwnd),
     )
 }
@@ -308,12 +357,32 @@ mod capture_policy_tests {
         }
     }
 
+    fn gradient_frame() -> RgbFrame {
+        let mut pixels = Vec::with_capacity(12 * 8 * 3);
+        for y in 0..8u32 {
+            for x in 0..12u32 {
+                let value = ((x * 17 + y * 31) % 200 + 30) as u8;
+                pixels.extend_from_slice(&[value, value.saturating_add(20), value.saturating_add(40)]);
+            }
+        }
+        RgbFrame {
+            width: 12,
+            height: 8,
+            pixels,
+        }
+    }
+
     #[test]
     fn strict_capture_never_calls_desktop_fallback() {
         let fallback_calls = AtomicUsize::new(0);
+        let print_capture = || Err("print failed".to_string());
+        let gdi_capture = || Err("window dc failed".to_string());
         let error = capture_with_policy(
             CapturePurpose::Control,
-            || Err("window dc failed".to_string()),
+            &[
+                (CaptureProvider::WindowPrint, &print_capture),
+                (CaptureProvider::WindowGdi, &gdi_capture),
+            ],
             || {
                 fallback_calls.fetch_add(1, Ordering::SeqCst);
                 Ok(frame(1))
@@ -327,9 +396,14 @@ mod capture_policy_tests {
 
     #[test]
     fn preview_fallback_is_explicitly_preview_only() {
+        let print_capture = || Err("print failed".to_string());
+        let gdi_capture = || Err("window dc failed".to_string());
         let captured = capture_with_policy(
             CapturePurpose::Preview,
-            || Err("window dc failed".to_string()),
+            &[
+                (CaptureProvider::WindowPrint, &print_capture),
+                (CaptureProvider::WindowGdi, &gdi_capture),
+            ],
             || Ok(frame(2)),
         )
         .unwrap();
@@ -348,9 +422,14 @@ mod capture_policy_tests {
 
     #[test]
     fn preview_failure_preserves_both_provider_errors() {
+        let print_capture = || Err("primary failed".to_string());
+        let gdi_capture = || Err("secondary failed".to_string());
         let error = capture_with_policy(
             CapturePurpose::Preview,
-            || Err("primary failed".to_string()),
+            &[
+                (CaptureProvider::WindowPrint, &print_capture),
+                (CaptureProvider::WindowGdi, &gdi_capture),
+            ],
             || Err("fallback failed".to_string()),
         )
         .unwrap_err();
@@ -361,24 +440,51 @@ mod capture_policy_tests {
 
     #[test]
     fn strict_capture_metadata_has_source_time_hash_and_dimensions() {
+        let print_capture = || Ok(gradient_frame());
+        let gdi_capture = || panic!("gdi should not run after successful print capture");
         let captured = capture_with_policy(
             CapturePurpose::Control,
-            || Ok(frame(3)),
+            &[
+                (CaptureProvider::WindowPrint, &print_capture),
+                (CaptureProvider::WindowGdi, &gdi_capture),
+            ],
             || panic!("strict capture must not call fallback"),
         )
         .unwrap();
 
-        assert_eq!(captured.metadata.provider, CaptureProvider::WindowGdi);
+        assert_eq!(captured.metadata.provider, CaptureProvider::WindowPrint);
+        assert_eq!(
+            captured.metadata.reliability,
+            CaptureReliability::HealthVerified
+        );
+        assert!(captured.metadata.is_strict_target_source());
+        assert!(captured.metadata.permits_control_decision());
+        assert_eq!(captured.metadata.width, 12);
+        assert_eq!(captured.metadata.height, 8);
+        assert!(captured.metadata.captured_at_ms > 0);
+        assert!(captured.metadata.frame_hash.starts_with("fnv1a64:"));
+    }
+
+    #[test]
+    fn black_primary_frame_stays_unverified_for_control() {
+        let print_capture = || Ok(frame(0));
+        let gdi_capture = || panic!("should not need gdi when print returns a frame");
+        let captured = capture_with_policy(
+            CapturePurpose::Control,
+            &[
+                (CaptureProvider::WindowPrint, &print_capture),
+                (CaptureProvider::WindowGdi, &gdi_capture),
+            ],
+            || panic!("strict capture must not call fallback"),
+        )
+        .unwrap();
+
+        assert_eq!(captured.metadata.provider, CaptureProvider::WindowPrint);
         assert_eq!(
             captured.metadata.reliability,
             CaptureReliability::TargetWindowUnverified
         );
-        assert!(captured.metadata.is_strict_target_source());
         assert!(!captured.metadata.permits_control_decision());
-        assert_eq!(captured.metadata.width, 2);
-        assert_eq!(captured.metadata.height, 2);
-        assert!(captured.metadata.captured_at_ms > 0);
-        assert!(captured.metadata.frame_hash.starts_with("fnv1a64:"));
     }
 }
 
@@ -413,10 +519,10 @@ mod windows_impl {
             UI::WindowsAndMessaging::{
                 EnumWindows, GetClientRect, GetWindow, GetWindowLongW, GetWindowRect,
                 GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId, IsWindow,
-                IsWindowVisible, PostMessageW, GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL, WM_CHAR,
-                WM_KEYDOWN, WM_KEYUP, WM_LBUTTONDBLCLK, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE,
-                WM_RBUTTONDBLCLK, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
-                WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
+                IsWindowVisible, PostMessageW, GWL_EXSTYLE, GW_OWNER, SW_SHOWNORMAL,
+                WM_CHAR, WM_KEYDOWN, WM_KEYUP, WM_LBUTTONDBLCLK, WM_LBUTTONDOWN, WM_LBUTTONUP,
+                WM_MOUSEMOVE, WM_RBUTTONDBLCLK, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_SYSKEYDOWN,
+                WM_SYSKEYUP, WS_EX_APPWINDOW, WS_EX_TOOLWINDOW,
             },
         },
     };
@@ -432,6 +538,12 @@ mod windows_impl {
     const VK_F1: u16 = 0x70;
     const MK_LBUTTON_FLAG: u32 = 0x0001;
     const MK_RBUTTON_FLAG: u32 = 0x0002;
+
+
+    #[link(name = "user32")]
+    extern "system" {
+        fn PrintWindow(hwnd: HWND, hdc_blt: HDC, n_flags: u32) -> BOOL;
+    }
 
     pub fn configure_process_dpi_awareness() {
         unsafe {
@@ -556,6 +668,16 @@ mod windows_impl {
             ordinal: 1,
             display: String::new(),
         })
+    }
+
+    pub fn capture_client_rgb_print(hwnd: isize) -> Result<RgbFrame, String> {
+        unsafe {
+            let hwnd = HWND(hwnd as *mut c_void);
+            let Some((_, _, width, height)) = client_rect_on_screen(hwnd) else {
+                return Err("window client rect unavailable".to_string());
+            };
+            capture_window_client_print(hwnd, width, height)
+        }
     }
 
     pub fn capture_client_rgb_primary(hwnd: isize) -> Result<RgbFrame, String> {
@@ -839,6 +961,58 @@ mod windows_impl {
             i32::try_from(height).map_err(|_| "capture height too large".to_string())?;
         let screen_dc = ScreenDc::new()?;
         capture_from_dc(screen_dc.0, left, top, width, height, width_i32, height_i32)
+    }
+
+    unsafe fn capture_window_client_print(
+        hwnd: HWND,
+        width: u32,
+        height: u32,
+    ) -> Result<RgbFrame, String> {
+        let width_i32 = i32::try_from(width).map_err(|_| "capture width too large".to_string())?;
+        let height_i32 =
+            i32::try_from(height).map_err(|_| "capture height too large".to_string())?;
+        let window_dc = WindowDc::new(hwnd)?;
+        let memory_dc = MemoryDc::new(window_dc.dc)?;
+        let bitmap = Bitmap::new(window_dc.dc, width_i32, height_i32)?;
+        let selected = SelectedObject::new(memory_dc.0, bitmap.as_object())?;
+        // PW_CLIENTONLY | PW_RENDERFULLCONTENT
+        let printed = PrintWindow(hwnd, memory_dc.0, 3u32);
+        if !printed.as_bool() {
+            drop(selected);
+            return Err("PrintWindow failed".to_string());
+        }
+
+        let mut info = BITMAPINFO::default();
+        info.bmiHeader.biSize = size_of::<windows::Win32::Graphics::Gdi::BITMAPINFOHEADER>() as u32;
+        info.bmiHeader.biWidth = width_i32;
+        info.bmiHeader.biHeight = -height_i32;
+        info.bmiHeader.biPlanes = 1;
+        info.bmiHeader.biBitCount = 32;
+        info.bmiHeader.biCompression = BI_RGB.0;
+
+        let mut bgra = vec![0u8; width as usize * height as usize * 4];
+        let scan_lines = GetDIBits(
+            memory_dc.0,
+            bitmap.0,
+            0,
+            height,
+            Some(bgra.as_mut_ptr().cast::<c_void>()),
+            &mut info,
+            DIB_RGB_COLORS,
+        );
+        drop(selected);
+        if scan_lines == 0 {
+            return Err("GetDIBits failed after PrintWindow".to_string());
+        }
+        let mut pixels = Vec::with_capacity(width as usize * height as usize * 3);
+        for pixel in bgra.chunks_exact(4) {
+            pixels.extend_from_slice(&[pixel[2], pixel[1], pixel[0]]);
+        }
+        Ok(RgbFrame {
+            width,
+            height,
+            pixels,
+        })
     }
 
     unsafe fn capture_window_client(

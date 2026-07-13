@@ -25,7 +25,9 @@ def require(failures: list[str], source: str, token: str, message: str) -> None:
 
 
 def main() -> int:
+    # P3 health module presence is enforced below after paths are resolved.
     platform = (ROOT / "src-tauri/src/platform.rs").read_text(encoding="utf-8")
+    capture_health = (ROOT / "src-tauri/src/runtime/capture_health.rs").read_text(encoding="utf-8")
     rust_main = (ROOT / "src-tauri/src/main.rs").read_text(encoding="utf-8")
     frontend = (ROOT / "src/main.js").read_text(encoding="utf-8")
     capture_core = (ROOT / "src/capture-policy-core.js").read_text(encoding="utf-8")
@@ -36,14 +38,19 @@ def main() -> int:
     for token, message in [
         ("pub struct CapturedFrame", "CapturedFrame wrapper is missing"),
         ("pub struct CaptureMetadata", "capture metadata is missing"),
+        ("WindowPrint", "window PrintWindow provider is missing"),
         ("WindowGdi", "window GDI provider is missing"),
         ("DesktopVisibleGdi", "desktop preview provider is missing"),
         ("TargetWindowUnverified", "target-window unverified reliability is missing"),
+        ("HealthVerified", "health-verified reliability is missing"),
         ("PreviewOnly", "preview-only reliability is missing"),
         ("frame_hash", "capture frame hash is missing"),
         ("captured_at_ms", "capture timestamp is missing"),
+        ("assess_target_frame_health", "frame health assessment is missing"),
+        ("capture_client_rgb_print", "PrintWindow capture entry is missing"),
         ("strict_capture_never_calls_desktop_fallback", "strict fallback regression test is missing"),
         ("preview_fallback_is_explicitly_preview_only", "preview fallback regression test is missing"),
+        ("black_primary_frame_stays_unverified_for_control", "black frame fail-closed test is missing"),
     ]:
         require(failures, platform, token, message)
 
@@ -91,6 +98,10 @@ def main() -> int:
     require(failures, frontend, '"capture_unreliable"', "capture_unreliable must fail closed in the runner")
     require(failures, capture_core, 'result.status === "matched"', "target verification must require matched status")
     require(failures, capture_core, 'result.captureReliability === "health_verified"', "control capture must require health verification")
+    require(failures, capture_core, 'provider === "window_print" || provider === "window_gdi"', "trusted providers must include window_print and window_gdi")
+    require(failures, capture_health, "CaptureHealthIssue::BlackFrame", "black frame classification is missing")
+    require(failures, capture_health, "CaptureHealthIssue::StaleFrame", "stale frame classification is missing")
+    require(failures, capture_health, "fn analyze_rgb_frame", "RGB health analyzer is missing")
     require(failures, capture_test, "testPlannedOrPreviewOnlyNeverPassesTargetVerification", "preview-only target verification regression test is missing")
 
     scripts = package.get("scripts", {})

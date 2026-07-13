@@ -1,0 +1,437 @@
+{
+  "kind": "mhxy-shikong.execution-checkpoint",
+  "schemaVersion": 1,
+  "id": "CP-0021",
+  "createdAt": "2026-07-13T08:05:48Z",
+  "type": "state_snapshot",
+  "reason": "P3-S1 criteria passed with health-verified capture provider implementation",
+  "run": {
+    "runId": "RUN-20260710-CONTINUITY-BASELINE",
+    "attempt": 1,
+    "primaryThreadId": "019f47be-d3fe-7853-89c5-d8208c7555ce",
+    "previousThreadId": "019f42cc-2993-7681-b8d2-5269cf5447e1",
+    "startedAt": "2026-07-10T08:31:39Z",
+    "owner": "primary-agent"
+  },
+  "phaseId": "P3",
+  "slice": {
+    "id": "P3-S1",
+    "title": "health-verified capture providers and black/stale frame gates",
+    "status": "verified",
+    "startedAt": "2026-07-13T07:46:31Z",
+    "scope": [
+      "src-tauri/src/platform.rs",
+      "src-tauri/src/runtime/capture_health.rs",
+      "src/capture-policy-core.js",
+      "scripts/audit_capture_policy.py",
+      "scripts/test_capture_policy_core.mjs"
+    ],
+    "nonGoals": [
+      "Do not implement full OpenCV template engine in this slice",
+      "Do not send live game input or migrate AppData",
+      "Do not require Tauri app live window capture for slice close; unit/static proof is enough for provider health policy"
+    ],
+    "safetyBoundaries": [
+      "Desktop capture remains preview-only and never authorizes control decisions",
+      "Control capture fails closed on black, uniform, size-mismatch, or stale frames"
+    ],
+    "acceptanceCriteria": [
+      {
+        "id": "P3-S1-C1",
+        "text": "Capture policy exposes health-verified target providers and never trusts desktop/preview frames for control",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0090"
+        ],
+        "requiredEvidenceCategories": [
+          "source_audit",
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S1-C2",
+        "text": "Black, uniform, size-mismatch, and stale frames are classified and block control decisions",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0090"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S1-C3",
+        "text": "PrintWindow/GDI strict capture path is covered by unit/static audits and fails closed without fallback for control",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0090"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S1-C4",
+        "text": "Node/Python capture audits and core regression remain green after the provider change",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0090",
+          "EVD-0091"
+        ],
+        "requiredEvidenceCategories": [
+          "build",
+          "test"
+        ]
+      }
+    ],
+    "nextAction": "Commit P3-S1 capture health changes then continue P3 vision hardening"
+  },
+  "git": {
+    "branch": "main",
+    "observedHead": "794a4fab5225bb5b27b41174a613655ffd4919dd",
+    "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "dirtyPaths": [
+      "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+      "docs/execution/events.jsonl",
+      "docs/execution/evidence.jsonl",
+      "docs/execution/state.json",
+      "scripts/audit_capture_policy.py",
+      "scripts/test_capture_policy_core.mjs",
+      "src-tauri/src/platform.rs",
+      "src-tauri/src/runtime/capture_health.rs",
+      "src-tauri/src/runtime/mod.rs",
+      "src/capture-policy-core.js"
+    ],
+    "dirtyStatus": [
+      " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+      " M docs/execution/events.jsonl",
+      " M docs/execution/evidence.jsonl",
+      " M docs/execution/state.json",
+      " M scripts/audit_capture_policy.py",
+      " M scripts/test_capture_policy_core.mjs",
+      " M src-tauri/src/platform.rs",
+      "?? src-tauri/src/runtime/capture_health.rs",
+      " M src-tauri/src/runtime/mod.rs",
+      " M src/capture-policy-core.js"
+    ],
+    "dirtyEntries": [
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/STATUS.md",
+        "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/events.jsonl",
+        "displayPath": "docs/execution/events.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/evidence.jsonl",
+        "displayPath": "docs/execution/evidence.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/state.json",
+        "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_capture_policy.py",
+        "displayPath": "scripts/audit_capture_policy.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_capture_policy_core.mjs",
+        "displayPath": "scripts/test_capture_policy_core.mjs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/platform.rs",
+        "displayPath": "src-tauri/src/platform.rs"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/runtime/capture_health.rs",
+        "displayPath": "src-tauri/src/runtime/capture_health.rs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/runtime/mod.rs",
+        "displayPath": "src-tauri/src/runtime/mod.rs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/capture-policy-core.js",
+        "displayPath": "src/capture-policy-core.js"
+      }
+    ],
+    "dirtyFiles": [
+      {
+        "path": "docs/execution/STATUS.md",
+        "exists": true,
+        "sha256": "b6d7c8e653372c9c00d047e855454ea608d02b7fb045aa438aba8ceaaa973cbc",
+        "size": 11813
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+        "exists": true,
+        "sha256": "d0ab68b6bd0d51461b471f9aaeb9f8bd3407eed09aea4ac304e010444a8f6fde",
+        "size": 13521
+      },
+      {
+        "path": "docs/execution/events.jsonl",
+        "exists": true,
+        "sha256": "c20fa0c25b88df96017080929e1981ecd37f973333646f2dbabab53692a7fce1",
+        "size": 464533
+      },
+      {
+        "path": "docs/execution/evidence.jsonl",
+        "exists": true,
+        "sha256": "08e40027f21be0f0f33f413c1cd26f5afecda40b645a1f037a5fe9c8d7ccd805",
+        "size": 212269
+      },
+      {
+        "path": "docs/execution/state.json",
+        "exists": true,
+        "sha256": "ed809a85eadba27e0fe1243f05c510a41c1837f5c8b30b1be417dedeef1dffcd",
+        "size": 33535
+      },
+      {
+        "path": "scripts/audit_capture_policy.py",
+        "exists": true,
+        "sha256": "7c617a82182083f89e81f1ec4b783d1912d75bcaed6c5c487c6eb32f867bc997",
+        "size": 6998
+      },
+      {
+        "path": "scripts/test_capture_policy_core.mjs",
+        "exists": true,
+        "sha256": "e731fe5c7a10739c87c8c198a70db624a55e63ed3b9ddf3224e9babd8735498c",
+        "size": 1771
+      },
+      {
+        "path": "src-tauri/src/platform.rs",
+        "exists": true,
+        "sha256": "a4bbc42033f67a5a5e7a356d238fceb579dfceae3a4efc35bb83e3f9928aff3a",
+        "size": 47481
+      },
+      {
+        "path": "src-tauri/src/runtime/capture_health.rs",
+        "exists": true,
+        "sha256": "82f68cd8543fd3c0059ebfb8b48870067930015c82352d4d7cf83a0f2cfbd406",
+        "size": 9888
+      },
+      {
+        "path": "src-tauri/src/runtime/mod.rs",
+        "exists": true,
+        "sha256": "c912349909d3ef8404564bcb7fafb264602d1730061807891491a2f278b19718",
+        "size": 440
+      },
+      {
+        "path": "src/capture-policy-core.js",
+        "exists": true,
+        "sha256": "ca7699e2a6cd304485d6400b43bd93794aa1bf1be5fa6a39d9e0c952687cfde5",
+        "size": 1123
+      }
+    ],
+    "workingTreeFingerprint": "sha256:495bef0e9d73075208f598fcaa4b57a53ad2d5bd5882ef65f5f55ea448d93eed"
+  },
+  "gitDiffSha256": "56c016005695c3ed51ccc4581dac98a92a1ca2d0667bb2f78f51cc55c7875c30",
+  "dirtyFileHashes": [
+    {
+      "path": "docs/execution/STATUS.md",
+      "exists": true,
+      "sha256": "b6d7c8e653372c9c00d047e855454ea608d02b7fb045aa438aba8ceaaa973cbc",
+      "size": 11813
+    },
+    {
+      "path": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+      "exists": true,
+      "sha256": "d0ab68b6bd0d51461b471f9aaeb9f8bd3407eed09aea4ac304e010444a8f6fde",
+      "size": 13521
+    },
+    {
+      "path": "docs/execution/events.jsonl",
+      "exists": true,
+      "sha256": "c20fa0c25b88df96017080929e1981ecd37f973333646f2dbabab53692a7fce1",
+      "size": 464533
+    },
+    {
+      "path": "docs/execution/evidence.jsonl",
+      "exists": true,
+      "sha256": "08e40027f21be0f0f33f413c1cd26f5afecda40b645a1f037a5fe9c8d7ccd805",
+      "size": 212269
+    },
+    {
+      "path": "docs/execution/state.json",
+      "exists": true,
+      "sha256": "ed809a85eadba27e0fe1243f05c510a41c1837f5c8b30b1be417dedeef1dffcd",
+      "size": 33535
+    },
+    {
+      "path": "scripts/audit_capture_policy.py",
+      "exists": true,
+      "sha256": "7c617a82182083f89e81f1ec4b783d1912d75bcaed6c5c487c6eb32f867bc997",
+      "size": 6998
+    },
+    {
+      "path": "scripts/test_capture_policy_core.mjs",
+      "exists": true,
+      "sha256": "e731fe5c7a10739c87c8c198a70db624a55e63ed3b9ddf3224e9babd8735498c",
+      "size": 1771
+    },
+    {
+      "path": "src-tauri/src/platform.rs",
+      "exists": true,
+      "sha256": "a4bbc42033f67a5a5e7a356d238fceb579dfceae3a4efc35bb83e3f9928aff3a",
+      "size": 47481
+    },
+    {
+      "path": "src-tauri/src/runtime/capture_health.rs",
+      "exists": true,
+      "sha256": "82f68cd8543fd3c0059ebfb8b48870067930015c82352d4d7cf83a0f2cfbd406",
+      "size": 9888
+    },
+    {
+      "path": "src-tauri/src/runtime/mod.rs",
+      "exists": true,
+      "sha256": "c912349909d3ef8404564bcb7fafb264602d1730061807891491a2f278b19718",
+      "size": 440
+    },
+    {
+      "path": "src/capture-policy-core.js",
+      "exists": true,
+      "sha256": "ca7699e2a6cd304485d6400b43bd93794aa1bf1be5fa6a39d9e0c952687cfde5",
+      "size": 1123
+    }
+  ],
+  "eventTail": {
+    "seq": 254,
+    "id": "EVT-0254",
+    "hash": "sha256:9e53c1a7d517ecac32f5453242541897bd0540ffb55dbd4655fe6db3311d4f6c"
+  },
+  "evidenceTail": {
+    "seq": 91,
+    "id": "EVD-0091",
+    "hash": "sha256:c8080c1464feb45655d5648f03bccfbe176a7a78921bd0692eec0cabd4d25cf1"
+  },
+  "inFlightAction": null,
+  "runtime": {
+    "observedAt": "2026-07-11T18:46:50Z",
+    "staleAfterSeconds": 300,
+    "managedProcesses": [],
+    "observedExternalProcesses": [
+      {
+        "pid": 42432,
+        "name": "mhxy-shikong-control.exe",
+        "role": "旧控制器历史线索",
+        "ownership": "preexisting",
+        "creationTime": "2026-07-09T15:20:29+08:00",
+        "identityLimit": "本轮未停止；当前未发现",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:48Z",
+        "observedAbsentAt": "2026-07-11T18:46:48Z"
+      },
+      {
+        "pid": 26056,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 A",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:37.972416+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:49Z",
+        "lastSeenAt": "2026-07-10T12:23:34Z",
+        "observedAbsentAt": "2026-07-11T18:46:49Z"
+      },
+      {
+        "pid": 52448,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 B",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:23.169428+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:50Z",
+        "lastSeenAt": "2026-07-10T12:23:35Z",
+        "observedAbsentAt": "2026-07-11T18:46:50Z"
+      }
+    ],
+    "managedArtifacts": [
+      {
+        "path": "AGENTS.md",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "docs/execution/",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/audit_execution_state.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      }
+    ],
+    "observedArtifacts": [
+      {
+        "path": "assets/resource/ShiKong/reports/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "src-tauri/target*/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": ".codex-window-*.png",
+        "ownership": "preexisting_ignored_unknown",
+        "cleanupAllowed": false
+      }
+    ]
+  },
+  "resume": {
+    "blockers": [
+      "P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动"
+    ],
+    "nextCommands": [
+      "npm run execution:resume-check"
+    ],
+    "doNotDo": [
+      "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
+    ],
+    "lastSafeResumeSnapshotId": "CP-0020"
+  },
+  "safeToResume": true,
+  "safeToRunLiveInput": false,
+  "liveScope": null,
+  "hash": "sha256:2af4f4affed9425c522bf1a68043f03b79b473e9a3adcdf16033dff2c9dda78a"
+}

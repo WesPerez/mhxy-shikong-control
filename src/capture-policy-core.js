@@ -1,7 +1,9 @@
 export function controlCaptureEligible(result) {
+  const provider = String(result?.captureProvider || "");
+  const trustedProvider = provider === "window_print" || provider === "window_gdi";
   return Boolean(
     result
-      && result.captureProvider === "window_gdi"
+      && trustedProvider
       && result.captureReliability === "health_verified",
   );
 }
@@ -17,7 +19,8 @@ export function targetVerificationPassed(result) {
 export function previewCaptureSummary(preview) {
   const provider = String(preview?.captureProvider || "unknown");
   const reliability = String(preview?.captureReliability || "unknown");
-  const trusted = provider === "window_gdi" && reliability === "health_verified";
+  const trusted = (provider === "window_print" || provider === "window_gdi")
+    && reliability === "health_verified";
   const label = reliability === "preview_only"
     ? "不可信预览"
     : reliability === "target_window_unverified"

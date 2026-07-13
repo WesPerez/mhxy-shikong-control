@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 267,
+  "revision": 277,
   "generation": 1,
-  "updatedAt": "2026-07-13T07:43:46Z",
+  "updatedAt": "2026-07-13T08:06:00Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -27,77 +27,73 @@
     "owner": "primary-agent"
   },
   "overallStatus": "active",
-  "currentPhaseId": "P2",
-  "phaseStatus": "verified",
-  "actionStatus": "succeeded",
+  "currentPhaseId": "P3",
+  "phaseStatus": "verifying",
+  "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P2-S2",
-    "title": "五视口真实渲染与检查器交互验收",
+    "id": "P3-S1",
+    "title": "health-verified capture providers and black/stale frame gates",
     "status": "verified",
-    "startedAt": "2026-07-11T13:06:16Z",
+    "startedAt": "2026-07-13T07:46:31Z",
     "scope": [
-      "index.html,src/styles.css,src/main.js,Playwright screenshots and viewport metrics"
+      "src-tauri/src/platform.rs",
+      "src-tauri/src/runtime/capture_health.rs",
+      "src/capture-policy-core.js",
+      "scripts/audit_capture_policy.py",
+      "scripts/test_capture_policy_core.mjs"
     ],
     "nonGoals": [
-      "本切片不启动 Tauri 应用、不读取或迁移真实 AppData、不枚举游戏窗口、不发送输入"
+      "Do not implement full OpenCV template engine in this slice",
+      "Do not send live game input or migrate AppData",
+      "Do not require Tauri app live window capture for slice close; unit/static proof is enough for provider health policy"
     ],
     "safetyBoundaries": [
-      "只启动本任务拥有的 localhost 预览进程；完成后仅停止该 PID；浏览器只做只读 UI 交互"
+      "Desktop capture remains preview-only and never authorizes control decisions",
+      "Control capture fails closed on black, uniform, size-mismatch, or stale frames"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P2-S2-C1",
-        "text": "当前工作树 Vite 预览以可核验 PID/命令启动并可访问",
+        "id": "P3-S1-C1",
+        "text": "Capture policy exposes health-verified target providers and never trusts desktop/preview frames for control",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0077",
-          "EVD-0081",
-          "EVD-0084"
+          "EVD-0090"
         ],
         "requiredEvidenceCategories": [
-          "app_runtime",
+          "source_audit",
           "test"
         ]
       },
       {
-        "id": "P2-S2-C2",
-        "text": "1460x880、1280x720、1120x720、920x680、820x720 均无页面级横向滚动且任务/步骤列表可达",
+        "id": "P3-S1-C2",
+        "text": "Black, uniform, size-mismatch, and stale frames are classified and block control decisions",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0077",
-          "EVD-0081",
-          "EVD-0084"
+          "EVD-0090"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P2-S2-C3",
-        "text": "检查器 tab 鼠标和键盘切换、补全定位与失败步骤定位能揭示正确面板",
+        "id": "P3-S1-C3",
+        "text": "PrintWindow/GDI strict capture path is covered by unit/static audits and fails closed without fallback for control",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0077",
-          "EVD-0081",
-          "EVD-0084"
+          "EVD-0090"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P2-S2-C4",
-        "text": "视觉发现的布局问题修复后 Node/Python/Vite 回归继续通过",
+        "id": "P3-S1-C4",
+        "text": "Node/Python capture audits and core regression remain green after the provider change",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0078",
-          "EVD-0079",
-          "EVD-0080",
-          "EVD-0082",
-          "EVD-0083",
-          "EVD-0085",
-          "EVD-0086"
+          "EVD-0090",
+          "EVD-0091"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -105,10 +101,7 @@
         ]
       }
     ],
-    "nextAction": "Start P3 health-verified capture provider work",
-    "blockers": [
-      "缺少本地预览进程启动与只读 UI 测试授权"
-    ]
+    "nextAction": "Commit P3-S1 and continue P3 vision hardening"
   },
   "phases": [
     {
@@ -132,7 +125,7 @@
     {
       "id": "P3",
       "title": "严格捕获和视觉引擎",
-      "status": "pending",
+      "status": "verifying",
       "summary": "修复捕获、ROI、模板、OCR 和预览一致性。"
     },
     {
@@ -226,47 +219,117 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "cc03c5f9bf908f21c5041deb610d0c97dae567bf",
+    "observedHead": "794a4fab5225bb5b27b41174a613655ffd4919dd",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
       "docs/execution/events.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/evidence.jsonl",
+      "docs/execution/state.json",
+      "scripts/audit_capture_policy.py",
+      "scripts/test_capture_policy_core.mjs",
+      "src-tauri/src/platform.rs",
+      "src-tauri/src/runtime/capture_health.rs",
+      "src-tauri/src/runtime/mod.rs",
+      "src/capture-policy-core.js"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/evidence.jsonl",
+      " M docs/execution/state.json",
+      " M scripts/audit_capture_policy.py",
+      " M scripts/test_capture_policy_core.mjs",
+      " M src-tauri/src/platform.rs",
+      "?? src-tauri/src/runtime/capture_health.rs",
+      " M src-tauri/src/runtime/mod.rs",
+      " M src/capture-policy-core.js"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "13de57b19347616296225febe4f5a3dab04237be3bd2ebfad1475f75a2bd9fcc",
-        "size": 11190
+        "sha256": "00d9849ded6ca9547580a9427d626d4886276632195a26ab9ae8cc80d16063d9",
+        "size": 12058
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+        "exists": true,
+        "sha256": "367020726b8cf1c237419cbbefdcab540443376bcc2e49546533877bc1b07d76",
+        "size": 14320
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "82b3b8c01154fb007120b0e24035a4a625654176d547276da804bbf8b0085efd",
-        "size": 458759
+        "sha256": "b644b7a9ef167be246de449612e0071cfb63ba1e5e80cbdd62db3813f46fdcdb",
+        "size": 468296
+      },
+      {
+        "path": "docs/execution/evidence.jsonl",
+        "exists": true,
+        "sha256": "08e40027f21be0f0f33f413c1cd26f5afecda40b645a1f037a5fe9c8d7ccd805",
+        "size": 212269
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "d3ec894b5974702e38c762a8ade1c887e06701cf4dec3f41989f4726e95dd9b0",
-        "size": 27574
+        "sha256": "7cd6c35358747c3352c07ffe5ceb0972c1aa8da03cc7b3cea9a3ab86321c7ad8",
+        "size": 34750
+      },
+      {
+        "path": "scripts/audit_capture_policy.py",
+        "exists": true,
+        "sha256": "7c617a82182083f89e81f1ec4b783d1912d75bcaed6c5c487c6eb32f867bc997",
+        "size": 6998
+      },
+      {
+        "path": "scripts/test_capture_policy_core.mjs",
+        "exists": true,
+        "sha256": "e731fe5c7a10739c87c8c198a70db624a55e63ed3b9ddf3224e9babd8735498c",
+        "size": 1771
+      },
+      {
+        "path": "src-tauri/src/platform.rs",
+        "exists": true,
+        "sha256": "a4bbc42033f67a5a5e7a356d238fceb579dfceae3a4efc35bb83e3f9928aff3a",
+        "size": 47481
+      },
+      {
+        "path": "src-tauri/src/runtime/capture_health.rs",
+        "exists": true,
+        "sha256": "82f68cd8543fd3c0059ebfb8b48870067930015c82352d4d7cf83a0f2cfbd406",
+        "size": 9888
+      },
+      {
+        "path": "src-tauri/src/runtime/mod.rs",
+        "exists": true,
+        "sha256": "c912349909d3ef8404564bcb7fafb264602d1730061807891491a2f278b19718",
+        "size": 440
+      },
+      {
+        "path": "src/capture-policy-core.js",
+        "exists": true,
+        "sha256": "ca7699e2a6cd304485d6400b43bd93794aa1bf1be5fa6a39d9e0c952687cfde5",
+        "size": 1123
       }
     ],
-    "workingTreeFingerprint": "sha256:8ee2a10dfd22e048ceacbae4a89a1163fccea63b632f027b33b4cac9edeec22b",
+    "workingTreeFingerprint": "sha256:495bef0e9d73075208f598fcaa4b57a53ad2d5bd5882ef65f5f55ea448d93eed",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json"
       },
       {
         "status": " M",
@@ -277,12 +340,70 @@
       {
         "status": " M",
         "sourcePath": null,
+        "destinationPath": "docs/execution/evidence.jsonl",
+        "displayPath": "docs/execution/evidence.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_capture_policy.py",
+        "displayPath": "scripts/audit_capture_policy.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_capture_policy_core.mjs",
+        "displayPath": "scripts/test_capture_policy_core.mjs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/platform.rs",
+        "displayPath": "src-tauri/src/platform.rs"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/runtime/capture_health.rs",
+        "displayPath": "src-tauri/src/runtime/capture_health.rs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src-tauri/src/runtime/mod.rs",
+        "displayPath": "src-tauri/src/runtime/mod.rs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/capture-policy-core.js",
+        "displayPath": "src/capture-policy-core.js"
       }
     ]
   },
-  "inFlightAction": null,
+  "inFlightAction": {
+    "actionId": "ACT-COMMIT-P3S1-001",
+    "kind": "git_commit",
+    "targetIdentity": "P3-S1 health-verified capture providers",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P3-S1 criteria passed; no in-flight action",
+    "expectedPostcondition": "local commit of capture health providers and ledger",
+    "idempotencyKey": "commit:p3s1:794a4fa:evd0090",
+    "startedAt": "2026-07-13T08:06:00Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "goal-externalAuthorization-git_commit",
+      "p3s1-criteria-verified",
+      "git-status-project-owned-paths"
+    ],
+    "status": "running"
+  },
   "lastAction": {
     "actionId": "ACT-COMMIT-P2S2-FINAL-LEDGER-001",
     "kind": "git_commit",
@@ -394,24 +515,24 @@
     ]
   },
   "eventTail": {
-    "seq": 247,
-    "id": "EVT-0247",
-    "hash": "sha256:29be68175b56fda881dd41f4eb4536cc8a66ffb5f4284c2fce143faa36677437"
+    "seq": 257,
+    "id": "EVT-0257",
+    "hash": "sha256:44f2504107e8b38c543e9d77c1f2130433ff69f4b1973665e2e59f593607fb9b"
   },
   "evidenceTail": {
-    "seq": 86,
-    "id": "EVD-0086",
-    "hash": "sha256:fad47d7694c9574f228ea32e4129523d05b88bda52ae540bd86b601d8095d467"
+    "seq": 91,
+    "id": "EVD-0091",
+    "hash": "sha256:c8080c1464feb45655d5648f03bccfbe176a7a78921bd0692eec0cabd4d25cf1"
   },
-  "checkpointCounter": 20,
+  "checkpointCounter": 21,
   "lastCheckpoint": {
-    "id": "CP-0020",
+    "id": "CP-0021",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0020-p2-s2-final-head.json",
-    "createdAt": "2026-07-13T07:43:42Z",
+    "path": "docs/execution/checkpoints/CP-0021-p3-s1-verified.json",
+    "createdAt": "2026-07-13T08:05:48Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:d0acc6b3f8a713a8633079a81c95c88b772af3f6f9d8174810f7c7720287740c"
+    "hash": "sha256:2af4f4affed9425c522bf1a68043f03b79b473e9a3adcdf16033dff2c9dda78a"
   },
   "resume": {
     "blockers": [
@@ -423,7 +544,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0020"
+    "lastSafeResumeSnapshotId": "CP-0021"
   },
   "completedSlices": [
     {
@@ -848,6 +969,92 @@
       "nextAction": "创建 P2-S1 checkpoint，然后登记 P2-S2 五视口真实渲染与交互验收",
       "phaseId": "P2",
       "verifiedAt": "2026-07-11T13:06:16Z"
+    },
+    {
+      "id": "P2-S2",
+      "title": "五视口真实渲染与检查器交互验收",
+      "status": "verified",
+      "startedAt": "2026-07-11T13:06:16Z",
+      "scope": [
+        "index.html,src/styles.css,src/main.js,Playwright screenshots and viewport metrics"
+      ],
+      "nonGoals": [
+        "本切片不启动 Tauri 应用、不读取或迁移真实 AppData、不枚举游戏窗口、不发送输入"
+      ],
+      "safetyBoundaries": [
+        "只启动本任务拥有的 localhost 预览进程；完成后仅停止该 PID；浏览器只做只读 UI 交互"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P2-S2-C1",
+          "text": "当前工作树 Vite 预览以可核验 PID/命令启动并可访问",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0077",
+            "EVD-0081",
+            "EVD-0084",
+            "EVD-0087"
+          ],
+          "requiredEvidenceCategories": [
+            "app_runtime",
+            "test"
+          ]
+        },
+        {
+          "id": "P2-S2-C2",
+          "text": "1460x880、1280x720、1120x720、920x680、820x720 均无页面级横向滚动且任务/步骤列表可达",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0077",
+            "EVD-0081",
+            "EVD-0084",
+            "EVD-0087"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P2-S2-C3",
+          "text": "检查器 tab 鼠标和键盘切换、补全定位与失败步骤定位能揭示正确面板",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0077",
+            "EVD-0081",
+            "EVD-0084",
+            "EVD-0087"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P2-S2-C4",
+          "text": "视觉发现的布局问题修复后 Node/Python/Vite 回归继续通过",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0078",
+            "EVD-0079",
+            "EVD-0080",
+            "EVD-0082",
+            "EVD-0083",
+            "EVD-0085",
+            "EVD-0086",
+            "EVD-0088",
+            "EVD-0089"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "Start P3 health-verified capture provider work",
+      "blockers": [
+        "缺少本地预览进程启动与只读 UI 测试授权"
+      ],
+      "phaseId": "P2",
+      "verifiedAt": "2026-07-13T07:46:31Z"
     }
   ]
 }
