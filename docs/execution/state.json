@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 436,
+  "revision": 466,
   "generation": 1,
-  "updatedAt": "2026-07-13T10:24:04Z",
+  "updatedAt": "2026-07-13T11:47:41Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -27,39 +27,52 @@
     "owner": "primary-agent"
   },
   "overallStatus": "active",
-  "currentPhaseId": "P3",
+  "currentPhaseId": "P4",
   "phaseStatus": "in_progress",
   "actionStatus": "succeeded",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P3-S9",
-    "title": "Rebuild and relaunch owned controller on current HEAD",
+    "id": "P4-S1",
+    "title": "Offline home-vitality task wiring and live-gate scaffolding",
     "status": "verified",
-    "startedAt": "2026-07-13T10:06:31Z",
+    "startedAt": "2026-07-13T11:39:37Z",
     "scope": [
-      "src-tauri",
-      "scripts/verify_app_runtime_launch.py",
-      "scripts/verify_window_identity.py"
+      "src/home-vitality-core.js",
+      "src/main.js",
+      "scripts/test_home_vitality_core.mjs",
+      "docs/execution"
     ],
     "nonGoals": [
       "Do not send live game input",
-      "Do not require live game windows for this slice",
-      "Do not force-push"
+      "Do not claim dual-window isolation complete",
+      "Do not require live game windows for this slice"
     ],
     "safetyBoundaries": [
-      "Stop only managed owned controller PID 16244 from current run",
-      "Relaunch only project debug mhxy-shikong-control.exe under owned process_start lease"
+      "No SendInput/SetCursorPos/focus steal",
+      "Live input remains fail-closed without verified game window identity"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P3-S9-C1",
-        "text": "core regression and Vite build green on rebuild worktree",
+        "id": "P4-S1-C1",
+        "text": "home-vitality offline readiness and entry.home template binding remain green",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0138",
-          "EVD-0139",
-          "EVD-0142",
-          "EVD-0143"
+          "EVD-0150",
+          "EVD-0153"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P4-S1-C2",
+        "text": "core regression and Vite build green on P4 offline wiring worktree",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0150",
+          "EVD-0151",
+          "EVD-0153",
+          "EVD-0154"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -67,31 +80,30 @@
         ]
       },
       {
-        "id": "P3-S9-C2",
-        "text": "current HEAD debug controller started owned and observed present",
+        "id": "P4-S1-C3",
+        "text": "document live e2e blockers and offline checklist for home-vitality without forging live gates",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0140",
-          "EVD-0144"
+          "EVD-0152",
+          "EVD-0155"
         ],
         "requiredEvidenceCategories": [
-          "app_runtime"
+          "source_audit"
         ]
       },
       {
-        "id": "P3-S9-C3",
-        "text": "rebuilt controller window identity verified read-only",
+        "id": "P4-S1-C4",
+        "text": "owned controller app launched on current offline-wiring worktree fingerprint",
         "status": "passed",
-        "evidenceIds": [
-          "EVD-0141",
-          "EVD-0145"
-        ],
         "requiredEvidenceCategories": [
-          "window_identity"
+          "app_runtime"
+        ],
+        "evidenceIds": [
+          "EVD-0156"
         ]
       }
     ],
-    "nextAction": "Commit P3-S9 rebind evidence on 247ec92; then offline P4 home-vitality prep (no live game windows yet)"
+    "nextAction": "Commit P4-S1 offline home-vitality wiring; live e2e still blocked without game windows"
   },
   "phases": [
     {
@@ -115,13 +127,13 @@
     {
       "id": "P3",
       "title": "严格捕获和视觉引擎",
-      "status": "in_progress",
+      "status": "verified",
       "summary": "修复捕获、ROI、模板、OCR 和预览一致性。"
     },
     {
       "id": "P4",
       "title": "第一个真实纵向任务",
-      "status": "pending",
+      "status": "in_progress",
       "summary": "以家园活力完成 UI 到游戏后置验证的真实闭环。"
     },
     {
@@ -171,16 +183,16 @@
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "P3-S9 Vite build EVD-0143 on HEAD 247ec92 after rebind",
+      "note": "P4-S1 Vite build EVD-0151 on offline wiring fingerprint",
       "evidenceIds": [
-        "EVD-0143"
+        "EVD-0151"
       ]
     },
     "currentCommitAppLaunched": {
       "status": "passed",
-      "note": "P3-S9 owned debug app EVD-0144 pid=50936 on HEAD 247ec92",
+      "note": "P4-S1 owned controller launch on offline wiring fingerprint",
       "evidenceIds": [
-        "EVD-0144"
+        "EVD-0156"
       ]
     },
     "hwndInputActuallySent": {
@@ -211,57 +223,113 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "247ec92e0808dbd3822579a2a673a6201b84b861",
-    "verifiedHead": "247ec92e0808dbd3822579a2a673a6201b84b861",
+    "observedHead": "e77278de30bb8bb6726b0873722596427bd132a9",
+    "verifiedHead": "e77278de30bb8bb6726b0873722596427bd132a9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
-    "lastKnownStableCommit": "247ec92e0808dbd3822579a2a673a6201b84b861",
+    "lastKnownStableCommit": "e77278de30bb8bb6726b0873722596427bd132a9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json",
+      "docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/state.json",
+      "package.json",
+      "scripts/audit_home_vitality_offline.py",
+      "scripts/execution_progress.py",
+      "scripts/test_home_vitality_core.mjs",
+      "src/home-vitality-core.js",
+      "src/main.js",
+      "src/styles.css"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json",
+      "?? docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/state.json",
+      " M package.json",
+      "?? scripts/audit_home_vitality_offline.py",
+      " M scripts/execution_progress.py",
+      " M scripts/test_home_vitality_core.mjs",
+      " M src/home-vitality-core.js",
+      " M src/main.js",
+      " M src/styles.css"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "82955727dc2de6a6d07d27932a9c5021af6d4d36cf58529a7626e6d64fae372f",
-        "size": 11937
+        "sha256": "b4d4fcc51b014267645feaa446994f77ea8b8d2260c1c5b3415bd3e7ed79703b",
+        "size": 12547
       },
       {
-        "path": "docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json",
+        "path": "docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json",
         "exists": true,
-        "sha256": "27576acf8cbf687860e1b45369b64b0423b7459decae1f08c7791b266a3a7603",
-        "size": 13443
+        "sha256": "c0d733b920ee9aa5c9fad172aa4c385036bdfef5599e30dc6e6a8e3ee34b09a0",
+        "size": 18975
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "6df78d21320113101df7b90c90ca07a1a2ccd9072220f77bfa82b92a2604a2d6",
-        "size": 591735
+        "sha256": "b2b13a91484d13fc37d32d6da9325d8859356af27f590c1c826071e5c816b858",
+        "size": 627370
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "d99efff16d79b34d781b30b6ebf60e4455d41bfd0a7016050877fe17cce33850",
-        "size": 307317
+        "sha256": "e7314e048468408bf83ba0c444013a878e5e485ef677f0718472225804719b99",
+        "size": 329577
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "9ee51618d358b98d13304b8df6340edf48a35f6ca4f78cc6d40c850f447cbbed",
-        "size": 54111
+        "sha256": "9d850d051152e4a8d9aa3ec242a1c7b28b5ffaba0180a6bd44bdcee23c62edb3",
+        "size": 60396
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "fec83b2894d2ab09642c11f93fca50bc3737f460060fa57c96fd3eb094df6979",
+        "size": 5097
+      },
+      {
+        "path": "scripts/audit_home_vitality_offline.py",
+        "exists": true,
+        "sha256": "5a273d7630fed0eb68c885e6b5bf6f7a2a8a536c46b6ed4442bad5b431516477",
+        "size": 3570
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "exists": true,
+        "sha256": "4a713746e1bf45b02c0bc45825dcec87fb0f0eb0d547ea14d0b6716313e1d03e",
+        "size": 124425
+      },
+      {
+        "path": "scripts/test_home_vitality_core.mjs",
+        "exists": true,
+        "sha256": "c032db9757cfbd116fed6f4940be9cf4cbb66cfa43a4422484c6286bfe660c73",
+        "size": 5487
+      },
+      {
+        "path": "src/home-vitality-core.js",
+        "exists": true,
+        "sha256": "842992da5e288f1396a9460d03a79cb03db5a8a55ac3e18a724b59c181fc1522",
+        "size": 10973
+      },
+      {
+        "path": "src/main.js",
+        "exists": true,
+        "sha256": "0dec1b99478b099c7ca3ed922a3a4d38f2cf9175eb4a162d9b11fb2397228375",
+        "size": 356333
+      },
+      {
+        "path": "src/styles.css",
+        "exists": true,
+        "sha256": "9bfd62fae8ba1bd4f4b02076ec938a68b1d58b3e51e6110cc67331930b751c4a",
+        "size": 45745
       }
     ],
-    "workingTreeFingerprint": "sha256:f55c633b621fea28d2ce51da430445231dbecdd16e10c443afbea62e7790b647",
+    "workingTreeFingerprint": "sha256:0aad6a1387ca913eb258768ecc42b428a07125b6e28d3fc9a3d2274020edbd84",
     "dirtyEntries": [
       {
         "status": " M",
@@ -272,8 +340,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json",
-        "displayPath": "docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json",
+        "displayPath": "docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json"
       },
       {
         "status": " M",
@@ -292,32 +360,74 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_home_vitality_offline.py",
+        "displayPath": "scripts/audit_home_vitality_offline.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_home_vitality_core.mjs",
+        "displayPath": "scripts/test_home_vitality_core.mjs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/home-vitality-core.js",
+        "displayPath": "src/home-vitality-core.js"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/main.js",
+        "displayPath": "src/main.js"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/styles.css",
+        "displayPath": "src/styles.css"
       }
     ]
   },
   "inFlightAction": null,
   "lastAction": {
-    "actionId": "ACT-P3S9-APP-LAUNCH-002",
+    "actionId": "ACT-P4S1-APP-LAUNCH-002",
     "kind": "process_start",
     "targetIdentity": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
     "sideEffectClass": "process_start",
-    "expectedPrecondition": "current HEAD debug controller exe exists with known hash; old PID 18332 stopped",
-    "expectedPostcondition": "owned mhxy-shikong-control process present with matching exe hash and app_runtime evidence",
-    "idempotencyKey": "p3s9:app-launch:247ec92:debug",
-    "startedAt": "2026-07-13T10:22:37Z",
+    "expectedPrecondition": "debug controller exe exists; P4-S1-C4 pending",
+    "expectedPostcondition": "owned controller present with app_runtime evidence",
+    "idempotencyKey": "p4s1:app-launch:e77278d:c4",
+    "startedAt": "2026-07-13T11:47:21Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
       "goal-externalAuthorization-local_app_run_owned_process_only",
       "cwd=E:\\Project\\Common\\mhxy-shikong-control",
       "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
       "exeSha256=a51949b7f9f6c8cbc9cb6091fedff77ccf754cb55cac3bcd762c03a19d02cae5",
-      "expectedHead=247ec92e0808dbd3822579a2a673a6201b84b861"
+      "expectedHead=e77278de30bb8bb6726b0873722596427bd132a9"
     ],
     "status": "succeeded",
-    "leaseTokenHash": "37ca526ab4420a81255388028382429b0d96cad7333b411488cddc7ae3a5e522",
-    "endedAt": "2026-07-13T10:22:41Z",
-    "result": "controller app launched pid=50936 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe evidence=EVD-0144",
-    "verifiedEvidenceId": "EVD-0144"
+    "leaseTokenHash": "ea7259b59a73c67a47c2663f891ba1242807d9e2e043504970b0155f437cface",
+    "endedAt": "2026-07-13T11:47:24Z",
+    "result": "controller app launched pid=2960 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe evidence=EVD-0156",
+    "verifiedEvidenceId": "EVD-0156"
   },
   "safety": {
     "realInputSent": false,
@@ -327,35 +437,35 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-13T10:22:40Z",
+    "observedAt": "2026-07-13T11:47:23Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
-        "pid": 50936,
+        "pid": 2960,
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
         "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
         "commandLine": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
-        "creationTime": "2026-07-13T10:22:38Z",
+        "creationTime": "2026-07-13T11:47:22Z",
         "ownership": "created_by_current_run",
         "ownershipEvidence": [
           "goal-externalAuthorization-local_app_run_owned_process_only",
           "cwd=E:\\Project\\Common\\mhxy-shikong-control",
           "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
           "exeSha256=a51949b7f9f6c8cbc9cb6091fedff77ccf754cb55cac3bcd762c03a19d02cae5",
-          "expectedHead=247ec92e0808dbd3822579a2a673a6201b84b861",
+          "expectedHead=e77278de30bb8bb6726b0873722596427bd132a9",
           "verifier=current-app-launch-v1",
           "exeSha256=a51949b7f9f6c8cbc9cb6091fedff77ccf754cb55cac3bcd762c03a19d02cae5",
-          "observedHead=247ec92e0808dbd3822579a2a673a6201b84b861",
-          "actionId=ACT-P3S9-APP-LAUNCH-002"
+          "observedHead=e77278de30bb8bb6726b0873722596427bd132a9",
+          "actionId=ACT-P4S1-APP-LAUNCH-002"
         ],
         "cleanupAllowed": true,
         "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
-        "createdByActionId": "ACT-P3S9-APP-LAUNCH-002",
-        "createdAt": "2026-07-13T10:22:39Z",
+        "createdByActionId": "ACT-P4S1-APP-LAUNCH-002",
+        "createdAt": "2026-07-13T11:47:23Z",
         "present": true,
-        "lastObservedAt": "2026-07-13T10:22:39Z"
+        "lastObservedAt": "2026-07-13T11:47:23Z"
       }
     ],
     "observedExternalProcesses": [
@@ -438,10 +548,34 @@
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "ownership": "created_by_current_run",
-        "present": true,
+        "present": false,
         "creationTime": "2026-07-13T10:22:38Z",
-        "lastObservedAt": "2026-07-13T10:22:39Z",
+        "lastObservedAt": "2026-07-13T10:24:50Z",
         "lastSeenAt": "2026-07-13T10:22:39Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-13T10:24:50Z"
+      },
+      {
+        "pid": 80388,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": false,
+        "creationTime": "2026-07-13T10:24:52Z",
+        "lastObservedAt": "2026-07-13T11:45:45Z",
+        "lastSeenAt": "2026-07-13T10:24:53Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-13T11:45:45Z"
+      },
+      {
+        "pid": 2960,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-13T11:47:22Z",
+        "lastObservedAt": "2026-07-13T11:47:23Z",
+        "lastSeenAt": "2026-07-13T11:47:23Z",
         "cleanupAllowed": false
       }
     ],
@@ -485,13 +619,13 @@
       }
     ],
     "lastWindowIdentity": {
-      "targetIdentity": "controller-app:50936@mhxy-shikong-control.exe:62066500",
+      "targetIdentity": "controller-app:80388@mhxy-shikong-control.exe:21568008",
       "verified": true,
-      "observedAt": "2026-07-13T10:22:47Z",
-      "evidenceId": "EVD-0145",
+      "observedAt": "2026-07-13T10:24:58Z",
+      "evidenceId": "EVD-0148",
       "identity": {
-        "hwnd": 62066500,
-        "pid": 50936,
+        "hwnd": 21568008,
+        "pid": 80388,
         "title": "时空任务编排器",
         "process": "mhxy-shikong-control.exe",
         "clientWidth": 1460,
@@ -501,24 +635,24 @@
     }
   },
   "eventTail": {
-    "seq": 390,
-    "id": "EVT-0390",
-    "hash": "sha256:e0f72a626ec78ef4ea3f1a0b7308bef0e9b3393eb12007df6649ea482c30e716"
+    "seq": 420,
+    "id": "EVT-0420",
+    "hash": "sha256:fdd966d8de76384d29f1dbac4e3950d6ec8476fea2cc94e4fdb1dd885b3f38e0"
   },
   "evidenceTail": {
-    "seq": 145,
-    "id": "EVD-0145",
-    "hash": "sha256:20ebc4f5053ac3808eac12f19094a4438e504188784d3507fe29b5e3460ae7f7"
+    "seq": 156,
+    "id": "EVD-0156",
+    "hash": "sha256:34fe7f5c249f11bee0cdcf07318e9eef1ace65fd1eabf64fda8281be53b70461"
   },
-  "checkpointCounter": 35,
+  "checkpointCounter": 36,
   "lastCheckpoint": {
-    "id": "CP-0035",
+    "id": "CP-0036",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0035-p3-s9-rebind-247ec92.json",
-    "createdAt": "2026-07-13T10:24:04Z",
+    "path": "docs/execution/checkpoints/CP-0036-p4-s1-offline-home-vitality-wiring.json",
+    "createdAt": "2026-07-13T11:47:41Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:312594b31c0132d418a3a09ff8150793903a49d5812e62c7b1f0da10ebf57815"
+    "hash": "sha256:42d74c3101520c06ee0ffd7639703ec73236174423c2c4c592f01fd9d0f26b73"
   },
   "resume": {
     "blockers": [
@@ -530,7 +664,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0035"
+    "lastSafeResumeSnapshotId": "CP-0036"
   },
   "completedSlices": [
     {
@@ -1662,6 +1796,74 @@
       "nextAction": "Optional: rebuild/relaunch current HEAD app; P4 requires live game windows for identity/capture/OCR e2e",
       "phaseId": "P3",
       "verifiedAt": "2026-07-13T10:06:31Z"
+    },
+    {
+      "id": "P3-S9",
+      "title": "Rebuild and relaunch owned controller on current HEAD",
+      "status": "verified",
+      "startedAt": "2026-07-13T10:06:31Z",
+      "scope": [
+        "src-tauri",
+        "scripts/verify_app_runtime_launch.py",
+        "scripts/verify_window_identity.py"
+      ],
+      "nonGoals": [
+        "Do not send live game input",
+        "Do not require live game windows for this slice",
+        "Do not force-push"
+      ],
+      "safetyBoundaries": [
+        "Stop only managed owned controller PID 16244 from current run",
+        "Relaunch only project debug mhxy-shikong-control.exe under owned process_start lease"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P3-S9-C1",
+          "text": "core regression and Vite build green on rebuild worktree",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0138",
+            "EVD-0139",
+            "EVD-0142",
+            "EVD-0143",
+            "EVD-0146",
+            "EVD-0149"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S9-C2",
+          "text": "current HEAD debug controller started owned and observed present",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0140",
+            "EVD-0144",
+            "EVD-0147"
+          ],
+          "requiredEvidenceCategories": [
+            "app_runtime"
+          ]
+        },
+        {
+          "id": "P3-S9-C3",
+          "text": "rebuilt controller window identity verified read-only",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0141",
+            "EVD-0145",
+            "EVD-0148"
+          ],
+          "requiredEvidenceCategories": [
+            "window_identity"
+          ]
+        }
+      ],
+      "nextAction": "Begin P4-S1 offline home-vitality task wiring and live gates without sending game input until windows present",
+      "phaseId": "P3",
+      "verifiedAt": "2026-07-13T11:39:37Z"
     }
   ]
 }

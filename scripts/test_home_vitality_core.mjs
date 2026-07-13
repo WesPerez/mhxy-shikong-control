@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import {
   HOME_VITALITY_BLUEPRINT,
+  HOME_VITALITY_LIVE_GATE_CHECKLIST,
   HOME_VITALITY_TEMPLATE_BINDINGS,
+  assessHomeVitalityLiveGates,
   assessHomeVitalityReadiness,
   requiredVisualTargets,
   summarizeHomeVitalityGaps,
@@ -101,12 +103,26 @@ function testGapSummaryListsOcrWhenTemplatesPresent() {
   assert.equal(summary.gaps.some((item) => item.target === "entry.home"), false);
 }
 
+function testLiveGateChecklistIsFailClosedEvenWhenAllObserved() {
+  assert.ok(HOME_VITALITY_LIVE_GATE_CHECKLIST.length >= 5);
+  const observations = Object.fromEntries(HOME_VITALITY_LIVE_GATE_CHECKLIST.map((item) => [item.id, true]));
+  const gates = assessHomeVitalityLiveGates({ observations });
+  assert.equal(gates.liveReady, false);
+  assert.equal(gates.liveInputAuthorized, false);
+  assert.equal(gates.requiredSatisfied, true);
+  assert.ok(gates.items.every((item) => item.authorized === false));
+  const empty = assessHomeVitalityLiveGates();
+  assert.equal(empty.requiredSatisfied, false);
+  assert.equal(empty.liveReady, false);
+}
+
 const tests = [
   testBlueprintHasEnoughStepsAndVisualTargets,
   testMissingEntryHomeIsNeedsCaptureWhenTemplateKeyUnavailable,
   testEntryHomeReadyWithBuiltinTemplateKeyButNeverLive,
   testBoundAssetsMakeVisualStepsReadyButNotLive,
   testGapSummaryListsOcrWhenTemplatesPresent,
+  testLiveGateChecklistIsFailClosedEvenWhenAllObserved,
 ];
 
 for (const test of tests) {

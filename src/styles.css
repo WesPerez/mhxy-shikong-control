@@ -2572,3 +2572,33 @@ progress::-webkit-progress-value {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.home-vitality-readiness {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  border-top: 1px dashed #3a454b;
+  padding-top: 7px;
+}
+
+.home-vitality-readiness strong {
+  color: #f3ebdc;
+  font-size: 12px;
+  font-weight: 740;
+}
+
+.home-vitality-readiness span,
+.home-vitality-readiness small {
+  color: #9aa7ae;
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.home-vitality-readiness.offline-ready span {
+  color: #9dce9a;
+}
+
+.home-vitality-readiness.offline-gap span {
+  color: #e0b36a;
+}

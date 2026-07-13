@@ -37,7 +37,11 @@ import {
   failureStepFromReport as failureStepFromReportCore,
 } from "./failure-evidence-core.js";
 import {
+  HOME_VITALITY_BLUEPRINT,
   HOME_VITALITY_BLUEPRINT_ID,
+  HOME_VITALITY_LIVE_GATE_CHECKLIST,
+  HOME_VITALITY_TEMPLATE_BINDINGS,
+  assessHomeVitalityLiveGates,
   assessHomeVitalityReadiness,
   summarizeHomeVitalityGaps,
 } from "./home-vitality-core.js";
@@ -465,8 +469,16 @@ const quickStepActions = [
   },
 ];
 
+function homeVitalityBuiltinTemplateKeys() {
+  const keys = new Set(HOME_VITALITY_TEMPLATE_BINDINGS.map((item) => item.key).filter(Boolean));
+  for (const binding of builtinTargetTemplateBindings) {
+    if (binding?.key) keys.add(binding.key);
+  }
+  return [...keys];
+}
+
 function assessActiveHomeVitalityReadiness(options = {}) {
-  const availableTemplateKeys = options.availableTemplateKeys || [];
+  const availableTemplateKeys = options.availableTemplateKeys || homeVitalityBuiltinTemplateKeys();
   const targetAssets = {};
   for (const target of state.workspace?.targets || []) {
     targetAssets[target.id] = {
@@ -478,6 +490,8 @@ function assessActiveHomeVitalityReadiness(options = {}) {
   return assessHomeVitalityReadiness({
     availableTemplateKeys,
     targetAssets,
+    bindings: HOME_VITALITY_TEMPLATE_BINDINGS,
+    blueprint: HOME_VITALITY_BLUEPRINT,
   });
 }
 
@@ -490,31 +504,19 @@ if (typeof window !== "undefined") {
     blueprintId: HOME_VITALITY_BLUEPRINT_ID,
     assess: assessActiveHomeVitalityReadiness,
     gaps: homeVitalityGapSummary,
+    liveGates: () => assessHomeVitalityLiveGates(),
+    checklist: HOME_VITALITY_LIVE_GATE_CHECKLIST,
   };
 }
 
 const workflowBlueprints = [
   {
-    id: "home-vitality",
-    label: "家园活力",
-    category: "家园",
-    defaultPrefix: "家园活力",
-    description: "打开家园/人物相关入口，按 OCR 和图像目标处理活力、打理与确认动作。",
-    steps: [
-      { type: "detect_page", name: "确认主界面", target: "page.home.ready", command: "threshold=0.86", expect: "home.visible" },
-      { type: "hotkey", name: "打开功能面板", target: "ALT+N", command: "mode=hwnd-key", expect: "panel.open" },
-      { type: "delay", name: "等待面板动画", target: "800ms", command: "reason=panel_transition", expect: "time.elapsed" },
-      { type: "ocr_assert", name: "确认功能面板", target: "家园", command: "lang=zh; roi=top", expect: "text_found" },
-      { type: "wait_image", name: "等待家园入口", target: "entry.home", command: "threshold=0.86", expect: "visible" },
-      { type: "image_click", name: "进入家园", target: "entry.home", command: "button=left; point=center", expect: "home.panel.ready" },
-      { type: "retry_until", name: "等待家园页面", target: "page.home_yard.ready", command: "interval=700ms", expect: "ready=true", timeoutMs: 7000, retry: 3 },
-      { type: "wait_image", name: "等待打理按钮", target: "button.home_clean", command: "threshold=0.86", expect: "visible" },
-      { type: "image_click", name: "执行打理", target: "button.home_clean", command: "button=left; point=center", expect: "action.accepted" },
-      { type: "delay", name: "等待反馈", target: "1000ms", command: "reason=server_response", expect: "time.elapsed" },
-      { type: "ocr_assert", name: "确认活力状态", target: "活力", command: "lang=zh; roi=panel", expect: "text_found" },
-      { type: "snapshot", name: "记录家园结果", target: "window.client", command: "dry-run log only", expect: "snapshot.recorded" },
-      { type: "restore", name: "恢复主界面", target: "restore.home", command: "safe sequence", expect: "page.home.ready" },
-    ],
+    id: HOME_VITALITY_BLUEPRINT.id,
+    label: HOME_VITALITY_BLUEPRINT.label,
+    category: HOME_VITALITY_BLUEPRINT.category,
+    defaultPrefix: HOME_VITALITY_BLUEPRINT.defaultPrefix || HOME_VITALITY_BLUEPRINT.label,
+    description: HOME_VITALITY_BLUEPRINT.description,
+    steps: HOME_VITALITY_BLUEPRINT.steps.map((step) => ({ ...step })),
   },
   {
     id: "daily-reward",
@@ -2700,6 +2702,26 @@ function renderBlueprintPreview() {
     track.append(more);
   }
   preview.append(summary, track);
+
+  if (blueprint.id === HOME_VITALITY_BLUEPRINT_ID) {
+    const assessment = assessActiveHomeVitalityReadiness();
+    const gapSummary = summarizeHomeVitalityGaps(assessment);
+    const liveGates = assessHomeVitalityLiveGates();
+    const readiness = document.createElement("div");
+    readiness.id = "home-vitality-readiness";
+    readiness.className = `home-vitality-readiness ${assessment.offlineScaffoldReady ? "offline-ready" : "offline-gap"}`;
+    const gapText = gapSummary.gaps.length
+      ? gapSummary.gaps.slice(0, 4).map((item) => item.kind + (item.target ? `:${item.target}` : "")).join(" · ")
+      : "无离线缺口（OCR/恢复仍非 live）";
+    const liveBlocked = liveGates.items.filter((item) => item.required && !item.satisfied).map((item) => item.id);
+    readiness.innerHTML = `
+      <strong>家园活力离线就绪</strong>
+      <span>${assessment.offlineScaffoldReady ? "脚手架已齐" : "脚手架未齐"} · liveReady=false · liveInputAuthorized=false</span>
+      <small>缺口：${escapeHtml(gapText)}</small>
+      <small>Live 门禁阻塞：${escapeHtml(liveBlocked.join(" · ") || "观察项未填写（fail-closed）")}</small>
+    `;
+    preview.append(readiness);
+  }
 }
 
 function renderBlueprintGallery() {

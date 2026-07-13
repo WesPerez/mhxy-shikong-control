@@ -6,6 +6,7 @@ export const HOME_VITALITY_BLUEPRINT = {
   id: HOME_VITALITY_BLUEPRINT_ID,
   label: '\u5bb6\u56ed\u6d3b\u529b',
   category: '\u5bb6\u56ed',
+  defaultPrefix: '\u5bb6\u56ed\u6d3b\u529b',
   description:
     '\u6253\u5f00\u5bb6\u56ed/\u4eba\u7269\u76f8\u5173\u5165\u53e3\uff0c\u6309 OCR \u548c\u56fe\u50cf\u76ee\u6807\u5904\u7406\u6d3b\u529b\u3001\u6253\u7406\u4e0e\u786e\u8ba4\u52a8\u4f5c\u3002',
   steps: [
@@ -30,6 +31,52 @@ export const HOME_VITALITY_TEMPLATE_BINDINGS = [
   { target: 'entry.home', key: 'jiayuan/jiayuan.png', kind: 'image', name: '\u5bb6\u56ed\u5165\u53e3', threshold: 0.82 },
   { target: 'page.home_yard.ready', key: 'jiayuan/dali.png', kind: 'page', name: '\u5bb6\u56ed\u6253\u7406\u9875\u5224\u5b9a' },
   { target: 'button.home_clean', key: 'jiayuan/dali.png', kind: 'image', name: '\u5bb6\u56ed\u6253\u7406\u6309\u94ae' },
+];
+
+/** Live e2e gates for P4; all stay blocked until real game windows and evidence exist. */
+export const HOME_VITALITY_LIVE_GATE_CHECKLIST = [
+  {
+    id: 'game-window-identity',
+    label: '\u81f3\u5c11 1 \u4e2a\u7ecf\u9a8c\u8bc1\u7684\u6e38\u620f HWND\uff08\u975e\u63a7\u5236\u5668\u7a97\u53e3\uff09',
+    required: true,
+    liveRequired: true,
+  },
+  {
+    id: 'capture-health-verified',
+    label: '\u76ee\u6807\u7a97\u53e3 health-verified \u6355\u83b7\uff08\u975e\u9ed1\u5e27/\u65e7\u5e27/\u684c\u9762\u56de\u9000\uff09',
+    required: true,
+    liveRequired: true,
+  },
+  {
+    id: 'entry-home-live-match',
+    label: 'entry.home \u5728\u6e38\u620f\u5ba2\u6237\u533a\u5b9e\u9645\u5339\u914d\u901a\u8fc7',
+    required: true,
+    liveRequired: true,
+  },
+  {
+    id: 'non-destructive-single-step',
+    label: '\u5148\u5b8c\u6210\u65e0\u7834\u574f\u5355\u6b65\uff08wait_image/\u5e72\u8dd1\u622a\u56fe\uff09\u518d\u53d1\u9001\u70b9\u51fb',
+    required: true,
+    liveRequired: true,
+  },
+  {
+    id: 'foreground-unchanged',
+    label: '\u8f93\u5165\u524d\u540e\u524d\u53f0 HWND \u4e0e\u9f20\u6807\u5750\u6807\u4e0d\u53d8',
+    required: true,
+    liveRequired: true,
+  },
+  {
+    id: 'control-window-isolation',
+    label: '\u5bf9\u7167\u7a97\u53e3\u4e0d\u63a5\u6536\u8bef\u8f93\u5165\uff08\u82e5\u5b58\u5728\u7b2c\u4e8c\u6e38\u620f\u7a97\u53e3\uff09',
+    required: false,
+    liveRequired: true,
+  },
+  {
+    id: 'verified-head-and-app-gates',
+    label: 'verifiedHead \u4e0e currentCommitBuilt/AppLaunched \u95e8\u7981\u901a\u8fc7\u4e14\u5de5\u4f5c\u6811\u4ea7\u54c1\u6e05\u6d01',
+    required: true,
+    liveRequired: true,
+  },
 ];
 
 const VISUAL_STEP_TYPES = new Set(['detect_page', 'wait_image', 'image_click', 'double_click', 'retry_until']);
@@ -80,64 +127,64 @@ export function assessHomeVitalityReadiness(options = {}) {
       return { ...base, status: 'planned_delay', ready: true, detail: 'delay is offline-defined' };
     }
     if (step.type === 'ocr_assert') {
-      return { ...base, status: 'needs_ocr_backend', ready: false, detail: 'OCR text target is defined offline; OCR backend/live frame not verified' };
+      return { ...base, status: 'needs_ocr_backend', ready: false, detail: 'OCR backend/live text proof is not claimed offline' };
     }
     if (step.type === 'snapshot') {
-      return { ...base, status: 'planned_snapshot', ready: true, detail: 'snapshot remains observational and never authorizes control input' };
+      return { ...base, status: 'planned_snapshot', ready: true, detail: 'snapshot is dry-run/log only offline' };
     }
     if (step.type === 'restore') {
-      return { ...base, status: 'planned_restore', ready: false, detail: 'restore is still plan-only semantics and not a live success claim' };
+      return { ...base, status: 'planned_restore', ready: false, detail: 'restore sequence is planned; live recovery not proven' };
+    }
+    if (!VISUAL_STEP_TYPES.has(step.type)) {
+      return { ...base, status: 'planned_other', ready: true, detail: 'non-visual step is offline-defined' };
     }
 
-    if (VISUAL_STEP_TYPES.has(step.type)) {
-      const targetId = String(step.target || '').trim();
-      const asset = targetAssets[targetId] || {};
-      const binding = templateBindingForTarget(targetId, bindings);
-      const hasUserAsset = Boolean(asset.dataUrl || asset.roi || asset.loaded === true);
+    const binding = templateBindingForTarget(step.target, bindings);
+    const asset = targetAssets[step.target] || null;
+    const templateKey = binding?.key || '';
+    const hasAsset = Boolean(asset && (asset.loaded || asset.dataUrl || asset.roi));
+    const hasBuiltin = Boolean(templateKey && availableKeys.has(templateKey));
 
-      let ready = false;
-      let status = 'needs_capture';
-      let detail = '';
-
-      if (hasUserAsset) {
-        ready = true;
-        status = 'asset_bound';
-        detail = 'target has offline image/ROI asset';
-      } else if (!binding) {
-        ready = false;
-        status = 'needs_capture';
-        detail = 'no built-in template binding for ' + (targetId || '(missing target)');
-      } else if (availableKeys.size > 0 && !availableKeys.has(binding.key)) {
-        ready = false;
-        status = 'needs_capture';
-        detail = 'built-in template key missing: ' + binding.key;
-      } else if (availableKeys.size > 0 && availableKeys.has(binding.key)) {
-        ready = true;
-        status = 'builtin_template_available';
-        detail = 'built-in template available: ' + binding.key;
-      } else {
-        ready = false;
-        status = 'needs_capture';
-        detail = 'binding exists (' + binding.key + ') but offline asset load not proven';
-      }
-
-      return { ...base, ready, status, detail, templateKey: binding?.key || null };
+    if (hasAsset) {
+      return {
+        ...base,
+        ready: true,
+        status: 'target_asset_bound',
+        templateKey,
+        detail: 'workspace target asset/ROI bound; still not live-authorized',
+      };
     }
-
+    if (hasBuiltin) {
+      return {
+        ...base,
+        ready: true,
+        status: 'builtin_template_available',
+        templateKey,
+        detail: `builtin template available: ${templateKey}; still not live-authorized`,
+      };
+    }
     return {
       ...base,
-      status: 'unsupported_offline',
       ready: false,
-      detail: 'offline classifier has no special rule for ' + step.type,
+      status: 'needs_capture',
+      templateKey,
+      detail: templateKey
+        ? `missing builtin key or workspace asset for ${templateKey}`
+        : 'missing visual binding for logical target',
     };
   });
 
   const requiredTargets = requiredVisualTargets(blueprint);
-  const missingTargets = requiredTargets.filter((targetId) => {
-    const step = steps.find((item) => item.target === targetId && VISUAL_STEP_TYPES.has(item.type));
-    return !step || !step.ready;
+  const missingTargets = requiredTargets.filter((target) => {
+    const binding = templateBindingForTarget(target, bindings);
+    const asset = targetAssets[target] || null;
+    const hasAsset = Boolean(asset && (asset.loaded || asset.dataUrl || asset.roi));
+    const hasBuiltin = Boolean(binding?.key && availableKeys.has(binding.key));
+    return !(hasAsset || hasBuiltin);
   });
-  const visualReady = steps.filter((item) => VISUAL_STEP_TYPES.has(item.type)).every((item) => item.ready);
+  const visualReady = steps
+    .filter((step) => VISUAL_STEP_TYPES.has(step.type))
+    .every((step) => step.ready);
 
   return {
     blueprintId: blueprint.id,
@@ -176,5 +223,30 @@ export function summarizeHomeVitalityGaps(assessment) {
     liveReady: false,
     gapCount: gaps.length,
     gaps,
+  };
+}
+
+export function assessHomeVitalityLiveGates(options = {}) {
+  const observations = options.observations || {};
+  const items = HOME_VITALITY_LIVE_GATE_CHECKLIST.map((gate) => {
+    const observed = Boolean(observations[gate.id]);
+    return {
+      ...gate,
+      satisfied: observed,
+      // Fail-closed: never claim live readiness from offline defaults.
+      authorized: false,
+    };
+  });
+  const required = items.filter((item) => item.required);
+  const requiredSatisfied = required.every((item) => item.satisfied);
+  return {
+    blueprintId: HOME_VITALITY_BLUEPRINT_ID,
+    liveReady: false,
+    liveInputAuthorized: false,
+    requiredSatisfied,
+    blockedReason: requiredSatisfied
+      ? 'required observations present but live authorization remains fail-closed until specialized live verifiers pass'
+      : 'one or more required live gates lack observations',
+    items,
   };
 }
