@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 350,
+  "revision": 361,
   "generation": 1,
-  "updatedAt": "2026-07-13T09:08:55Z",
+  "updatedAt": "2026-07-13T09:11:57Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -58,7 +58,8 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0115",
-          "EVD-0117"
+          "EVD-0117",
+          "EVD-0119"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -69,7 +70,8 @@
         "text": "current HEAD release/debug app process is started owned and observed present",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0114"
+          "EVD-0114",
+          "EVD-0121"
         ],
         "requiredEvidenceCategories": [
           "app_runtime"
@@ -81,7 +83,8 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0115",
-          "EVD-0117"
+          "EVD-0117",
+          "EVD-0119"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -95,7 +98,9 @@
           "EVD-0115",
           "EVD-0116",
           "EVD-0117",
-          "EVD-0118"
+          "EVD-0118",
+          "EVD-0119",
+          "EVD-0120"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -103,7 +108,7 @@
         ]
       }
     ],
-    "nextAction": "Commit P3-S5 verifier+wiring; leave app running owned or stop with process_stop after product commit as needed"
+    "nextAction": "Begin P3-S6 or P4-S1: match overlay UI and/or home-vitality capture binding without live input; keep owned app or stop via process_stop"
   },
   "phases": [
     {
@@ -182,16 +187,18 @@
       ]
     },
     "currentCommitBuilt": {
-      "status": "partial",
-      "note": "P2-S2 当前工作树 Vite 生产构建通过；本地预览尚未启动",
+      "status": "passed",
+      "note": "P3-S5 rebind Vite build EVD-0120 on HEAD 4eb8f9e",
       "evidenceIds": [
-        "EVD-0076"
+        "EVD-0120"
       ]
     },
     "currentCommitAppLaunched": {
-      "status": "not_verified",
-      "note": "当前没有 mhxy-shikong-control.exe 控制器进程；本轮未启动当前 HEAD 应用",
-      "evidenceIds": []
+      "status": "passed",
+      "note": "P3-S5 rebind owned app launch EVD-0121 pid=16244 on HEAD 4eb8f9e",
+      "evidenceIds": [
+        "EVD-0121"
+      ]
     },
     "hwndInputActuallySent": {
       "status": "not_verified",
@@ -221,63 +228,69 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "5b4f7f31afec15ea93dc81d63154e2d2d2cc4f5c",
-    "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "observedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+    "verifiedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
-    "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "lastKnownStableCommit": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
       "docs/execution/events.jsonl",
-      "docs/execution/state.json",
-      "scripts/execution_progress.py",
-      "scripts/verify_app_runtime_launch.py"
+      "docs/execution/evidence.jsonl",
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/state.json",
-      " M scripts/execution_progress.py",
-      " M scripts/verify_app_runtime_launch.py"
+      " M docs/execution/evidence.jsonl",
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "e474fcbf14356feec4b02792ad242ce3e1b3459b6008b810dbe82055a9992b82",
-        "size": 11494
+        "sha256": "0c82d152765e44402c8e40f6dfd43c9aac957d0310a6008fa48f10621568a934",
+        "size": 11919
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+        "exists": true,
+        "sha256": "25cf093a129edeebd7c305679781df249a1ccd4462c11f99a7fec5561075d4fc",
+        "size": 12641
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "faf33eea288ca857f90e08f69d57263cfaf5636ac6d2e776e08ac128dd24e784",
-        "size": 519822
+        "sha256": "816a083af650cc44a11a94d2803b7c444163862828d1fd26c9499a9220f3aca4",
+        "size": 529453
+      },
+      {
+        "path": "docs/execution/evidence.jsonl",
+        "exists": true,
+        "sha256": "cdc4adc8d26cdfd53b6461835a1c521baa7a869158ee3a4691f69a06e6dce389",
+        "size": 262631
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "8c4cfaa91ee8879a88585701a8defa28de04cd10445ab436e65a5bce0c55a405",
-        "size": 42077
-      },
-      {
-        "path": "scripts/execution_progress.py",
-        "exists": true,
-        "sha256": "1b71907801a32cc5507aeeaacc941e2dc49d67203d07ee5593e62ca589497072",
-        "size": 124089
-      },
-      {
-        "path": "scripts/verify_app_runtime_launch.py",
-        "exists": true,
-        "sha256": "bad8e1641426e4483dee5e6e23e45ed6141af8d228eced788d88e79b1d51c186",
-        "size": 12774
+        "sha256": "b873765aa43439bb3c2556084f248b793360b05d61c14e4ce035f5c514032c4f",
+        "size": 44678
       }
     ],
-    "workingTreeFingerprint": "sha256:2272b56b6c19870e85838e3991f2ccb7fe0ffe493a6f9edaaf543f8139fa8f4c",
+    "workingTreeFingerprint": "sha256:5ddd5a0ee455fe901d2d8f445a0113e6fc9ba4a52b5b76c802032749a20b3a44",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+        "displayPath": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json"
       },
       {
         "status": " M",
@@ -288,44 +301,40 @@
       {
         "status": " M",
         "sourcePath": null,
+        "destinationPath": "docs/execution/evidence.jsonl",
+        "displayPath": "docs/execution/evidence.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/execution_progress.py",
-        "displayPath": "scripts/execution_progress.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/verify_app_runtime_launch.py",
-        "displayPath": "scripts/verify_app_runtime_launch.py"
       }
     ]
   },
   "inFlightAction": null,
   "lastAction": {
-    "actionId": "ACT-P3S5-APP-STOP-001",
-    "kind": "process_stop",
-    "targetIdentity": "12744",
-    "sideEffectClass": "process_stop",
-    "expectedPrecondition": "managed controller PID 12744 still present and cleanupAllowed from ACT-P3S5-APP-LAUNCH-001",
-    "expectedPostcondition": "process 12744 exited and removed from managedProcesses",
-    "idempotencyKey": "p3s5:app-stop:12744",
-    "startedAt": "2026-07-13T09:08:48Z",
+    "actionId": "ACT-P3S5-APP-LAUNCH-002",
+    "kind": "process_start",
+    "targetIdentity": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+    "sideEffectClass": "process_start",
+    "expectedPrecondition": "current HEAD debug controller exe exists with known hash; product dirty only docs/execution metadata",
+    "expectedPostcondition": "owned mhxy-shikong-control process present with matching exe hash and recorded app_runtime evidence",
+    "idempotencyKey": "p3s5:app-launch:4eb8f9e4:debug",
+    "startedAt": "2026-07-13T09:11:04Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
       "goal-externalAuthorization-local_app_run_owned_process_only",
-      "pid=12744",
-      "createdByActionId=ACT-P3S5-APP-LAUNCH-001",
-      "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe"
+      "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+      "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+      "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+      "expectedHead=4eb8f9e41ffad8ad703a38819fa2262d127ad0e8"
     ],
     "status": "succeeded",
-    "leaseTokenHash": "9a96172ea2403e900ff37e386c4e726855fe24d198d0b4fc60a2d078c8a3ac3b",
-    "endedAt": "2026-07-13T09:08:55Z",
-    "result": "stopped owned controller pid=12744; process no longer present"
+    "leaseTokenHash": "fa9fd24560c82d9ba59a33eedf290f43b11d929352913b08ba6f572bfb6bf08f",
+    "endedAt": "2026-07-13T09:11:10Z",
+    "result": "controller app launched pid=16244 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe evidence=EVD-0121",
+    "verifiedEvidenceId": "EVD-0121"
   },
   "safety": {
     "realInputSent": false,
@@ -335,9 +344,37 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-13T09:08:55Z",
+    "observedAt": "2026-07-13T09:11:09Z",
     "staleAfterSeconds": 300,
-    "managedProcesses": [],
+    "managedProcesses": [
+      {
+        "pid": 16244,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
+        "commandLine": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "creationTime": "2026-07-13T09:11:08Z",
+        "ownership": "created_by_current_run",
+        "ownershipEvidence": [
+          "goal-externalAuthorization-local_app_run_owned_process_only",
+          "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+          "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "expectedHead=4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+          "verifier=current-app-launch-v1",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "observedHead=4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+          "actionId=ACT-P3S5-APP-LAUNCH-002"
+        ],
+        "cleanupAllowed": true,
+        "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
+        "createdByActionId": "ACT-P3S5-APP-LAUNCH-002",
+        "createdAt": "2026-07-13T09:11:09Z",
+        "present": true,
+        "lastObservedAt": "2026-07-13T09:11:09Z"
+      }
+    ],
     "observedExternalProcesses": [
       {
         "pid": 42432,
@@ -388,6 +425,17 @@
         "lastSeenAt": "2026-07-13T08:54:26Z",
         "cleanupAllowed": false,
         "observedAbsentAt": "2026-07-13T09:08:55Z"
+      },
+      {
+        "pid": 16244,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-13T09:11:08Z",
+        "lastObservedAt": "2026-07-13T09:11:09Z",
+        "lastSeenAt": "2026-07-13T09:11:09Z",
+        "cleanupAllowed": false
       }
     ],
     "managedArtifacts": [
@@ -431,24 +479,24 @@
     ]
   },
   "eventTail": {
-    "seq": 314,
-    "id": "EVT-0314",
-    "hash": "sha256:bc761603ee465f5c5fe8d1eb90ba0367a77096324a27d8a61501ac53f9df0d9e"
+    "seq": 323,
+    "id": "EVT-0323",
+    "hash": "sha256:accf1b42c0f3fdbec924ff6e97fb69673d812acc8a4a5cb2b1605d6058a8486a"
   },
   "evidenceTail": {
-    "seq": 118,
-    "id": "EVD-0118",
-    "hash": "sha256:567197803fba333054d1b10dc52e32ea8cdc50c2d9e8316ccab7e6ac4f4a2e91"
+    "seq": 121,
+    "id": "EVD-0121",
+    "hash": "sha256:4a98a00dff22e38433cf221ac71b1012a3d5b8afb65dbd5d416b267765e1bb5e"
   },
-  "checkpointCounter": 25,
+  "checkpointCounter": 26,
   "lastCheckpoint": {
-    "id": "CP-0025",
+    "id": "CP-0026",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
-    "createdAt": "2026-07-13T08:55:41Z",
+    "path": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+    "createdAt": "2026-07-13T09:11:56Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:f91d2725a4a0a41dc0e8c4f2fd6659fce6ed12d2d9ba1c82845e640df6360056"
+    "hash": "sha256:dd58d53a25f031f653ccac8c1fe3c00b80453f2e3c212f74bfe68c4778f32258"
   },
   "resume": {
     "blockers": [
@@ -460,7 +508,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0025"
+    "lastSafeResumeSnapshotId": "CP-0026"
   },
   "completedSlices": [
     {
