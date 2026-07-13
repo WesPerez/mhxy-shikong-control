@@ -1,5 +1,5 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:99517b085ec6a0833af7339b95938d284ab7700c028dc4fe2ab5e89959d53a41 -->
+<!-- state-digest: sha256:e6e0511136e8432d300a5dabbd2fc43343693baa46bfbc0c6195632a8c8ccc3b -->
 <!-- checkpoint-id: CP-0017 -->
 # 长任务执行状态
 
@@ -8,26 +8,26 @@
 
 ## 恢复首屏
 
-- 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-13T07:00:27Z`
-- 更新时间（北京时间）：`2026-07-13T15:00:27+08:00`
+- 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
+- 更新时间（UTC）：`2026-07-13T07:00:42Z`
+- 更新时间（北京时间）：`2026-07-13T15:00:42+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
 - 当前阶段：`P2`
 - 当前切片：`P2-S2` - 五视口真实渲染与检查器交互验收
-- 阶段状态：`blocked`；切片状态：`blocked`；动作状态：`running`
+- 阶段状态：`blocked`；切片状态：`blocked`；动作状态：`succeeded`
 - 当前切片验收：已满足 `0`，待验证或阻塞 `4`，合计 `4`
 - 本轮是否发送真实游戏输入：`false`
-- 当前工作：未决动作 `ACT-COMMIT-EXECUTION-LEDGER-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-COMMIT-EXECUTION-LEDGER-001（EVT-0220；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-EXECUTION-LEDGER-001；结果明确前禁止重放
+- 当前工作：当前没有副作用动作在执行，停在下一动作之前
+- 最新当前有效证据：最近事件：Secondary ledger commit 49b717e after product snapshot 28aca6b（EVT-0222；不是当前验收通过证据）
+- 唯一下一动作：Continue P2-S2 five-viewport Playwright on owned localhost preview
 - 当前切片执行 blocker：缺少本地预览进程启动与只读 UI 测试授权
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
 - 最新 checkpoint：`CP-0017`；safeToResume=`true`；safeToRunLiveInput=`false`
-- 当前允许：只读审计、连续性元数据对账。
-- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`130417s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
+- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
+- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`130432s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -83,15 +83,11 @@
 
 ## 当前动作
 
-- actionId：`ACT-COMMIT-EXECUTION-LEDGER-001`
-- 类型：`git_commit`
-- 目标：`docs/execution ledger after 28aca6b`
-- 副作用级别：`git_commit`
-- 状态：`running`
+- 当前没有未决副作用动作。
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-EXECUTION-LEDGER-001；结果明确前禁止重放
+- 唯一下一动作：Continue P2-S2 five-viewport Playwright on owned localhost preview
 - 命令：`npm run test:ui-viewports`
 
 ## 阻塞与风险
@@ -107,10 +103,10 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`28aca6b8927f0fd55bc0fa8615b91ca22aec6e4d`
+- observed HEAD：`49b717ef27d0244330d82e0b256f1f1009323e56`
 - verified HEAD：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:bbff2af68b3005344f294132767729371a5f64eb088983be7cdb7f77e069d258`
+- working tree fingerprint：`sha256:11811ad735d398210b2d3a1a42037365e513d1489f7607dce3fb27a6a05f9b54`
 - 最新 checkpoint：`CP-0017` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
@@ -118,7 +114,6 @@
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/state.json`
 
@@ -164,8 +159,6 @@
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 211 | `2026-07-11T18:46:54Z` | `checkpoint` | 创建 CP-0015：历史任务归因、P0-P2 当前事实、P3-P9 待办、授权边界和下一 Agent 长期 Goal 提示词已落盘 |
-| 212 | `2026-07-11T23:22:53Z` | `action_intent` | 登记副作用动作 ACT-REPO-RENAME-20260712 |
 | 213 | `2026-07-11T23:25:24Z` | `action_result` | 副作用动作 ACT-REPO-RENAME-20260712 -> succeeded |
 | 214 | `2026-07-11T23:26:47Z` | `decision` | 仓库与本地目录已统一为 mhxy-shikong-control；origin、活动绝对路径和测试 fixture 已迁移，哈希链历史路径按协议保留 |
 | 215 | `2026-07-11T23:26:49Z` | `checkpoint` | 创建 CP-0016：完成 GitHub 仓库名、本地目录和活动路径引用迁移 |
@@ -174,6 +167,8 @@
 | 218 | `2026-07-13T06:57:46Z` | `commit` | Committed full current P0-P2 worktree snapshot as 28aca6b |
 | 219 | `2026-07-13T07:00:21Z` | `checkpoint` | 创建 CP-0017：Record local commit 28aca6b of full P0-P2 progress; verifiedHead still previous baseline until gates re-run on new HEAD |
 | 220 | `2026-07-13T07:00:27Z` | `action_intent` | 登记副作用动作 ACT-COMMIT-EXECUTION-LEDGER-001 |
+| 221 | `2026-07-13T07:00:32Z` | `action_result` | 副作用动作 ACT-COMMIT-EXECUTION-LEDGER-001 -> succeeded |
+| 222 | `2026-07-13T07:00:42Z` | `commit` | Secondary ledger commit 49b717e after product snapshot 28aca6b |
 
 ## 异常恢复
 

@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 232,
+  "revision": 235,
   "generation": 1,
-  "updatedAt": "2026-07-13T07:00:27Z",
+  "updatedAt": "2026-07-13T07:00:42Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,7 +29,7 @@
   "overallStatus": "active",
   "currentPhaseId": "P2",
   "phaseStatus": "blocked",
-  "actionStatus": "running",
+  "actionStatus": "succeeded",
   "acceptanceLevel": "design",
   "activeSlice": {
     "id": "P2-S2",
@@ -83,7 +83,7 @@
         ]
       }
     ],
-    "nextAction": "Resume P2-S2 five-viewport Playwright against owned localhost preview; then continue P3-P9",
+    "nextAction": "Continue P2-S2 five-viewport Playwright on owned localhost preview",
     "blockers": [
       "缺少本地预览进程启动与只读 UI 测试授权"
     ]
@@ -204,19 +204,17 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "28aca6b8927f0fd55bc0fa8615b91ca22aec6e4d",
+    "observedHead": "49b717ef27d0244330d82e0b256f1f1009323e56",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json",
       "docs/execution/events.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/state.json"
     ],
@@ -224,41 +222,29 @@
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "1b1663a4a7e06be316d58c6e855923f60918f899f4898ba24be6c3d9d7b8457a",
-        "size": 11769
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json",
-        "exists": true,
-        "sha256": "1fe46fc1704045c3ee985321bc906c77ce1e4fd0a6f91e3fb22134d98a913608",
-        "size": 9361
+        "sha256": "d4d92419dc6472615c6b1841d89a918a76be6da92c14103233916ffeaa736b2f",
+        "size": 11469
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "6e81904c2c66e2b95643a73fbe588118067402aaa1af656c43a51fa7915d7e32",
-        "size": 429972
+        "sha256": "c7a5d35a88c633a121cd48aaa5c9cb56f165cfe010c02ad6db1b9e158cbad4ce",
+        "size": 432254
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "39b2243b79a7e44b0e8698ec6c85836f9378f54d0bee682f3fc86ab907254f97",
-        "size": 28994
+        "sha256": "179a184975c6bc4d4abfd5799a2702ea55f67054ef087c46461bf542e352cc35",
+        "size": 27391
       }
     ],
-    "workingTreeFingerprint": "sha256:bbff2af68b3005344f294132767729371a5f64eb088983be7cdb7f77e069d258",
+    "workingTreeFingerprint": "sha256:11811ad735d398210b2d3a1a42037365e513d1489f7607dce3fb27a6a05f9b54",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json",
-        "displayPath": "docs/execution/checkpoints/CP-0017-p0-p2-snapshot-commit.json"
       },
       {
         "status": " M",
@@ -274,7 +260,8 @@
       }
     ]
   },
-  "inFlightAction": {
+  "inFlightAction": null,
+  "lastAction": {
     "actionId": "ACT-COMMIT-EXECUTION-LEDGER-001",
     "kind": "git_commit",
     "targetIdentity": "docs/execution ledger after 28aca6b",
@@ -289,26 +276,9 @@
       "goal-externalAuthorization-git_commit",
       "dirty-paths-only-docs-execution"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-COMMIT-P0-P2-SNAPSHOT-001",
-    "kind": "git_commit",
-    "targetIdentity": "HEAD:main working tree P0-P2 snapshot",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "resume-check allows code work; no in-flight action; dirty tree is project-owned P0-P2 progress",
-    "expectedPostcondition": "single local commit contains all current non-ignored source/docs/test changes; HEAD advances; no force push",
-    "idempotencyKey": "commit:p0-p2-snapshot:3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9:sha256:06b677eac89f7f4c9ad6913d4fb67120d3e5b29a2d1c4dda0d3854ae3d010435",
-    "startedAt": "2026-07-13T06:57:23Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "user-explicit-request-commit-all-current-diffs",
-      "goal-externalAuthorization-git_commit",
-      "git-status-all-paths-under-repo"
-    ],
     "status": "succeeded",
-    "endedAt": "2026-07-13T06:57:44Z",
-    "result": "local commit 28aca6b8927f0fd55bc0fa8615b91ca22aec6e4d on main; 69 files; parent 3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9; not pushed"
+    "endedAt": "2026-07-13T07:00:32Z",
+    "result": "ledger commit on top of 28aca6b for docs/execution metadata and CP-0017"
   },
   "safety": {
     "realInputSent": false,
@@ -402,9 +372,9 @@
     ]
   },
   "eventTail": {
-    "seq": 220,
-    "id": "EVT-0220",
-    "hash": "sha256:251cc254ba0451257ad53b99ffb807cdde65c3ad5c4a69167255f656df616214"
+    "seq": 222,
+    "id": "EVT-0222",
+    "hash": "sha256:a3f2743ac7c0331f906dd17df8f8c5ea69bb353988c42d0565c0643f5c86ef64"
   },
   "evidenceTail": {
     "seq": 76,
