@@ -62,6 +62,12 @@ import {
   normalizeInspectorTab,
   workbenchViewportContract,
 } from "./workbench-layout-core.js";
+import {
+  matchBoxMetaText,
+  normalizeMatchBox,
+  pickMatchFieldsFromResult,
+  projectMatchBoxToStage,
+} from "./match-overlay-core.js";
 import "./styles.css";
 
 const TARGET_TITLE = "梦幻西游：时空";
@@ -725,6 +731,7 @@ const state = {
   previewSource: "window",
   roiSelection: null,
   roiDragStart: null,
+  matchOverlay: null,
   previewClickCapture: false,
   previewClickButton: "left",
   workspace: createSeedWorkspace(),
@@ -5436,6 +5443,7 @@ function setPreviewImage(dataUrl, width, height, source, capture = null) {
   state.previewSource = source;
   $("#preview-empty").style.display = "none";
   updateRoiBox();
+  updateMatchBox();
 }
 
 function clearPreview(message) {
@@ -5444,8 +5452,10 @@ function clearPreview(message) {
   $("#preview-empty").textContent = message;
   state.preview = null;
   state.previewSource = "window";
+  state.matchOverlay = null;
   updateActiveMeta();
   updateRoiMeta();
+  updateMatchBox();
 }
 
 function updateActiveMeta(override = null) {
@@ -5563,6 +5573,48 @@ function updateRoiBox() {
 
 function updateRoiMeta() {
   $("#roi-meta").textContent = state.roiSelection ? `ROI: ${roiText(state.roiSelection)}` : "ROI: none";
+}
+
+function setMatchOverlayFromResult(result) {
+  const box = normalizeMatchBox(result);
+  state.matchOverlay = box;
+  updateMatchBox();
+}
+
+function clearMatchOverlay() {
+  state.matchOverlay = null;
+  updateMatchBox();
+}
+
+function updateMatchBox() {
+  const boxEl = $("#match-box");
+  const meta = $("#match-meta");
+  if (meta) meta.textContent = matchBoxMetaText(state.matchOverlay);
+  if (!boxEl) return;
+  const image = $("#preview-image");
+  const stage = $(".preview-stage");
+  if (!state.preview || !state.matchOverlay || !image?.getAttribute("src") || !stage) {
+    boxEl.style.display = "none";
+    boxEl.removeAttribute("data-label");
+    return;
+  }
+  const projected = projectMatchBoxToStage(
+    state.matchOverlay,
+    state.preview,
+    image.getBoundingClientRect(),
+    stage.getBoundingClientRect(),
+  );
+  if (!projected) {
+    boxEl.style.display = "none";
+    boxEl.removeAttribute("data-label");
+    return;
+  }
+  boxEl.style.display = "block";
+  boxEl.style.left = `${projected.left}px`;
+  boxEl.style.top = `${projected.top}px`;
+  boxEl.style.width = `${projected.width}px`;
+  boxEl.style.height = `${projected.height}px`;
+  boxEl.setAttribute("data-label", projected.label);
 }
 
 function togglePreviewClickCapture() {
@@ -7228,6 +7280,7 @@ function recordSessionStepResult(session, workflow, item, result, startedAt, end
     x: result?.x ?? null,
     y: result?.y ?? null,
     score: result?.score ?? null,
+    ...pickMatchFieldsFromResult(result),
     captureProvider: result?.captureProvider || "",
     captureReliability: result?.captureReliability || "",
     capturedAtMs: result?.capturedAtMs ?? null,
@@ -7238,6 +7291,7 @@ function recordSessionStepResult(session, workflow, item, result, startedAt, end
     endedAt: endedAt.toISOString(),
     durationMs: Math.max(0, endedAt.getTime() - startedAt.getTime()),
   };
+  setMatchOverlayFromResult(result);
   session.stepResults.push(record);
   recordRunEvent(session, "step_result", {
     ...record,
@@ -8357,6 +8411,7 @@ window.addEventListener("mousemove", moveRoiDrag);
 window.addEventListener("mouseup", endRoiDrag);
 window.addEventListener("resize", () => {
   updateRoiBox();
+  updateMatchBox();
   applyWorkbenchViewportContract();
 });
 window.addEventListener("paste", handlePasteImage);

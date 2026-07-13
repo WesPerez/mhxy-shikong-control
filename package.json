@@ -19,7 +19,7 @@
     "test:home-vitality": "node scripts/test_home_vitality_core.mjs",
     "test:live-validation": "node scripts/test_live_validation_core.mjs",
     "test:execution-progress": "python -B scripts/test_execution_progress.py",
-    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:target-library && npm run test:home-vitality && npm run test:live-validation && npm run test:execution-progress",
+    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:target-library && npm run test:home-vitality && npm run test:live-validation && npm run test:match-overlay && npm run test:execution-progress",
     "audit:input-safety": "python scripts/audit_input_safety.py",
     "audit:control-flow-schema": "python scripts/audit_control_flow_schema.py",
     "audit:failure-evidence": "python scripts/audit_failure_evidence_bundle.py",
@@ -50,7 +50,8 @@
     "live:hotkey:allow-both": "python scripts/live_background_hotkey_validation.py --allow-input --require-executed --both",
     "validate:live-hotkey": "python scripts/live_background_hotkey_validation.py",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "test:match-overlay": "node scripts/test_match_overlay_core.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0"

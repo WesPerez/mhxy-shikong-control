@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 361,
+  "revision": 369,
   "generation": 1,
-  "updatedAt": "2026-07-13T09:11:57Z",
+  "updatedAt": "2026-07-13T09:17:05Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,78 +29,59 @@
   "overallStatus": "active",
   "currentPhaseId": "P3",
   "phaseStatus": "in_progress",
-  "actionStatus": "succeeded",
+  "actionStatus": "none",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P3-S5",
-    "title": "Current-commit app launch gate with specialized verifier",
+    "id": "P3-S6",
+    "title": "Preview match-box overlay from vision StepDispatchResult fields",
     "status": "verified",
-    "startedAt": "2026-07-13T08:48:21Z",
+    "startedAt": "2026-07-13T09:14:31Z",
     "scope": [
-      "scripts/verify_app_runtime_launch.py",
-      "scripts/execution_progress.py",
-      "scripts/test_execution_progress.py",
+      "src/main.js",
+      "src/styles.css",
+      "index.html",
+      "src/failure-evidence-core.js",
+      "scripts/test_match_overlay_core.mjs",
       "package.json"
     ],
     "nonGoals": [
+      "Do not integrate OpenCV",
       "Do not send live game input",
-      "Do not migrate AppData",
-      "Do not force-push"
+      "Do not require WGC"
     ],
     "safetyBoundaries": [
-      "Only start process registered via process_start action with ownership evidence",
-      "Stop only owned managed processes from this run"
+      "Overlay is visual-only; never claims live match success without capture evidence"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P3-S5-C1",
-        "text": "specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe",
+        "id": "P3-S6-C1",
+        "text": "pure helper maps match box fields and rejects incomplete geometry",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0115",
-          "EVD-0117",
-          "EVD-0119"
+          "EVD-0122"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P3-S5-C2",
-        "text": "current HEAD release/debug app process is started owned and observed present",
+        "id": "P3-S6-C2",
+        "text": "session step results and failure evidence preserve match box fields",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0114",
-          "EVD-0121"
-        ],
-        "requiredEvidenceCategories": [
-          "app_runtime"
-        ]
-      },
-      {
-        "id": "P3-S5-C3",
-        "text": "process ownership evidence includes command/cwd/pid and head fingerprint",
-        "status": "passed",
-        "evidenceIds": [
-          "EVD-0115",
-          "EVD-0117",
-          "EVD-0119"
+          "EVD-0122"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P3-S5-C4",
-        "text": "core regression remains green after verifier wiring",
+        "id": "P3-S6-C3",
+        "text": "core regression and Vite build remain green after overlay wiring",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0115",
-          "EVD-0116",
-          "EVD-0117",
-          "EVD-0118",
-          "EVD-0119",
-          "EVD-0120"
+          "EVD-0122",
+          "EVD-0123"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -108,7 +89,7 @@
         ]
       }
     ],
-    "nextAction": "Begin P3-S6 or P4-S1: match overlay UI and/or home-vitality capture binding without live input; keep owned app or stop via process_stop"
+    "nextAction": "Commit P3-S6 match overlay product + ledger; leave app owned or process_stop; next P4-S1 home-vitality capture binding or P3 polish"
   },
   "phases": [
     {
@@ -187,18 +168,14 @@
       ]
     },
     "currentCommitBuilt": {
-      "status": "passed",
-      "note": "P3-S5 rebind Vite build EVD-0120 on HEAD 4eb8f9e",
-      "evidenceIds": [
-        "EVD-0120"
-      ]
+      "status": "outdated",
+      "note": "Ledger commit 536201d moved HEAD after EVD-0120; rebind after P3-S6 product work",
+      "evidenceIds": []
     },
     "currentCommitAppLaunched": {
-      "status": "passed",
-      "note": "P3-S5 rebind owned app launch EVD-0121 pid=16244 on HEAD 4eb8f9e",
-      "evidenceIds": [
-        "EVD-0121"
-      ]
+      "status": "outdated",
+      "note": "Ledger commit 536201d moved HEAD after EVD-0121; rebind after P3-S6 product work",
+      "evidenceIds": []
     },
     "hwndInputActuallySent": {
       "status": "not_verified",
@@ -228,57 +205,105 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+    "observedHead": "536201d910a1279ee36d289dc84d61c562e23f3c",
     "verifiedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+      "docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/state.json",
+      "index.html",
+      "package.json",
+      "scripts/test_match_overlay_core.mjs",
+      "src/main.js",
+      "src/match-overlay-core.js",
+      "src/styles.css"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+      "?? docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/state.json",
+      " M index.html",
+      " M package.json",
+      "?? scripts/test_match_overlay_core.mjs",
+      " M src/main.js",
+      "?? src/match-overlay-core.js",
+      " M src/styles.css"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "0c82d152765e44402c8e40f6dfd43c9aac957d0310a6008fa48f10621568a934",
-        "size": 11919
+        "sha256": "66497251c8dacab6662afbd7991e513832d27a635ab55dab7b47fbb0fbb37db9",
+        "size": 11761
       },
       {
-        "path": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
+        "path": "docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json",
         "exists": true,
-        "sha256": "25cf093a129edeebd7c305679781df249a1ccd4462c11f99a7fec5561075d4fc",
-        "size": 12641
+        "sha256": "ec88ea59a65fd962e982134e392336a05adda1ae7e5fb2bc8feaf196a8016128",
+        "size": 15558
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "816a083af650cc44a11a94d2803b7c444163862828d1fd26c9499a9220f3aca4",
-        "size": 529453
+        "sha256": "d4f974921618c83cea469d08ffd3eed9d09140616535ead1d5179e0ddbf9d42a",
+        "size": 535427
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "cdc4adc8d26cdfd53b6461835a1c521baa7a869158ee3a4691f69a06e6dce389",
-        "size": 262631
+        "sha256": "29a3e3879c9b61909100e2c920cf67f509024207b612368073ea4b29f11d1e87",
+        "size": 265885
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "b873765aa43439bb3c2556084f248b793360b05d61c14e4ce035f5c514032c4f",
-        "size": 44678
+        "sha256": "c1b1950ce121a767c0ba501eeeb13dc2b8238c4c164d89c1bbd5bca50044d9a6",
+        "size": 49011
+      },
+      {
+        "path": "index.html",
+        "exists": true,
+        "sha256": "7d4553af1826b29ff145a0c3bd9f948939c6cf52cb6bff2b047eb4e141cf542f",
+        "size": 34549
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "d782e7a9a63e50fb47ffb514c50c1c12fa6da0d369ffec99388e8575665a09ea",
+        "size": 4894
+      },
+      {
+        "path": "scripts/test_match_overlay_core.mjs",
+        "exists": true,
+        "sha256": "7fce47a4c40ec6f66fb4d898071b15f690e06ac468cd01817c61f96982610d3f",
+        "size": 2190
+      },
+      {
+        "path": "src/main.js",
+        "exists": true,
+        "sha256": "9bfb32654c249ada6a1b9f372df3e661fecce8b32f128658b992b5a2e660cb44",
+        "size": 356018
+      },
+      {
+        "path": "src/match-overlay-core.js",
+        "exists": true,
+        "sha256": "f417d15dbea980351c683ca413b030c048b547abaf8424b9b2e7c33f834b013d",
+        "size": 3027
+      },
+      {
+        "path": "src/styles.css",
+        "exists": true,
+        "sha256": "2b57af065e625318652996ff9113c0a410536b5093f0c619991065c69302163a",
+        "size": 45241
       }
     ],
-    "workingTreeFingerprint": "sha256:5ddd5a0ee455fe901d2d8f445a0113e6fc9ba4a52b5b76c802032749a20b3a44",
+    "workingTreeFingerprint": "sha256:e1bc4b114d63e33eed3ee859fd7b4a98f8bd9e388b94d0f3f555b34e18945d2f",
     "dirtyEntries": [
       {
         "status": " M",
@@ -289,8 +314,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
-        "displayPath": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json"
       },
       {
         "status": " M",
@@ -309,6 +334,42 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "index.html",
+        "displayPath": "index.html"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_match_overlay_core.mjs",
+        "displayPath": "scripts/test_match_overlay_core.mjs"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/main.js",
+        "displayPath": "src/main.js"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src/match-overlay-core.js",
+        "displayPath": "src/match-overlay-core.js"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/styles.css",
+        "displayPath": "src/styles.css"
       }
     ]
   },
@@ -479,24 +540,24 @@
     ]
   },
   "eventTail": {
-    "seq": 323,
-    "id": "EVT-0323",
-    "hash": "sha256:accf1b42c0f3fdbec924ff6e97fb69673d812acc8a4a5cb2b1605d6058a8486a"
+    "seq": 330,
+    "id": "EVT-0330",
+    "hash": "sha256:8e948bc1a1630ec6d3c30d2fa1acce755300a0fc74089a5007c8d61d329de44b"
   },
   "evidenceTail": {
-    "seq": 121,
-    "id": "EVD-0121",
-    "hash": "sha256:4a98a00dff22e38433cf221ac71b1012a3d5b8afb65dbd5d416b267765e1bb5e"
+    "seq": 123,
+    "id": "EVD-0123",
+    "hash": "sha256:bea8abd20ff3e305a52f2ec7c37686d4dced390bd5ccb26676d2921d81dce9a8"
   },
-  "checkpointCounter": 26,
+  "checkpointCounter": 27,
   "lastCheckpoint": {
-    "id": "CP-0026",
+    "id": "CP-0027",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0026-p3-s5-gates-and-verified-head.json",
-    "createdAt": "2026-07-13T09:11:56Z",
+    "path": "docs/execution/checkpoints/CP-0027-p3-s6-match-overlay-verified.json",
+    "createdAt": "2026-07-13T09:17:05Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:dd58d53a25f031f653ccac8c1fe3c00b80453f2e3c212f74bfe68c4778f32258"
+    "hash": "sha256:0f8564012909d2afd3f9f36b8ffe20ba19e6f6f2d31ad4ff1e796c5da007752d"
   },
   "resume": {
     "blockers": [
@@ -508,7 +569,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0026"
+    "lastSafeResumeSnapshotId": "CP-0027"
   },
   "completedSlices": [
     {
@@ -1358,6 +1419,87 @@
       "nextAction": "Optional: current-app launch gate prep; otherwise continue non-live polish or stop for handoff",
       "phaseId": "P3",
       "verifiedAt": "2026-07-13T08:48:21Z"
+    },
+    {
+      "id": "P3-S5",
+      "title": "Current-commit app launch gate with specialized verifier",
+      "status": "verified",
+      "startedAt": "2026-07-13T08:48:21Z",
+      "scope": [
+        "scripts/verify_app_runtime_launch.py",
+        "scripts/execution_progress.py",
+        "scripts/test_execution_progress.py",
+        "package.json"
+      ],
+      "nonGoals": [
+        "Do not send live game input",
+        "Do not migrate AppData",
+        "Do not force-push"
+      ],
+      "safetyBoundaries": [
+        "Only start process registered via process_start action with ownership evidence",
+        "Stop only owned managed processes from this run"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P3-S5-C1",
+          "text": "specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0115",
+            "EVD-0117",
+            "EVD-0119"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S5-C2",
+          "text": "current HEAD release/debug app process is started owned and observed present",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0114",
+            "EVD-0121"
+          ],
+          "requiredEvidenceCategories": [
+            "app_runtime"
+          ]
+        },
+        {
+          "id": "P3-S5-C3",
+          "text": "process ownership evidence includes command/cwd/pid and head fingerprint",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0115",
+            "EVD-0117",
+            "EVD-0119"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S5-C4",
+          "text": "core regression remains green after verifier wiring",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0115",
+            "EVD-0116",
+            "EVD-0117",
+            "EVD-0118",
+            "EVD-0119",
+            "EVD-0120"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "Begin P3-S6 or P4-S1: match overlay UI and/or home-vitality capture binding without live input; keep owned app or stop via process_stop",
+      "phaseId": "P3",
+      "verifiedAt": "2026-07-13T09:14:31Z"
     }
   ]
 }

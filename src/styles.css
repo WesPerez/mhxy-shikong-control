@@ -1251,6 +1251,30 @@ h3 {
   z-index: 2;
 }
 
+#match-box {
+  position: absolute;
+  display: none;
+  border: 2px solid #5ec8b5;
+  background: rgba(94, 200, 181, 0.14);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  z-index: 3;
+}
+
+#match-box[data-label]::after {
+  content: attr(data-label);
+  position: absolute;
+  left: 0;
+  top: -18px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(8, 16, 14, 0.86);
+  color: #9fe8d8;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
 .empty {
   position: absolute;
   inset: 0;
