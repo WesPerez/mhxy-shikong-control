@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 397,
+  "revision": 406,
   "generation": 1,
-  "updatedAt": "2026-07-13T10:03:56Z",
+  "updatedAt": "2026-07-13T10:05:55Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -34,7 +34,7 @@
   "activeSlice": {
     "id": "P3-S8",
     "title": "Specialized window-identity-v1 verifier for read-only HWND identity evidence",
-    "status": "in_progress",
+    "status": "verified",
     "startedAt": "2026-07-13T09:58:58Z",
     "scope": [
       "scripts/verify_window_identity.py",
@@ -57,7 +57,8 @@
         "text": "window-identity-v1 is allowlisted and rejects incomplete identity",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0132"
+          "EVD-0132",
+          "EVD-0135"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -68,7 +69,8 @@
         "text": "owned controller window identity verified read-only with hwnd/pid/title/process/size/privilege",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0134"
+          "EVD-0134",
+          "EVD-0137"
         ],
         "requiredEvidenceCategories": [
           "window_identity"
@@ -80,7 +82,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0132",
-          "EVD-0133"
+          "EVD-0133",
+          "EVD-0135",
+          "EVD-0136"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -88,7 +92,7 @@
         ]
       }
     ],
-    "nextAction": "Prove window-identity-v1 against owned controller window; keep zero input; core regression green"
+    "nextAction": "Optional: rebuild/relaunch current HEAD app; P4 requires live game windows for identity/capture/OCR e2e"
   },
   "phases": [
     {
@@ -204,89 +208,65 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "aae2190fca0bd06ab04359eea4a7b2dc0ccaae4b",
+    "observedHead": "0c045b35e76a98e1444af5d776205cc3454288e4",
     "verifiedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
+      "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+      "docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "package.json",
-      "scripts/execution_progress.py",
-      "scripts/test_execution_progress.py",
-      "scripts/verify_window_identity.py"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
+      "?? docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+      "?? docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M package.json",
-      " M scripts/execution_progress.py",
-      " M scripts/test_execution_progress.py",
-      "?? scripts/verify_window_identity.py"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "2d5a72d602c011ea6815f338f077213f357e7471e2a50a3f3c66e44251b77af6",
-        "size": 11778
+        "sha256": "d65f452a170f067884fd52968921830f6eed09e2322319a03b658c5ec17c741b",
+        "size": 11916
       },
       {
-        "path": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
+        "path": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
         "exists": true,
-        "sha256": "bcbcb4d00ebedd30f8f8340b2d159285e163015fc6364ba4f2e6af70a5237ed5",
-        "size": 15266
+        "sha256": "7d149415edb73a49189f3194bc0baabd6a611e746029bc7778617c4199e31847",
+        "size": 12067
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json",
+        "exists": true,
+        "sha256": "31719fb7cb03627ae07b538ad631164d0b5c48be40a860d11e656d89a54cc56c",
+        "size": 13628
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "6bda2163f9c05cba8d6ed59d5efc86a23dbef1a92ebebf2e85584fd55a258f66",
-        "size": 556515
+        "sha256": "0a143f1a2b553eca5ed522330d32728478fb07310644f02ea091a71890f1d806",
+        "size": 563174
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "e6cf0aaf38cb59a14d1bbed2338cac77103e401d4b7e58a770476b8c2ca8fd0e",
-        "size": 284441
+        "sha256": "90f75eeac79417fb0fd73f059676a72c879fc8b452023334593fa2258434eb20",
+        "size": 290204
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "1edb5fa48453e56dcc6088844a7ad3407ce89e21e585ce1d5c741b148656b54e",
-        "size": 53132
-      },
-      {
-        "path": "package.json",
-        "exists": true,
-        "sha256": "9a1f7b32a9b5886117ccde84b99ef08fc20eb3a2a3336e7653b90c0bc7b8050a",
-        "size": 4972
-      },
-      {
-        "path": "scripts/execution_progress.py",
-        "exists": true,
-        "sha256": "a983f7c138d15fc7ece4405519f3df6c7bbf317ad6e9927e4c61d5e1e630592e",
-        "size": 124106
-      },
-      {
-        "path": "scripts/test_execution_progress.py",
-        "exists": true,
-        "sha256": "87666b24ade0925dcc87199cf3f080c0155c0a965457af739fa6d7f77eb5afb6",
-        "size": 42728
-      },
-      {
-        "path": "scripts/verify_window_identity.py",
-        "exists": true,
-        "sha256": "8c7b034092d3f45479d0d7a09005021fc2d86d8b7516df82d886b5ff14f15f07",
-        "size": 13504
+        "sha256": "117f4616c4841a11f99dcb3077ee23af2a2114cc59e8b4342687146b9fdca16a",
+        "size": 52020
       }
     ],
-    "workingTreeFingerprint": "sha256:09067875b3a3d4e4f365d87e02aeec1710fe041ca5be9a6c50f96fb160494c9c",
+    "workingTreeFingerprint": "sha256:37f3ca7864fe1c6776418b05513b5d607f40e2ac199ece1a2851b3555edfbb87",
     "dirtyEntries": [
       {
         "status": " M",
@@ -297,8 +277,14 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
-        "displayPath": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json",
+        "displayPath": "docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json"
       },
       {
         "status": " M",
@@ -317,30 +303,6 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "package.json",
-        "displayPath": "package.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/execution_progress.py",
-        "displayPath": "scripts/execution_progress.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_execution_progress.py",
-        "displayPath": "scripts/test_execution_progress.py"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "scripts/verify_window_identity.py",
-        "displayPath": "scripts/verify_window_identity.py"
       }
     ]
   },
@@ -376,7 +338,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-13T09:58:57Z",
+    "observedAt": "2026-07-13T10:04:32Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -465,8 +427,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-13T09:11:08Z",
-        "lastObservedAt": "2026-07-13T09:58:57Z",
-        "lastSeenAt": "2026-07-13T09:58:57Z",
+        "lastObservedAt": "2026-07-13T10:04:32Z",
+        "lastSeenAt": "2026-07-13T10:04:32Z",
         "cleanupAllowed": false
       }
     ],
@@ -512,8 +474,8 @@
     "lastWindowIdentity": {
       "targetIdentity": "controller-app:16244@mhxy-shikong-control.exe:20651076",
       "verified": true,
-      "observedAt": "2026-07-13T10:03:02Z",
-      "evidenceId": "EVD-0134",
+      "observedAt": "2026-07-13T10:05:47Z",
+      "evidenceId": "EVD-0137",
       "identity": {
         "hwnd": 20651076,
         "pid": 16244,
@@ -526,24 +488,24 @@
     }
   },
   "eventTail": {
-    "seq": 355,
-    "id": "EVT-0355",
-    "hash": "sha256:cb4752915cb6b0510ffd3222a8603235f030af1785d036f0df534f9b95f72209"
+    "seq": 363,
+    "id": "EVT-0363",
+    "hash": "sha256:6be166bf432c2e702f0350861e4d4069194bc552570d43fd8730e7928aea50c2"
   },
   "evidenceTail": {
-    "seq": 134,
-    "id": "EVD-0134",
-    "hash": "sha256:db5f691d76bc0841b2a860c4f962e920993c5a0694747eb964b7ad1039a87257"
+    "seq": 137,
+    "id": "EVD-0137",
+    "hash": "sha256:7953cff169ba8b242e1d3e2af642134ac394a7f031bb776d7e1dbe37ddf82d2b"
   },
-  "checkpointCounter": 31,
+  "checkpointCounter": 33,
   "lastCheckpoint": {
-    "id": "CP-0031",
+    "id": "CP-0033",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
-    "createdAt": "2026-07-13T10:03:57Z",
+    "path": "docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json",
+    "createdAt": "2026-07-13T10:05:56Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:5845ae5d59a3dba558e04e5d712385957ff9e13a643ccaee0491f1709b7f2eae"
+    "hash": "sha256:9c5d8850c3d1bfe0ebad832c6b1c6d4cae8d280c2c04ea75478e231d0c3209f0"
   },
   "resume": {
     "blockers": [
@@ -555,7 +517,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0031"
+    "lastSafeResumeSnapshotId": "CP-0033"
   },
   "completedSlices": [
     {

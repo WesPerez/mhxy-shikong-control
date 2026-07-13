@@ -1,0 +1,350 @@
+{
+  "kind": "mhxy-shikong.execution-checkpoint",
+  "schemaVersion": 1,
+  "id": "CP-0032",
+  "createdAt": "2026-07-13T10:04:34Z",
+  "type": "state_snapshot",
+  "reason": "window-identity-v1 specialized verifier proven on owned controller window without input",
+  "run": {
+    "runId": "RUN-20260710-CONTINUITY-BASELINE",
+    "attempt": 1,
+    "primaryThreadId": "019f5a42-5766-7be3-9861-f979ab529d26",
+    "previousThreadId": "019f42cc-2993-7681-b8d2-5269cf5447e1",
+    "startedAt": "2026-07-10T08:31:39Z",
+    "owner": "primary-agent"
+  },
+  "phaseId": "P3",
+  "slice": {
+    "id": "P3-S8",
+    "title": "Specialized window-identity-v1 verifier for read-only HWND identity evidence",
+    "status": "in_progress",
+    "startedAt": "2026-07-13T09:58:58Z",
+    "scope": [
+      "scripts/verify_window_identity.py",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "package.json"
+    ],
+    "nonGoals": [
+      "Do not send live game input",
+      "Do not claim game window identity without a live game process",
+      "Do not migrate AppData"
+    ],
+    "safetyBoundaries": [
+      "window-identity-v1 is read-only EnumWindows/GetWindowText/GetClientRect/OpenProcess query only",
+      "No PostMessage, SendInput, SetCursorPos, or focus steal"
+    ],
+    "acceptanceCriteria": [
+      {
+        "id": "P3-S8-C1",
+        "text": "window-identity-v1 is allowlisted and rejects incomplete identity",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0132"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S8-C2",
+        "text": "owned controller window identity verified read-only with hwnd/pid/title/process/size/privilege",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0134"
+        ],
+        "requiredEvidenceCategories": [
+          "window_identity"
+        ]
+      },
+      {
+        "id": "P3-S8-C3",
+        "text": "core regression and Vite build remain green after window-identity verifier wiring",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0132",
+          "EVD-0133"
+        ],
+        "requiredEvidenceCategories": [
+          "build",
+          "test"
+        ]
+      }
+    ],
+    "nextAction": "Prove window-identity-v1 against owned controller window; keep zero input; core regression green"
+  },
+  "git": {
+    "branch": "main",
+    "observedHead": "0c045b35e76a98e1444af5d776205cc3454288e4",
+    "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "dirtyPaths": [
+      "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+      "docs/execution/events.jsonl",
+      "docs/execution/state.json"
+    ],
+    "dirtyStatus": [
+      " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+      " M docs/execution/events.jsonl",
+      " M docs/execution/state.json"
+    ],
+    "dirtyEntries": [
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/STATUS.md",
+        "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/events.jsonl",
+        "displayPath": "docs/execution/events.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/state.json",
+        "displayPath": "docs/execution/state.json"
+      }
+    ],
+    "dirtyFiles": [
+      {
+        "path": "docs/execution/STATUS.md",
+        "exists": true,
+        "sha256": "66e0e9e252ff0d22cf7f37d55ae813760a3eb52c330491f8703f87ea2427ec93",
+        "size": 11508
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+        "exists": true,
+        "sha256": "01fe4bb5d5206a257f63b76c8de35c0e8579ce0fdcd8169071c827cef28db450",
+        "size": 11172
+      },
+      {
+        "path": "docs/execution/events.jsonl",
+        "exists": true,
+        "sha256": "a1f32f1545e10d441647fedae279e7da5b882f221647723a29253575826049de",
+        "size": 557974
+      },
+      {
+        "path": "docs/execution/state.json",
+        "exists": true,
+        "sha256": "b59b8b6f3b9d6cc6691810aff0c7a226dc4c3fd9f3c8b74929d3866931677d4d",
+        "size": 50188
+      }
+    ],
+    "workingTreeFingerprint": "sha256:37f3ca7864fe1c6776418b05513b5d607f40e2ac199ece1a2851b3555edfbb87"
+  },
+  "gitDiffSha256": "f66b087bb8268a6fe74171f926299654bb609a8b493cd1fccec323175dae6672",
+  "dirtyFileHashes": [
+    {
+      "path": "docs/execution/STATUS.md",
+      "exists": true,
+      "sha256": "66e0e9e252ff0d22cf7f37d55ae813760a3eb52c330491f8703f87ea2427ec93",
+      "size": 11508
+    },
+    {
+      "path": "docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json",
+      "exists": true,
+      "sha256": "01fe4bb5d5206a257f63b76c8de35c0e8579ce0fdcd8169071c827cef28db450",
+      "size": 11172
+    },
+    {
+      "path": "docs/execution/events.jsonl",
+      "exists": true,
+      "sha256": "a1f32f1545e10d441647fedae279e7da5b882f221647723a29253575826049de",
+      "size": 557974
+    },
+    {
+      "path": "docs/execution/state.json",
+      "exists": true,
+      "sha256": "b59b8b6f3b9d6cc6691810aff0c7a226dc4c3fd9f3c8b74929d3866931677d4d",
+      "size": 50188
+    }
+  ],
+  "eventTail": {
+    "seq": 357,
+    "id": "EVT-0357",
+    "hash": "sha256:0b9ae7ec0385f359d8c8e737a309e13c86cf7e90ddb2f1016983625872baf308"
+  },
+  "evidenceTail": {
+    "seq": 134,
+    "id": "EVD-0134",
+    "hash": "sha256:db5f691d76bc0841b2a860c4f962e920993c5a0694747eb964b7ad1039a87257"
+  },
+  "inFlightAction": null,
+  "runtime": {
+    "observedAt": "2026-07-13T10:04:32Z",
+    "staleAfterSeconds": 300,
+    "managedProcesses": [
+      {
+        "pid": 16244,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
+        "commandLine": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "creationTime": "2026-07-13T09:11:08Z",
+        "ownership": "created_by_current_run",
+        "ownershipEvidence": [
+          "goal-externalAuthorization-local_app_run_owned_process_only",
+          "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+          "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "expectedHead=4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+          "verifier=current-app-launch-v1",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "observedHead=4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
+          "actionId=ACT-P3S5-APP-LAUNCH-002"
+        ],
+        "cleanupAllowed": true,
+        "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
+        "createdByActionId": "ACT-P3S5-APP-LAUNCH-002",
+        "createdAt": "2026-07-13T09:11:09Z",
+        "present": true,
+        "lastObservedAt": "2026-07-13T09:11:09Z"
+      }
+    ],
+    "observedExternalProcesses": [
+      {
+        "pid": 42432,
+        "name": "mhxy-shikong-control.exe",
+        "role": "旧控制器历史线索",
+        "ownership": "preexisting",
+        "creationTime": "2026-07-09T15:20:29+08:00",
+        "identityLimit": "本轮未停止；当前未发现",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:48Z",
+        "observedAbsentAt": "2026-07-11T18:46:48Z"
+      },
+      {
+        "pid": 26056,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 A",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:37.972416+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:49Z",
+        "lastSeenAt": "2026-07-10T12:23:34Z",
+        "observedAbsentAt": "2026-07-11T18:46:49Z"
+      },
+      {
+        "pid": 52448,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 B",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:23.169428+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:50Z",
+        "lastSeenAt": "2026-07-10T12:23:35Z",
+        "observedAbsentAt": "2026-07-11T18:46:50Z"
+      },
+      {
+        "pid": 12744,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "task-owned",
+        "present": false,
+        "creationTime": "2026-07-13T08:54:11Z",
+        "lastObservedAt": "2026-07-13T09:08:55Z",
+        "lastSeenAt": "2026-07-13T08:54:26Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-13T09:08:55Z"
+      },
+      {
+        "pid": 16244,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-13T09:11:08Z",
+        "lastObservedAt": "2026-07-13T10:04:32Z",
+        "lastSeenAt": "2026-07-13T10:04:32Z",
+        "cleanupAllowed": false
+      }
+    ],
+    "managedArtifacts": [
+      {
+        "path": "AGENTS.md",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "docs/execution/",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/audit_execution_state.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      }
+    ],
+    "observedArtifacts": [
+      {
+        "path": "assets/resource/ShiKong/reports/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "src-tauri/target*/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": ".codex-window-*.png",
+        "ownership": "preexisting_ignored_unknown",
+        "cleanupAllowed": false
+      }
+    ],
+    "lastWindowIdentity": {
+      "targetIdentity": "controller-app:16244@mhxy-shikong-control.exe:20651076",
+      "verified": true,
+      "observedAt": "2026-07-13T10:03:02Z",
+      "evidenceId": "EVD-0134",
+      "identity": {
+        "hwnd": 20651076,
+        "pid": 16244,
+        "title": "时空任务编排器",
+        "process": "mhxy-shikong-control.exe",
+        "clientWidth": 1460,
+        "clientHeight": 992,
+        "privilege": "same"
+      }
+    }
+  },
+  "resume": {
+    "blockers": [
+      "P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动"
+    ],
+    "nextCommands": [
+      "npm run execution:resume-check"
+    ],
+    "doNotDo": [
+      "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
+    ],
+    "lastSafeResumeSnapshotId": "CP-0031"
+  },
+  "safeToResume": true,
+  "safeToRunLiveInput": false,
+  "liveScope": null,
+  "hash": "sha256:b18a3469383b143db4e5b1c9c045b45b2278677fdaf68cd4ee857b1d894c1166"
+}

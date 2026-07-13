@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:6c4220eaf3b9479695e4dcf0ec29d60914faca7c024961eb2acf3b029c1ca803 -->
-<!-- checkpoint-id: CP-0031 -->
+<!-- state-digest: sha256:14f86224eb1f51a421d45d0f0a36f32cc0ba02aa9f6c52aa111ea04ddfcabb7f -->
+<!-- checkpoint-id: CP-0033 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,25 +9,25 @@
 ## 恢复首屏
 
 - 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-13T10:03:56Z`
-- 更新时间（北京时间）：`2026-07-13T18:03:56+08:00`
+- 更新时间（UTC）：`2026-07-13T10:05:55Z`
+- 更新时间（北京时间）：`2026-07-13T18:05:55+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
 - 当前阶段：`P3`
 - 当前切片：`P3-S8` - Specialized window-identity-v1 verifier for read-only HWND identity evidence
-- 阶段状态：`in_progress`；切片状态：`in_progress`；动作状态：`none`
+- 阶段状态：`in_progress`；切片状态：`verified`；动作状态：`none`
 - 当前切片验收：已满足 `3`，待验证或阻塞 `0`，合计 `3`
 - 本轮是否发送真实游戏输入：`false`
 - 当前工作：当前没有副作用动作在执行，停在下一动作之前
-- 最新当前有效证据：Verified live window identity for controller-app (read-only, no input)（EVD-0134，当前工作区绑定有效）
-- 唯一下一动作：Prove window-identity-v1 against owned controller window; keep zero input; core regression green
+- 最新当前有效证据：Verified live window identity for controller-app (read-only, no input)（EVD-0137，当前工作区绑定有效）
+- 唯一下一动作：Optional: rebuild/relaunch current HEAD app; P4 requires live game windows for identity/capture/OCR e2e
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
-- 最新 checkpoint：`CP-0031`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0033`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-13T09:58:57Z`；年龄=`299s`；TTL=`300s`；expiresAt=`2026-07-13T10:03:57Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-13T10:04:32Z`；年龄=`83s`；TTL=`300s`；expiresAt=`2026-07-13T10:09:32Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -82,9 +82,9 @@
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P3-S8-C1` | window-identity-v1 is allowlisted and rejects incomplete identity | `passed` | `test` | `EVD-0132` |
-| `P3-S8-C2` | owned controller window identity verified read-only with hwnd/pid/title/process/size/privilege | `passed` | `window_identity` | `EVD-0134` |
-| `P3-S8-C3` | core regression and Vite build remain green after window-identity verifier wiring | `passed` | `build`, `test` | `EVD-0132`, `EVD-0133` |
+| `P3-S8-C1` | window-identity-v1 is allowlisted and rejects incomplete identity | `passed` | `test` | `EVD-0132`, `EVD-0135` |
+| `P3-S8-C2` | owned controller window identity verified read-only with hwnd/pid/title/process/size/privilege | `passed` | `window_identity` | `EVD-0134`, `EVD-0137` |
+| `P3-S8-C3` | core regression and Vite build remain green after window-identity verifier wiring | `passed` | `build`, `test` | `EVD-0132`, `EVD-0133`, `EVD-0135`, `EVD-0136` |
 
 ## 当前动作
 
@@ -92,7 +92,7 @@
 
 ## 下一步
 
-- 唯一下一动作：Prove window-identity-v1 against owned controller window; keep zero input; core regression green
+- 唯一下一动作：Optional: rebuild/relaunch current HEAD app; P4 requires live game windows for identity/capture/OCR e2e
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -108,25 +108,22 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`aae2190fca0bd06ab04359eea4a7b2dc0ccaae4b`
+- observed HEAD：`0c045b35e76a98e1444af5d776205cc3454288e4`
 - verified HEAD：`4eb8f9e41ffad8ad703a38819fa2262d127ad0e8`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:09067875b3a3d4e4f365d87e02aeec1710fe041ca5be9a6c50f96fb160494c9c`
-- 最新 checkpoint：`CP-0031` (state_snapshot)
+- working tree fingerprint：`sha256:37f3ca7864fe1c6776418b05513b5d607f40e2ac199ece1a2851b3555edfbb87`
+- 最新 checkpoint：`CP-0033` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json`
+- `docs/execution/checkpoints/CP-0032-p3-s8-window-identity-verified.json`
+- `docs/execution/checkpoints/CP-0033-p3-s8-rebind-0c045b3.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
-- `package.json`
-- `scripts/execution_progress.py`
-- `scripts/test_execution_progress.py`
-- `scripts/verify_window_identity.py`
 
 ## 运行进程与产物
 
@@ -159,29 +156,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0127` | `build` | `passed` | `stale` | P3-S7 entry.home offline binding: Vite build green<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0128` | `test` | `passed` | `stale` | P3-S7 rebind on 5b76cfb: core regression after entry.home binding commit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0129` | `build` | `passed` | `stale` | P3-S7 rebind on 5b76cfb: Vite build after entry.home binding commit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0130` | `test` | `passed` | `stale` | P3-S7 rebind on aae2190: core regression after ledger commit<br>证据工作树指纹与当前现场不同 |
-| `EVD-0131` | `build` | `passed` | `stale` | P3-S7 rebind on aae2190: Vite build after ledger commit<br>证据工作树指纹与当前现场不同 |
-| `EVD-0132` | `test` | `passed` | `stale` | P3-S8 window-identity verifier: full core regression green<br>证据工作树指纹与当前现场不同 |
-| `EVD-0133` | `build` | `passed` | `stale` | P3-S8 window-identity verifier: Vite build green<br>证据工作树指纹与当前现场不同 |
-| `EVD-0134` | `window_identity` | `passed` | `valid` | Verified live window identity for controller-app (read-only, no input)<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0130` | `test` | `passed` | `stale` | P3-S7 rebind on aae2190: core regression after ledger commit<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0131` | `build` | `passed` | `stale` | P3-S7 rebind on aae2190: Vite build after ledger commit<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0132` | `test` | `passed` | `stale` | P3-S8 window-identity verifier: full core regression green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0133` | `build` | `passed` | `stale` | P3-S8 window-identity verifier: Vite build green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0134` | `window_identity` | `passed` | `stale` | Verified live window identity for controller-app (read-only, no input)<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0135` | `test` | `passed` | `valid` | P3-S8 rebind on 0c045b3: core regression after window-identity commit<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0136` | `build` | `passed` | `valid` | P3-S8 rebind on 0c045b3: Vite build after window-identity commit<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0137` | `window_identity` | `passed` | `valid` | Verified live window identity for controller-app (read-only, no input)<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 346 | `2026-07-13T09:38:42Z` | `runtime_observation` | Refresh runtime freshness after P3-S7 rebind evidence |
-| 347 | `2026-07-13T09:38:43Z` | `checkpoint` | 创建 CP-0030：P3-S7 criteria rebound on product HEAD 5b76cfb |
-| 348 | `2026-07-13T09:41:43Z` | `test_run` | P3-S7 rebind on aae2190: core regression after ledger commit |
-| 349 | `2026-07-13T09:52:36Z` | `test_run` | P3-S7 rebind on aae2190: Vite build after ledger commit |
-| 350 | `2026-07-13T09:58:57Z` | `runtime_observation` | Refresh runtime before P3-S8 window-identity slice |
-| 351 | `2026-07-13T09:58:58Z` | `slice_started` | 开始切片 P3-S8：Specialized window-identity-v1 verifier for read-only HWND identity evidence |
-| 352 | `2026-07-13T10:00:08Z` | `test_run` | P3-S8 window-identity verifier: full core regression green |
-| 353 | `2026-07-13T10:00:41Z` | `test_run` | P3-S8 window-identity verifier: Vite build green |
 | 354 | `2026-07-13T10:03:02Z` | `runtime_observation` | Verified live window identity for controller-app (read-only, no input) |
 | 355 | `2026-07-13T10:03:57Z` | `checkpoint` | 创建 CP-0031：window-identity-v1 specialized verifier proven on owned controller window without input |
+| 356 | `2026-07-13T10:04:31Z` | `runtime_observation` | Refresh after P3-S8 product commit 0c045b3 |
+| 357 | `2026-07-13T10:04:32Z` | `runtime_observation` | Refresh after window-identity evidence EVD-0134 |
+| 358 | `2026-07-13T10:04:34Z` | `checkpoint` | 创建 CP-0032：window-identity-v1 specialized verifier proven on owned controller window without input |
+| 359 | `2026-07-13T10:05:23Z` | `test_run` | P3-S8 rebind on 0c045b3: core regression after window-identity commit |
+| 360 | `2026-07-13T10:05:46Z` | `test_run` | P3-S8 rebind on 0c045b3: Vite build after window-identity commit |
+| 361 | `2026-07-13T10:05:47Z` | `runtime_observation` | Verified live window identity for controller-app (read-only, no input) |
+| 362 | `2026-07-13T10:05:48Z` | `slice_state_changed` | P3-S8 rebind complete on HEAD 0c045b3 with window-identity-v1 and core/build evidence |
+| 363 | `2026-07-13T10:05:56Z` | `checkpoint` | 创建 CP-0033：P3-S8 criteria rebound on product HEAD 0c045b3 with EVD-0135/0136/0137 |
 
 ## 异常恢复
 
