@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 306,
+  "revision": 314,
   "generation": 1,
-  "updatedAt": "2026-07-13T08:25:32Z",
+  "updatedAt": "2026-07-13T08:37:13Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -59,7 +59,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0101",
-          "EVD-0102"
+          "EVD-0102",
+          "EVD-0104",
+          "EVD-0105"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -71,7 +73,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0101",
-          "EVD-0102"
+          "EVD-0102",
+          "EVD-0104",
+          "EVD-0105"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -83,7 +87,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0101",
-          "EVD-0102"
+          "EVD-0102",
+          "EVD-0104",
+          "EVD-0105"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -96,7 +102,10 @@
         "evidenceIds": [
           "EVD-0101",
           "EVD-0102",
-          "EVD-0103"
+          "EVD-0103",
+          "EVD-0104",
+          "EVD-0105",
+          "EVD-0106"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -104,7 +113,7 @@
         ]
       }
     ],
-    "nextAction": "git commit P3-S3"
+    "nextAction": "Commit ledger rebind; begin P4-S1 offline home-vitality task scaffolding without live game input"
   },
   "phases": [
     {
@@ -222,101 +231,55 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "32285112845c17f0fcc5d3e617707eb14879294e",
+    "observedHead": "f266ea2bc842d2bc0a3b0fb429b7c4348b8515c6",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0023-p3-s3-verified.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "scripts/test_failure_evidence_core.mjs",
-      "src-tauri/src/main.rs",
-      "src/failure-evidence-core.js",
-      "src/main.js"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0023-p3-s3-verified.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M scripts/test_failure_evidence_core.mjs",
-      " M src-tauri/src/main.rs",
-      " M src/failure-evidence-core.js",
-      " M src/main.js"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "4fd85fd2344280f32cfa2972a3470bbe43bb406dc76b83db90d0b4cb1742e5e1",
-        "size": 11771
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0023-p3-s3-verified.json",
-        "exists": true,
-        "sha256": "872dadfd6e2229ba2fce682c6b4f2724f1500a0bccdd995991f9fa571eb5417d",
-        "size": 12699
+        "sha256": "6f938d7687c13dcff6f3ffabaf5dca794046f5e5c551339c3bae7ce60d79b06d",
+        "size": 11797
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "d7437ffbeab17e71eab775630596117f0e358925c5bf04ab022d2f0ded9548d6",
-        "size": 489946
+        "sha256": "1796518c2591e31a831994b30034e259ceef821d07d1c6a5508986eb2cd1ae8b",
+        "size": 493644
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "a31f035c20751691a37b9df92aa58f6557fed317ec15fda7e9781ee9de14cfc7",
-        "size": 231656
+        "sha256": "17780d9920a2a4a7d1a617982613cf4ffe2f5585e517fb630de8effeb466e692",
+        "size": 236214
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "84edfbee3752ea2bae6aa7cd30ccdbd126419d6864754d1f9130e7012efe54ba",
-        "size": 38197
-      },
-      {
-        "path": "scripts/test_failure_evidence_core.mjs",
-        "exists": true,
-        "sha256": "42213e2ed76a1181c1e62ffc6edccdcb1960ff431c615b3196cdfad7cc5f2d81",
-        "size": 5725
-      },
-      {
-        "path": "src-tauri/src/main.rs",
-        "exists": true,
-        "sha256": "d38598ab044915794f4674f714f0462d2e404bdad87e22f17c2fdd51f358ad8d",
-        "size": 106890
-      },
-      {
-        "path": "src/failure-evidence-core.js",
-        "exists": true,
-        "sha256": "b7523b0559ae3ca875c12af192295845b868a048edc981d9c4e6599cf5a30743",
-        "size": 7632
-      },
-      {
-        "path": "src/main.js",
-        "exists": true,
-        "sha256": "f3c0380fd1d04f57a9dcaa0602e06913900103ada4e682e9db0cfa797872dbb2",
-        "size": 353460
+        "sha256": "9f624fe99a316d541401ac02c0d4565077f67f2236527e58dad50a89de96401c",
+        "size": 36125
       }
     ],
-    "workingTreeFingerprint": "sha256:c9575de8233d0ba0d2f4e7fbec296d00f0aa8556922edd2007de94530426a854",
+    "workingTreeFingerprint": "sha256:95029b2d2f0616fee2ec31df754f4761a8a7a3c61cf55dd60dce6a328de3de90",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0023-p3-s3-verified.json",
-        "displayPath": "docs/execution/checkpoints/CP-0023-p3-s3-verified.json"
       },
       {
         "status": " M",
@@ -335,30 +298,6 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_failure_evidence_core.mjs",
-        "displayPath": "scripts/test_failure_evidence_core.mjs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src-tauri/src/main.rs",
-        "displayPath": "src-tauri/src/main.rs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src/failure-evidence-core.js",
-        "displayPath": "src/failure-evidence-core.js"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src/main.js",
-        "displayPath": "src/main.js"
       }
     ]
   },
@@ -474,14 +413,14 @@
     ]
   },
   "eventTail": {
-    "seq": 282,
-    "id": "EVT-0282",
-    "hash": "sha256:40a31205a7bb8700c2df515a654597cef4fd404081c388f3fecd1264fe5a4f4f"
+    "seq": 287,
+    "id": "EVT-0287",
+    "hash": "sha256:829982b996f9a9bc631464b74d7386db165fe2841962d8ebadad222a7251117e"
   },
   "evidenceTail": {
-    "seq": 103,
-    "id": "EVD-0103",
-    "hash": "sha256:7310324d37d4c5b1968f7e021f32a82ee6839dc372b84a41c7039a767aa255f6"
+    "seq": 106,
+    "id": "EVD-0106",
+    "hash": "sha256:2c7c00b23c52081a1928ac196c6899c039c5c31527e84252eb167b887fa76863"
   },
   "checkpointCounter": 23,
   "lastCheckpoint": {
