@@ -108,7 +108,7 @@ PROFILE_CATEGORY_BY_NAME = {
 }
 SPECIALIZED_VERIFIER_ALLOWLIST: Dict[str, set] = {
     "app_runtime": {"current-app-launch-v1"},
-    "window_identity": set(),
+    "window_identity": {"window-identity-v1"},
     "live_input": set(),
     "live_outcome": set(),
     "multi_window": set(),

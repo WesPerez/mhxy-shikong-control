@@ -51,7 +51,8 @@
     "validate:live-hotkey": "python scripts/live_background_hotkey_validation.py",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "test:match-overlay": "node scripts/test_match_overlay_core.mjs"
+    "test:match-overlay": "node scripts/test_match_overlay_core.mjs",
+    "verify:window-identity": "python -B scripts/verify_window_identity.py"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0"

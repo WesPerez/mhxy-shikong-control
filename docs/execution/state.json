@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 388,
+  "revision": 397,
   "generation": 1,
-  "updatedAt": "2026-07-13T09:38:43Z",
+  "updatedAt": "2026-07-13T10:03:56Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,60 +32,55 @@
   "actionStatus": "none",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P3-S7",
-    "title": "Offline bind entry.home to jiayuan/jiayuan template without live input",
-    "status": "verified",
-    "startedAt": "2026-07-13T09:25:08Z",
+    "id": "P3-S8",
+    "title": "Specialized window-identity-v1 verifier for read-only HWND identity evidence",
+    "status": "in_progress",
+    "startedAt": "2026-07-13T09:58:58Z",
     "scope": [
-      "src/home-vitality-core.js",
-      "src/main.js",
-      "scripts/test_home_vitality_core.mjs",
-      "assets/resource/ShiKong/template_mapping.json",
-      "assets/resource/ShiKong/image/jiayuan/jiayuan.png"
+      "scripts/verify_window_identity.py",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "package.json"
     ],
     "nonGoals": [
       "Do not send live game input",
-      "Do not claim live template match score on real game windows",
+      "Do not claim game window identity without a live game process",
       "Do not migrate AppData"
     ],
     "safetyBoundaries": [
-      "Offline template import never authorizes HWND input",
-      "liveReady and liveInputAuthorized stay false"
+      "window-identity-v1 is read-only EnumWindows/GetWindowText/GetClientRect/OpenProcess query only",
+      "No PostMessage, SendInput, SetCursorPos, or focus steal"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P3-S7-C1",
-        "text": "entry.home binds to jiayuan/jiayuan.png and is ready only when template key available",
+        "id": "P3-S8-C1",
+        "text": "window-identity-v1 is allowlisted and rejects incomplete identity",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0126",
-          "EVD-0128"
+          "EVD-0132"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P3-S7-C2",
-        "text": "offline scaffold can be ready with builtin templates while liveReady remains false",
+        "id": "P3-S8-C2",
+        "text": "owned controller window identity verified read-only with hwnd/pid/title/process/size/privilege",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0126",
-          "EVD-0128"
+          "EVD-0134"
         ],
         "requiredEvidenceCategories": [
-          "test"
+          "window_identity"
         ]
       },
       {
-        "id": "P3-S7-C3",
-        "text": "core regression and Vite build remain green after entry.home binding",
+        "id": "P3-S8-C3",
+        "text": "core regression and Vite build remain green after window-identity verifier wiring",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0126",
-          "EVD-0127",
-          "EVD-0128",
-          "EVD-0129"
+          "EVD-0132",
+          "EVD-0133"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -93,7 +88,7 @@
         ]
       }
     ],
-    "nextAction": "P3 remaining polish optional; P4 blocked on live window identity/OCR/capture of real home UI; keep or stop owned app via process_stop"
+    "nextAction": "Prove window-identity-v1 against owned controller window; keep zero input; core regression green"
   },
   "phases": [
     {
@@ -209,57 +204,89 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "5b76cfb52b1e287b82511f0fe0f836b12166ece2",
+    "observedHead": "aae2190fca0bd06ab04359eea4a7b2dc0ccaae4b",
     "verifiedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
+      "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/state.json",
+      "package.json",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "scripts/verify_window_identity.py"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
+      "?? docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/state.json",
+      " M package.json",
+      " M scripts/execution_progress.py",
+      " M scripts/test_execution_progress.py",
+      "?? scripts/verify_window_identity.py"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "2b9132837eb66157141bb5e5a646c49c0a84b6c71155a5181b48f52e3b9e0f5c",
-        "size": 11800
+        "sha256": "2d5a72d602c011ea6815f338f077213f357e7471e2a50a3f3c66e44251b77af6",
+        "size": 11778
       },
       {
-        "path": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
+        "path": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
         "exists": true,
-        "sha256": "b0d0f86789e70d7dca46856d448b2a54ac4bbb7de1212db952715f4d669dd21f",
-        "size": 12260
+        "sha256": "bcbcb4d00ebedd30f8f8340b2d159285e163015fc6364ba4f2e6af70a5237ed5",
+        "size": 15266
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "0c9efa9c409a84e073e6757e1abf9a9abd60e92169db71be1218190c589b0d8a",
-        "size": 549556
+        "sha256": "6bda2163f9c05cba8d6ed59d5efc86a23dbef1a92ebebf2e85584fd55a258f66",
+        "size": 556515
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "2ac6182db900a623a2b214e6c0aefbf7bdfa3104e2cb418ef03eb308bcc3bab6",
-        "size": 275371
+        "sha256": "e6cf0aaf38cb59a14d1bbed2338cac77103e401d4b7e58a770476b8c2ca8fd0e",
+        "size": 284441
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "d5577cc2b0d1c5b2a0f357763f3394906bd01f44cd534ef0684e6868a304800e",
-        "size": 48688
+        "sha256": "1edb5fa48453e56dcc6088844a7ad3407ce89e21e585ce1d5c741b148656b54e",
+        "size": 53132
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "9a1f7b32a9b5886117ccde84b99ef08fc20eb3a2a3336e7653b90c0bc7b8050a",
+        "size": 4972
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "exists": true,
+        "sha256": "a983f7c138d15fc7ece4405519f3df6c7bbf317ad6e9927e4c61d5e1e630592e",
+        "size": 124106
+      },
+      {
+        "path": "scripts/test_execution_progress.py",
+        "exists": true,
+        "sha256": "87666b24ade0925dcc87199cf3f080c0155c0a965457af739fa6d7f77eb5afb6",
+        "size": 42728
+      },
+      {
+        "path": "scripts/verify_window_identity.py",
+        "exists": true,
+        "sha256": "8c7b034092d3f45479d0d7a09005021fc2d86d8b7516df82d886b5ff14f15f07",
+        "size": 13504
       }
     ],
-    "workingTreeFingerprint": "sha256:09a4b66ddcaebaeb807ee8415b08b0e13cfe526f1f03737f40c63e3642e6dfd6",
+    "workingTreeFingerprint": "sha256:09067875b3a3d4e4f365d87e02aeec1710fe041ca5be9a6c50f96fb160494c9c",
     "dirtyEntries": [
       {
         "status": " M",
@@ -270,8 +297,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
-        "displayPath": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json"
       },
       {
         "status": " M",
@@ -290,6 +317,30 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_execution_progress.py",
+        "displayPath": "scripts/test_execution_progress.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/verify_window_identity.py",
+        "displayPath": "scripts/verify_window_identity.py"
       }
     ]
   },
@@ -325,7 +376,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-13T09:38:42Z",
+    "observedAt": "2026-07-13T09:58:57Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -414,8 +465,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-13T09:11:08Z",
-        "lastObservedAt": "2026-07-13T09:38:42Z",
-        "lastSeenAt": "2026-07-13T09:38:42Z",
+        "lastObservedAt": "2026-07-13T09:58:57Z",
+        "lastSeenAt": "2026-07-13T09:58:57Z",
         "cleanupAllowed": false
       }
     ],
@@ -457,27 +508,42 @@
         "ownership": "preexisting_ignored_unknown",
         "cleanupAllowed": false
       }
-    ]
+    ],
+    "lastWindowIdentity": {
+      "targetIdentity": "controller-app:16244@mhxy-shikong-control.exe:20651076",
+      "verified": true,
+      "observedAt": "2026-07-13T10:03:02Z",
+      "evidenceId": "EVD-0134",
+      "identity": {
+        "hwnd": 20651076,
+        "pid": 16244,
+        "title": "时空任务编排器",
+        "process": "mhxy-shikong-control.exe",
+        "clientWidth": 1460,
+        "clientHeight": 992,
+        "privilege": "same"
+      }
+    }
   },
   "eventTail": {
-    "seq": 347,
-    "id": "EVT-0347",
-    "hash": "sha256:b9a074493bb71a813e5de8401ecc8b35e0d2ed1a32fbfdcec96e740ea6efd250"
+    "seq": 355,
+    "id": "EVT-0355",
+    "hash": "sha256:cb4752915cb6b0510ffd3222a8603235f030af1785d036f0df534f9b95f72209"
   },
   "evidenceTail": {
-    "seq": 129,
-    "id": "EVD-0129",
-    "hash": "sha256:760ac69060a76f5238b8f172bb3ba5e8288c18615cdb212d8a55490dd70c27c2"
+    "seq": 134,
+    "id": "EVD-0134",
+    "hash": "sha256:db5f691d76bc0841b2a860c4f962e920993c5a0694747eb964b7ad1039a87257"
   },
-  "checkpointCounter": 30,
+  "checkpointCounter": 31,
   "lastCheckpoint": {
-    "id": "CP-0030",
+    "id": "CP-0031",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
-    "createdAt": "2026-07-13T09:38:43Z",
+    "path": "docs/execution/checkpoints/CP-0031-p3-s8-window-identity-verified.json",
+    "createdAt": "2026-07-13T10:03:57Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:f396335a149c94713f7e1e4f4712566927f411e141939c9b7fdeda94e3c01307"
+    "hash": "sha256:5845ae5d59a3dba558e04e5d712385957ff9e13a643ccaee0491f1709b7f2eae"
   },
   "resume": {
     "blockers": [
@@ -489,7 +555,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0030"
+    "lastSafeResumeSnapshotId": "CP-0031"
   },
   "completedSlices": [
     {
@@ -1486,6 +1552,76 @@
       "nextAction": "Begin P4-S1: offline bind entry.home template from mapped jiayuan asset without live input",
       "phaseId": "P3",
       "verifiedAt": "2026-07-13T09:25:08Z"
+    },
+    {
+      "id": "P3-S7",
+      "title": "Offline bind entry.home to jiayuan/jiayuan template without live input",
+      "status": "verified",
+      "startedAt": "2026-07-13T09:25:08Z",
+      "scope": [
+        "src/home-vitality-core.js",
+        "src/main.js",
+        "scripts/test_home_vitality_core.mjs",
+        "assets/resource/ShiKong/template_mapping.json",
+        "assets/resource/ShiKong/image/jiayuan/jiayuan.png"
+      ],
+      "nonGoals": [
+        "Do not send live game input",
+        "Do not claim live template match score on real game windows",
+        "Do not migrate AppData"
+      ],
+      "safetyBoundaries": [
+        "Offline template import never authorizes HWND input",
+        "liveReady and liveInputAuthorized stay false"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P3-S7-C1",
+          "text": "entry.home binds to jiayuan/jiayuan.png and is ready only when template key available",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0126",
+            "EVD-0128",
+            "EVD-0130"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S7-C2",
+          "text": "offline scaffold can be ready with builtin templates while liveReady remains false",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0126",
+            "EVD-0128",
+            "EVD-0130"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S7-C3",
+          "text": "core regression and Vite build remain green after entry.home binding",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0126",
+            "EVD-0127",
+            "EVD-0128",
+            "EVD-0129",
+            "EVD-0130",
+            "EVD-0131"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "P3 remaining polish optional; P4 blocked on live window identity/OCR/capture of real home UI; keep or stop owned app via process_stop",
+      "phaseId": "P3",
+      "verifiedAt": "2026-07-13T09:58:58Z"
     }
   ]
 }
