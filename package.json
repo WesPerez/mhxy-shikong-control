@@ -41,6 +41,7 @@
     "execution:resume-check:json": "python -B scripts/execution_progress.py resume-check --json",
     "execution:render": "python -B scripts/execution_progress.py render",
     "execution:preflight-p0": "python scripts/preflight_p0_workspace.py --json",
+    "verify:app-runtime-launch": "python -B scripts/verify_app_runtime_launch.py",
     "execution:checkpoint": "python scripts/execution_progress.py checkpoint --label manual --type state_snapshot --reason manual --safe-to-resume",
     "audit:execution-state": "python scripts/audit_execution_state.py",
     "audit:all": "npm run audit:input-safety && npm run audit:control-flow-schema && npm run audit:failure-evidence && npm run audit:step-params && npm run audit:quick-steps && npm run audit:workspace-migration && npm run audit:workflow-readiness && npm run audit:readiness-taxonomy && npm run audit:completion-action-dock && npm run audit:live-validation && npm run audit:live-validation-import && npm run audit:queue-readiness && npm run audit:runtime-lane && npm run audit:capture-policy && npm run audit:ocr-worker && npm run audit:workbench-layout && npm run audit:workbench-viewports && npm run audit:execution-state",

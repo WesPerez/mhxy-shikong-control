@@ -1,0 +1,434 @@
+{
+  "kind": "mhxy-shikong.execution-checkpoint",
+  "schemaVersion": 1,
+  "id": "CP-0025",
+  "createdAt": "2026-07-13T08:55:41Z",
+  "type": "state_snapshot",
+  "reason": "Current HEAD app launched with specialized verifier evidence before product commit",
+  "run": {
+    "runId": "RUN-20260710-CONTINUITY-BASELINE",
+    "attempt": 1,
+    "primaryThreadId": "019f5a42-5766-7be3-9861-f979ab529d26",
+    "previousThreadId": "019f42cc-2993-7681-b8d2-5269cf5447e1",
+    "startedAt": "2026-07-10T08:31:39Z",
+    "owner": "primary-agent"
+  },
+  "phaseId": "P3",
+  "slice": {
+    "id": "P3-S5",
+    "title": "Current-commit app launch gate with specialized verifier",
+    "status": "verified",
+    "startedAt": "2026-07-13T08:48:21Z",
+    "scope": [
+      "scripts/verify_app_runtime_launch.py",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "package.json"
+    ],
+    "nonGoals": [
+      "Do not send live game input",
+      "Do not migrate AppData",
+      "Do not force-push"
+    ],
+    "safetyBoundaries": [
+      "Only start process registered via process_start action with ownership evidence",
+      "Stop only owned managed processes from this run"
+    ],
+    "acceptanceCriteria": [
+      {
+        "id": "P3-S5-C1",
+        "text": "specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0115"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S5-C2",
+        "text": "current HEAD release/debug app process is started owned and observed present",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0114"
+        ],
+        "requiredEvidenceCategories": [
+          "app_runtime"
+        ]
+      },
+      {
+        "id": "P3-S5-C3",
+        "text": "process ownership evidence includes command/cwd/pid and head fingerprint",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0115"
+        ],
+        "requiredEvidenceCategories": [
+          "test"
+        ]
+      },
+      {
+        "id": "P3-S5-C4",
+        "text": "core regression remains green after verifier wiring",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0115",
+          "EVD-0116"
+        ],
+        "requiredEvidenceCategories": [
+          "build",
+          "test"
+        ]
+      }
+    ],
+    "nextAction": "Commit P3-S5 verifier+wiring; leave app running owned or stop with process_stop after product commit as needed"
+  },
+  "git": {
+    "branch": "main",
+    "observedHead": "0ac3656478fbf403f41d37b7c37c4036cfa44508",
+    "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "dirtyPaths": [
+      "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+      "docs/execution/events.jsonl",
+      "docs/execution/evidence.jsonl",
+      "docs/execution/state.json",
+      "package.json",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "scripts/verify_app_runtime_launch.py"
+    ],
+    "dirtyStatus": [
+      " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+      " M docs/execution/events.jsonl",
+      " M docs/execution/evidence.jsonl",
+      " M docs/execution/state.json",
+      " M package.json",
+      " M scripts/execution_progress.py",
+      " M scripts/test_execution_progress.py",
+      "?? scripts/verify_app_runtime_launch.py"
+    ],
+    "dirtyEntries": [
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/STATUS.md",
+        "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+        "displayPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/events.jsonl",
+        "displayPath": "docs/execution/events.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/evidence.jsonl",
+        "displayPath": "docs/execution/evidence.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/state.json",
+        "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_execution_progress.py",
+        "displayPath": "scripts/test_execution_progress.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/verify_app_runtime_launch.py",
+        "displayPath": "scripts/verify_app_runtime_launch.py"
+      }
+    ],
+    "dirtyFiles": [
+      {
+        "path": "docs/execution/STATUS.md",
+        "exists": true,
+        "sha256": "8b0b35f0a7995bcb600e4e72e403fb2d141b9e54763b40625c87cd80c6df62cc",
+        "size": 12074
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+        "exists": true,
+        "sha256": "f40ad44054aff6993f5ff57ff3f5277babedd14a04268417faac85bd288ce227",
+        "size": 13664
+      },
+      {
+        "path": "docs/execution/events.jsonl",
+        "exists": true,
+        "sha256": "e6aa122188a4be6faf8be4255fe905cdcbcb9d359cd95627a5a8611505480098",
+        "size": 514295
+      },
+      {
+        "path": "docs/execution/evidence.jsonl",
+        "exists": true,
+        "sha256": "e71c9e4c9090766b61cf0b491019e4bcf03f7cf5eb74ba67847d187770c91959",
+        "size": 253581
+      },
+      {
+        "path": "docs/execution/state.json",
+        "exists": true,
+        "sha256": "54e64df95419e47e9f8b6e3f88228122a4a69e50b36a993779b2acd83b36e167",
+        "size": 45228
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "fb295e1b3364f84cfaf68e730b1dc7ca3bd097fc122398f95a75cb714951a22e",
+        "size": 4793
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "exists": true,
+        "sha256": "9e98086b011e003383595ebfa7288dc0b7812974fdf4df1b1ffeed402d0e38f3",
+        "size": 121635
+      },
+      {
+        "path": "scripts/test_execution_progress.py",
+        "exists": true,
+        "sha256": "1acef0aa7d30cc990265c831aede1dbcbc62f44d30b12996174b320ef77ea0c2",
+        "size": 42615
+      },
+      {
+        "path": "scripts/verify_app_runtime_launch.py",
+        "exists": true,
+        "sha256": "f45cbf34b9f834f3886ad9739bdf557b7387855668b865a806f3e92aaffe3846",
+        "size": 12738
+      }
+    ],
+    "workingTreeFingerprint": "sha256:7192f45bd97430b1e1487975a443eb7fe1a209669fbb694fee957d645007e2d3"
+  },
+  "gitDiffSha256": "1e15cd497606d7adc90cb7e41f46f31c28c74cc00fe37cbcba0b681ca02e9f7c",
+  "dirtyFileHashes": [
+    {
+      "path": "docs/execution/STATUS.md",
+      "exists": true,
+      "sha256": "8b0b35f0a7995bcb600e4e72e403fb2d141b9e54763b40625c87cd80c6df62cc",
+      "size": 12074
+    },
+    {
+      "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+      "exists": true,
+      "sha256": "f40ad44054aff6993f5ff57ff3f5277babedd14a04268417faac85bd288ce227",
+      "size": 13664
+    },
+    {
+      "path": "docs/execution/events.jsonl",
+      "exists": true,
+      "sha256": "e6aa122188a4be6faf8be4255fe905cdcbcb9d359cd95627a5a8611505480098",
+      "size": 514295
+    },
+    {
+      "path": "docs/execution/evidence.jsonl",
+      "exists": true,
+      "sha256": "e71c9e4c9090766b61cf0b491019e4bcf03f7cf5eb74ba67847d187770c91959",
+      "size": 253581
+    },
+    {
+      "path": "docs/execution/state.json",
+      "exists": true,
+      "sha256": "54e64df95419e47e9f8b6e3f88228122a4a69e50b36a993779b2acd83b36e167",
+      "size": 45228
+    },
+    {
+      "path": "package.json",
+      "exists": true,
+      "sha256": "fb295e1b3364f84cfaf68e730b1dc7ca3bd097fc122398f95a75cb714951a22e",
+      "size": 4793
+    },
+    {
+      "path": "scripts/execution_progress.py",
+      "exists": true,
+      "sha256": "9e98086b011e003383595ebfa7288dc0b7812974fdf4df1b1ffeed402d0e38f3",
+      "size": 121635
+    },
+    {
+      "path": "scripts/test_execution_progress.py",
+      "exists": true,
+      "sha256": "1acef0aa7d30cc990265c831aede1dbcbc62f44d30b12996174b320ef77ea0c2",
+      "size": 42615
+    },
+    {
+      "path": "scripts/verify_app_runtime_launch.py",
+      "exists": true,
+      "sha256": "f45cbf34b9f834f3886ad9739bdf557b7387855668b865a806f3e92aaffe3846",
+      "size": 12738
+    }
+  ],
+  "eventTail": {
+    "seq": 309,
+    "id": "EVT-0309",
+    "hash": "sha256:1bde7901054425c9a7b73f6799c72300a6d14e58892d08055cbe7f17ea3f1283"
+  },
+  "evidenceTail": {
+    "seq": 116,
+    "id": "EVD-0116",
+    "hash": "sha256:7eec46224aa76be639d071f0d2f64da27afd6c2cde7c3011edcba67fbb2edaa7"
+  },
+  "inFlightAction": null,
+  "runtime": {
+    "observedAt": "2026-07-13T08:54:26Z",
+    "staleAfterSeconds": 300,
+    "managedProcesses": [
+      {
+        "pid": 12744,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
+        "commandLine": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "creationTime": "2026-07-13T08:54:11Z",
+        "ownership": "task-owned",
+        "ownershipEvidence": [
+          "goal-externalAuthorization-local_app_run_owned_process_only",
+          "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+          "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "expectedHead=0ac3656478fbf403f41d37b7c37c4036cfa44508",
+          "verifier=current-app-launch-v1",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "observedHead=0ac3656478fbf403f41d37b7c37c4036cfa44508",
+          "actionId=ACT-P3S5-APP-LAUNCH-001"
+        ],
+        "cleanupAllowed": true,
+        "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
+        "createdByActionId": "ACT-P3S5-APP-LAUNCH-001",
+        "createdAt": "2026-07-13T08:54:12Z",
+        "present": true,
+        "lastObservedAt": "2026-07-13T08:54:12Z"
+      }
+    ],
+    "observedExternalProcesses": [
+      {
+        "pid": 42432,
+        "name": "mhxy-shikong-control.exe",
+        "role": "旧控制器历史线索",
+        "ownership": "preexisting",
+        "creationTime": "2026-07-09T15:20:29+08:00",
+        "identityLimit": "本轮未停止；当前未发现",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:48Z",
+        "observedAbsentAt": "2026-07-11T18:46:48Z"
+      },
+      {
+        "pid": 26056,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 A",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:37.972416+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:49Z",
+        "lastSeenAt": "2026-07-10T12:23:34Z",
+        "observedAbsentAt": "2026-07-11T18:46:49Z"
+      },
+      {
+        "pid": 52448,
+        "name": "MyGame_x64r.exe",
+        "role": "历史游戏窗口线索 B",
+        "ownership": "user_preexisting",
+        "creationTime": "2026-07-10T00:55:23.169428+08:00",
+        "identityLimit": "ExecutablePath/CommandLine unavailable; HWND/title only read-only observed; no live authorization",
+        "cleanupAllowed": false,
+        "present": false,
+        "lastObservedAt": "2026-07-11T18:46:50Z",
+        "lastSeenAt": "2026-07-10T12:23:35Z",
+        "observedAbsentAt": "2026-07-11T18:46:50Z"
+      },
+      {
+        "pid": 12744,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "task-owned",
+        "present": true,
+        "creationTime": "2026-07-13T08:54:11Z",
+        "lastObservedAt": "2026-07-13T08:54:26Z",
+        "lastSeenAt": "2026-07-13T08:54:26Z",
+        "cleanupAllowed": false
+      }
+    ],
+    "managedArtifacts": [
+      {
+        "path": "AGENTS.md",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "docs/execution/",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "scripts/audit_execution_state.py",
+        "ownership": "created_by_continuity_baseline",
+        "cleanupAllowed": false
+      }
+    ],
+    "observedArtifacts": [
+      {
+        "path": "assets/resource/ShiKong/reports/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": "src-tauri/target*/",
+        "ownership": "preexisting_ignored",
+        "cleanupAllowed": false
+      },
+      {
+        "path": ".codex-window-*.png",
+        "ownership": "preexisting_ignored_unknown",
+        "cleanupAllowed": false
+      }
+    ]
+  },
+  "resume": {
+    "blockers": [
+      "P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动"
+    ],
+    "nextCommands": [
+      "npm run execution:resume-check"
+    ],
+    "doNotDo": [
+      "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
+    ],
+    "lastSafeResumeSnapshotId": "CP-0024"
+  },
+  "safeToResume": true,
+  "safeToRunLiveInput": false,
+  "liveScope": null,
+  "hash": "sha256:f91d2725a4a0a41dc0e8c4f2fd6659fce6ed12d2d9ba1c82845e640df6360056"
+}

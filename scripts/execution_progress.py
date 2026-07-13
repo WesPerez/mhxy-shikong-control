@@ -107,7 +107,7 @@ PROFILE_CATEGORY_BY_NAME = {
     "ui-viewports": "test",
 }
 SPECIALIZED_VERIFIER_ALLOWLIST: Dict[str, set] = {
-    "app_runtime": set(),
+    "app_runtime": {"current-app-launch-v1"},
     "window_identity": set(),
     "live_input": set(),
     "live_outcome": set(),

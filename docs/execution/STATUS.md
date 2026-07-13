@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:b18297aa94612d6e8f598e71c0ee2d29585a74f4c4d20dfe08ae6def10d9754e -->
-<!-- checkpoint-id: CP-0024 -->
+<!-- state-digest: sha256:7af7511964266a4d18c46c9163581f61607343f01af4660c109fbe1270b4eea5 -->
+<!-- checkpoint-id: CP-0025 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,25 +9,25 @@
 ## 恢复首屏
 
 - 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-13T08:44:27Z`
-- 更新时间（北京时间）：`2026-07-13T16:44:27+08:00`
+- 更新时间（UTC）：`2026-07-13T08:55:42Z`
+- 更新时间（北京时间）：`2026-07-13T16:55:42+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
 - 当前阶段：`P3`
-- 当前切片：`P3-S4` - Offline home-vitality readiness scaffolding
-- 阶段状态：`in_progress`；切片状态：`verified`；动作状态：`none`
+- 当前切片：`P3-S5` - Current-commit app launch gate with specialized verifier
+- 阶段状态：`in_progress`；切片状态：`verified`；动作状态：`succeeded`
 - 当前切片验收：已满足 `4`，待验证或阻塞 `0`，合计 `4`
 - 本轮是否发送真实游戏输入：`false`
 - 当前工作：当前没有副作用动作在执行，停在下一动作之前
-- 最新当前有效证据：P3-S4 offline home-vitality readiness scaffolding: Vite build green（EVD-0111，当前工作区绑定有效）
-- 唯一下一动作：Commit P3-S4 product+ledger; leave docs/execution dirty after rebind if needed
+- 最新当前有效证据：P3-S5 app launch verifier wiring: Vite build green（EVD-0116，当前工作区绑定有效）
+- 唯一下一动作：Commit P3-S5 verifier+wiring; leave app running owned or stop with process_stop after product commit as needed
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
-- 最新 checkpoint：`CP-0024`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0025`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`136657s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-13T08:54:26Z`；年龄=`76s`；TTL=`300s`；expiresAt=`2026-07-13T08:59:26Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -62,30 +62,30 @@
 
 ### 范围
 
-- src/home-vitality-core.js
-- scripts/test_home_vitality_core.mjs
-- src/main.js
+- scripts/verify_app_runtime_launch.py
+- scripts/execution_progress.py
+- scripts/test_execution_progress.py
 - package.json
 
 ### 非目标
 
 - Do not send live game input
-- Do not require real HWND capture for slice close
-- Do not integrate OpenCV
+- Do not migrate AppData
+- Do not force-push
 
 ### 安全边界
 
-- Offline readiness never authorizes live input
-- Missing template/image targets remain fail-closed needs_capture
+- Only start process registered via process_start action with ownership evidence
+- Stop only owned managed processes from this run
 
 ### 验收条件
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P3-S4-C1` | home-vitality blueprint reports step count and required visual targets offline | `passed` | `test` | `EVD-0110` |
-| `P3-S4-C2` | missing entry.home/template assets are classified needs_capture rather than ready | `passed` | `test` | `EVD-0110` |
-| `P3-S4-C3` | OCR/hotkey/restore steps classified without claiming live success | `passed` | `test` | `EVD-0110` |
-| `P3-S4-C4` | core regression and Vite build remain green | `passed` | `build`, `test` | `EVD-0110`, `EVD-0111` |
+| `P3-S5-C1` | specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe | `passed` | `test` | `EVD-0115` |
+| `P3-S5-C2` | current HEAD release/debug app process is started owned and observed present | `passed` | `app_runtime` | `EVD-0114` |
+| `P3-S5-C3` | process ownership evidence includes command/cwd/pid and head fingerprint | `passed` | `test` | `EVD-0115` |
+| `P3-S5-C4` | core regression remains green after verifier wiring | `passed` | `build`, `test` | `EVD-0115`, `EVD-0116` |
 
 ## 当前动作
 
@@ -93,7 +93,7 @@
 
 ## 下一步
 
-- 唯一下一动作：Commit P3-S4 product+ledger; leave docs/execution dirty after rebind if needed
+- 唯一下一动作：Commit P3-S5 verifier+wiring; leave app running owned or stop with process_stop after product commit as needed
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -109,37 +109,38 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`778ebe6d2c8d8253fc47a98bd9901700ffa4f03f`
+- observed HEAD：`0ac3656478fbf403f41d37b7c37c4036cfa44508`
 - verified HEAD：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:41ce24f3cce216f7f365fed1c2af9a80047c148cfe72aa2d71cf2a1aa3a97dc1`
-- 最新 checkpoint：`CP-0024` (state_snapshot)
+- working tree fingerprint：`sha256:7192f45bd97430b1e1487975a443eb7fe1a209669fbb694fee957d645007e2d3`
+- 最新 checkpoint：`CP-0025` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0024-p3-s4-verified.json`
+- `docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
 - `package.json`
-- `scripts/test_home_vitality_core.mjs`
-- `src/home-vitality-core.js`
-- `src/main.js`
+- `scripts/execution_progress.py`
+- `scripts/test_execution_progress.py`
+- `scripts/verify_app_runtime_launch.py`
 
 ## 运行进程与产物
 
 ### 本轮管理的进程
 
-- none
+- PID `12744`：controller-app；cleanupAllowed=`true`
 
 ### 只观察到的外部进程
 
 - PID `42432`：`mhxy-shikong-control.exe`，旧控制器历史线索；present=`false`，归属=`preexisting`，cleanupAllowed=`false`
 - PID `26056`：`MyGame_x64r.exe`，历史游戏窗口线索 A；present=`false`，归属=`user_preexisting`，cleanupAllowed=`false`
 - PID `52448`：`MyGame_x64r.exe`，历史游戏窗口线索 B；present=`false`，归属=`user_preexisting`，cleanupAllowed=`false`
+- PID `12744`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`task-owned`，cleanupAllowed=`false`
 
 ### 本轮管理的产物
 
@@ -158,29 +159,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0104` | `test` | `passed` | `stale` | P3-S3 rebind on HEAD: cargo fmt/check/test/clippy green<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0105` | `test` | `passed` | `stale` | P3-S3 rebind on HEAD: core regression<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0106` | `build` | `passed` | `stale` | P3-S3 rebind on HEAD: Vite build<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0107` | `test` | `passed` | `stale` | P3-S3 rebind after ledger commit: cargo green on HEAD 778ebe6<br>证据工作树指纹与当前现场不同 |
-| `EVD-0108` | `test` | `passed` | `stale` | P3-S3 rebind after ledger commit: core regression on HEAD 778ebe6<br>证据工作树指纹与当前现场不同 |
-| `EVD-0109` | `build` | `passed` | `stale` | P3-S3 rebind after ledger commit: Vite build on HEAD 778ebe6<br>证据工作树指纹与当前现场不同 |
-| `EVD-0110` | `test` | `passed` | `valid` | P3-S4 offline home-vitality readiness scaffolding: core regression green<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0111` | `build` | `passed` | `valid` | P3-S4 offline home-vitality readiness scaffolding: Vite build green<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0109` | `build` | `passed` | `stale` | P3-S3 rebind after ledger commit: Vite build on HEAD 778ebe6<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0110` | `test` | `passed` | `stale` | P3-S4 offline home-vitality readiness scaffolding: core regression green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0111` | `build` | `passed` | `stale` | P3-S4 offline home-vitality readiness scaffolding: Vite build green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0112` | `test` | `passed` | `stale` | P3-S4 rebind on product HEAD: core regression<br>证据工作树指纹与当前现场不同 |
+| `EVD-0113` | `build` | `passed` | `stale` | P3-S4 rebind on product HEAD: Vite build<br>证据工作树指纹与当前现场不同 |
+| `EVD-0114` | `app_runtime` | `passed` | `valid` | Current-commit controller app launched and observed as task-owned process<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0115` | `test` | `passed` | `valid` | P3-S5 app launch verifier wiring: full core regression green<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0116` | `build` | `passed` | `valid` | P3-S5 app launch verifier wiring: Vite build green<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 288 | `2026-07-13T08:37:18Z` | `reconciliation` | Align ledger after P3-S3 rebind ledger commit 778ebe6 |
-| 289 | `2026-07-13T08:37:40Z` | `test_run` | P3-S3 rebind after ledger commit: cargo green on HEAD 778ebe6 |
-| 290 | `2026-07-13T08:38:28Z` | `test_run` | P3-S3 rebind after ledger commit: core regression on HEAD 778ebe6 |
-| 291 | `2026-07-13T08:38:30Z` | `test_run` | P3-S3 rebind after ledger commit: Vite build on HEAD 778ebe6 |
-| 292 | `2026-07-13T08:38:51Z` | `decision` | P3-S3 criteria rebound on product+ledger HEAD 778ebe6 via EVD-0107/0108/0109. Leave docs/execution dirty (no more ledger-only commits that invalidate criteria). Next vertical work: P4-S1 offline home-vitality scaffolding without live input. |
-| 293 | `2026-07-13T08:40:13Z` | `slice_started` | 开始切片 P3-S4：Offline home-vitality readiness scaffolding |
-| 294 | `2026-07-13T08:43:54Z` | `test_run` | P3-S4 offline home-vitality readiness scaffolding: core regression green |
-| 295 | `2026-07-13T08:44:22Z` | `test_run` | P3-S4 offline home-vitality readiness scaffolding: Vite build green |
-| 296 | `2026-07-13T08:44:27Z` | `slice_state_changed` | P3-S4 verified: offline home-vitality readiness core classifies entry.home needs_capture and never claims live ready; EVD-0110/0111 green |
-| 297 | `2026-07-13T08:44:28Z` | `checkpoint` | 创建 CP-0024：P3-S4 offline home-vitality scaffolding verified before product commit |
+| 301 | `2026-07-13T08:46:09Z` | `decision` | P3-S4 rebound on HEAD 0ac3656 via EVD-0112/0113. Leave docs/execution dirty. P3 capture/vision fail-closed + home offline readiness scaffold complete enough; full P3 WGC/OpenCV/overlay deferred. Live P4 home e2e still blocked on current-app launch gate + entry.home capture + live input gates. |
+| 302 | `2026-07-13T08:48:21Z` | `slice_started` | 开始切片 P3-S5：Current-commit app launch gate with specialized verifier |
+| 303 | `2026-07-13T08:54:06Z` | `action_intent` | 登记副作用动作 ACT-P3S5-APP-LAUNCH-001 |
+| 304 | `2026-07-13T08:54:13Z` | `runtime_observation` | Current-commit controller app launched and observed as task-owned process |
+| 305 | `2026-07-13T08:54:14Z` | `action_result` | 副作用动作 ACT-P3S5-APP-LAUNCH-001 -> succeeded |
+| 306 | `2026-07-13T08:54:26Z` | `runtime_observation` | Owned controller app PID 12744 still present after specialized launch verifier |
+| 307 | `2026-07-13T08:55:25Z` | `test_run` | P3-S5 app launch verifier wiring: full core regression green |
+| 308 | `2026-07-13T08:55:27Z` | `test_run` | P3-S5 app launch verifier wiring: Vite build green |
+| 309 | `2026-07-13T08:55:40Z` | `slice_state_changed` | P3-S5 verified: current-app-launch-v1 specialized verifier, owned debug controller PID present, core regression green |
+| 310 | `2026-07-13T08:55:41Z` | `checkpoint` | 创建 CP-0025：Current HEAD app launched with specialized verifier evidence before product commit |
 
 ## 异常恢复
 

@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 328,
+  "revision": 345,
   "generation": 1,
-  "updatedAt": "2026-07-13T08:44:27Z",
+  "updatedAt": "2026-07-13T08:55:42Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,69 +29,69 @@
   "overallStatus": "active",
   "currentPhaseId": "P3",
   "phaseStatus": "in_progress",
-  "actionStatus": "none",
+  "actionStatus": "succeeded",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P3-S4",
-    "title": "Offline home-vitality readiness scaffolding",
+    "id": "P3-S5",
+    "title": "Current-commit app launch gate with specialized verifier",
     "status": "verified",
-    "startedAt": "2026-07-13T08:40:13Z",
+    "startedAt": "2026-07-13T08:48:21Z",
     "scope": [
-      "src/home-vitality-core.js",
-      "scripts/test_home_vitality_core.mjs",
-      "src/main.js",
+      "scripts/verify_app_runtime_launch.py",
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
       "package.json"
     ],
     "nonGoals": [
       "Do not send live game input",
-      "Do not require real HWND capture for slice close",
-      "Do not integrate OpenCV"
+      "Do not migrate AppData",
+      "Do not force-push"
     ],
     "safetyBoundaries": [
-      "Offline readiness never authorizes live input",
-      "Missing template/image targets remain fail-closed needs_capture"
+      "Only start process registered via process_start action with ownership evidence",
+      "Stop only owned managed processes from this run"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P3-S4-C1",
-        "text": "home-vitality blueprint reports step count and required visual targets offline",
+        "id": "P3-S5-C1",
+        "text": "specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0110"
+          "EVD-0115"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P3-S4-C2",
-        "text": "missing entry.home/template assets are classified needs_capture rather than ready",
+        "id": "P3-S5-C2",
+        "text": "current HEAD release/debug app process is started owned and observed present",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0110"
+          "EVD-0114"
+        ],
+        "requiredEvidenceCategories": [
+          "app_runtime"
+        ]
+      },
+      {
+        "id": "P3-S5-C3",
+        "text": "process ownership evidence includes command/cwd/pid and head fingerprint",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0115"
         ],
         "requiredEvidenceCategories": [
           "test"
         ]
       },
       {
-        "id": "P3-S4-C3",
-        "text": "OCR/hotkey/restore steps classified without claiming live success",
+        "id": "P3-S5-C4",
+        "text": "core regression remains green after verifier wiring",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0110"
-        ],
-        "requiredEvidenceCategories": [
-          "test"
-        ]
-      },
-      {
-        "id": "P3-S4-C4",
-        "text": "core regression and Vite build remain green",
-        "status": "passed",
-        "evidenceIds": [
-          "EVD-0110",
-          "EVD-0111"
+          "EVD-0115",
+          "EVD-0116"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -99,7 +99,7 @@
         ]
       }
     ],
-    "nextAction": "Commit P3-S4 product+ledger; leave docs/execution dirty after rebind if needed"
+    "nextAction": "Commit P3-S5 verifier+wiring; leave app running owned or stop with process_stop after product commit as needed"
   },
   "phases": [
     {
@@ -217,89 +217,89 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "778ebe6d2c8d8253fc47a98bd9901700ffa4f03f",
+    "observedHead": "0ac3656478fbf403f41d37b7c37c4036cfa44508",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0024-p3-s4-verified.json",
+      "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
       "docs/execution/state.json",
       "package.json",
-      "scripts/test_home_vitality_core.mjs",
-      "src/home-vitality-core.js",
-      "src/main.js"
+      "scripts/execution_progress.py",
+      "scripts/test_execution_progress.py",
+      "scripts/verify_app_runtime_launch.py"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0024-p3-s4-verified.json",
+      "?? docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json",
       " M package.json",
-      "?? scripts/test_home_vitality_core.mjs",
-      "?? src/home-vitality-core.js",
-      " M src/main.js"
+      " M scripts/execution_progress.py",
+      " M scripts/test_execution_progress.py",
+      "?? scripts/verify_app_runtime_launch.py"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "a72c21bab4ceadf6859c12fa573733ca5d92ed885b3692c3a5b36d7f2b283b43",
-        "size": 11607
+        "sha256": "3d29378e04e51f3c921aa59b3e3946e3d1efd77426db8bd6e8d383b5a0c30682",
+        "size": 12001
       },
       {
-        "path": "docs/execution/checkpoints/CP-0024-p3-s4-verified.json",
+        "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
         "exists": true,
-        "sha256": "10fdce8581aed3b49a66426808ec846eb24ce39f97ccf230c86b4697ec223c25",
-        "size": 12348
+        "sha256": "d0b15b206e8d9403344f368fe727cd201bbcd764d198c03bae768c4c5bbb6e03",
+        "size": 14487
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "ac1e6a45447a0cf6345a139240743518531e7ccc9da4e516217de64a8a0d18fd",
-        "size": 501737
+        "sha256": "2dcf638f4c6512118f99914cb187fe7f4811299c18a06015ca176d7ba9215b59",
+        "size": 515332
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "cb836e183d2765310c7474276ab3d4e84cffca9033bbe59c5edf4c440ab6848b",
-        "size": 244126
+        "sha256": "e71c9e4c9090766b61cf0b491019e4bcf03f7cf5eb74ba67847d187770c91959",
+        "size": 253581
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "24b44229ce13ec1e121547419c2762809326171b1b86a5e44a12a1c847a59669",
-        "size": 40739
+        "sha256": "cdb01fc0b5f8c49cc1be1474444b07d7411c4ed0e4a82542fa65a39e1d54db92",
+        "size": 45840
       },
       {
         "path": "package.json",
         "exists": true,
-        "sha256": "656ce5f0620a6cf252a1c86bedc4f153d4cdb2a0b1e9d16fbc7d7cd98fa8bd9f",
-        "size": 4709
+        "sha256": "fb295e1b3364f84cfaf68e730b1dc7ca3bd097fc122398f95a75cb714951a22e",
+        "size": 4793
       },
       {
-        "path": "scripts/test_home_vitality_core.mjs",
+        "path": "scripts/execution_progress.py",
         "exists": true,
-        "sha256": "392e8c4ad1f5afe2ba3f162ba7e5213b383ecd70d993976b509d6312de22ebe6",
-        "size": 3862
+        "sha256": "9e98086b011e003383595ebfa7288dc0b7812974fdf4df1b1ffeed402d0e38f3",
+        "size": 121635
       },
       {
-        "path": "src/home-vitality-core.js",
+        "path": "scripts/test_execution_progress.py",
         "exists": true,
-        "sha256": "148ba3a1564d87c38c320ce498aa63cc0e5a2882732d627e96c42e8746af730e",
-        "size": 8645
+        "sha256": "1acef0aa7d30cc990265c831aede1dbcbc62f44d30b12996174b320ef77ea0c2",
+        "size": 42615
       },
       {
-        "path": "src/main.js",
+        "path": "scripts/verify_app_runtime_launch.py",
         "exists": true,
-        "sha256": "7dbbb3c3e43d2ca8f53d9a5c1a943e5c6779cf3dadc26e8214b8289bed7b798b",
-        "size": 354434
+        "sha256": "f45cbf34b9f834f3886ad9739bdf557b7387855668b865a806f3e92aaffe3846",
+        "size": 12738
       }
     ],
-    "workingTreeFingerprint": "sha256:41ce24f3cce216f7f365fed1c2af9a80047c148cfe72aa2d71cf2a1aa3a97dc1",
+    "workingTreeFingerprint": "sha256:7192f45bd97430b1e1487975a443eb7fe1a209669fbb694fee957d645007e2d3",
     "dirtyEntries": [
       {
         "status": " M",
@@ -310,8 +310,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0024-p3-s4-verified.json",
-        "displayPath": "docs/execution/checkpoints/CP-0024-p3-s4-verified.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+        "displayPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json"
       },
       {
         "status": " M",
@@ -338,44 +338,48 @@
         "displayPath": "package.json"
       },
       {
-        "status": "??",
+        "status": " M",
         "sourcePath": null,
-        "destinationPath": "scripts/test_home_vitality_core.mjs",
-        "displayPath": "scripts/test_home_vitality_core.mjs"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "src/home-vitality-core.js",
-        "displayPath": "src/home-vitality-core.js"
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
       },
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "src/main.js",
-        "displayPath": "src/main.js"
+        "destinationPath": "scripts/test_execution_progress.py",
+        "displayPath": "scripts/test_execution_progress.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/verify_app_runtime_launch.py",
+        "displayPath": "scripts/verify_app_runtime_launch.py"
       }
     ]
   },
   "inFlightAction": null,
   "lastAction": {
-    "actionId": "ACT-COMMIT-P3S1-001",
-    "kind": "git_commit",
-    "targetIdentity": "P3-S1 health-verified capture providers",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P3-S1 criteria passed; no in-flight action",
-    "expectedPostcondition": "local commit of capture health providers and ledger",
-    "idempotencyKey": "commit:p3s1:794a4fa:evd0090",
-    "startedAt": "2026-07-13T08:06:00Z",
+    "actionId": "ACT-P3S5-APP-LAUNCH-001",
+    "kind": "process_start",
+    "targetIdentity": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+    "sideEffectClass": "process_start",
+    "expectedPrecondition": "current HEAD debug controller exe exists; no unmanaged same-path process required; ownership evidence bound to HEAD and hash",
+    "expectedPostcondition": "owned mhxy-shikong-control process present with matching exe hash and recorded app_runtime evidence",
+    "idempotencyKey": "p3s5:app-launch:0ac36564:debug",
+    "startedAt": "2026-07-13T08:54:06Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
-      "goal-externalAuthorization-git_commit",
-      "p3s1-criteria-verified",
-      "git-status-project-owned-paths"
+      "goal-externalAuthorization-local_app_run_owned_process_only",
+      "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+      "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+      "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+      "expectedHead=0ac3656478fbf403f41d37b7c37c4036cfa44508"
     ],
     "status": "succeeded",
-    "endedAt": "2026-07-13T08:06:00Z",
-    "result": "P3-S1 capture health commit created"
+    "leaseTokenHash": "e81c5f75c96184b8044adba8eec81a9d480f8a5c866f575611d7d87f92c80bb3",
+    "endedAt": "2026-07-13T08:54:14Z",
+    "result": "controller app launched pid=12744 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe evidence=EVD-0114",
+    "verifiedEvidenceId": "EVD-0114"
   },
   "safety": {
     "realInputSent": false,
@@ -385,9 +389,37 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-11T18:46:50Z",
+    "observedAt": "2026-07-13T08:54:26Z",
     "staleAfterSeconds": 300,
-    "managedProcesses": [],
+    "managedProcesses": [
+      {
+        "pid": 12744,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
+        "commandLine": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+        "creationTime": "2026-07-13T08:54:11Z",
+        "ownership": "task-owned",
+        "ownershipEvidence": [
+          "goal-externalAuthorization-local_app_run_owned_process_only",
+          "cwd=E:\\Project\\Common\\mhxy-shikong-control",
+          "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p3-app-launch\\debug\\mhxy-shikong-control.exe",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "expectedHead=0ac3656478fbf403f41d37b7c37c4036cfa44508",
+          "verifier=current-app-launch-v1",
+          "exeSha256=7bb93ec5ac2ed300a94b98dae718a2959c0251b0b6fb3586ca36734f9b17a407",
+          "observedHead=0ac3656478fbf403f41d37b7c37c4036cfa44508",
+          "actionId=ACT-P3S5-APP-LAUNCH-001"
+        ],
+        "cleanupAllowed": true,
+        "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
+        "createdByActionId": "ACT-P3S5-APP-LAUNCH-001",
+        "createdAt": "2026-07-13T08:54:12Z",
+        "present": true,
+        "lastObservedAt": "2026-07-13T08:54:12Z"
+      }
+    ],
     "observedExternalProcesses": [
       {
         "pid": 42432,
@@ -426,6 +458,17 @@
         "lastObservedAt": "2026-07-11T18:46:50Z",
         "lastSeenAt": "2026-07-10T12:23:35Z",
         "observedAbsentAt": "2026-07-11T18:46:50Z"
+      },
+      {
+        "pid": 12744,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "task-owned",
+        "present": true,
+        "creationTime": "2026-07-13T08:54:11Z",
+        "lastObservedAt": "2026-07-13T08:54:26Z",
+        "lastSeenAt": "2026-07-13T08:54:26Z",
+        "cleanupAllowed": false
       }
     ],
     "managedArtifacts": [
@@ -469,24 +512,24 @@
     ]
   },
   "eventTail": {
-    "seq": 297,
-    "id": "EVT-0297",
-    "hash": "sha256:12ce97bbada1a9ce31e96d3f9e5106dcdbaca306e56a9d38497626ab0b0d7a4c"
+    "seq": 310,
+    "id": "EVT-0310",
+    "hash": "sha256:c39def9ab44032a427619411ea0b393af7d71b7e77ec40c8057fe68ecc8fce2c"
   },
   "evidenceTail": {
-    "seq": 111,
-    "id": "EVD-0111",
-    "hash": "sha256:beae69c8bc86114d384d138ac0d996bb0c6356c069331504eae64296dcb8261e"
+    "seq": 116,
+    "id": "EVD-0116",
+    "hash": "sha256:7eec46224aa76be639d071f0d2f64da27afd6c2cde7c3011edcba67fbb2edaa7"
   },
-  "checkpointCounter": 24,
+  "checkpointCounter": 25,
   "lastCheckpoint": {
-    "id": "CP-0024",
+    "id": "CP-0025",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0024-p3-s4-verified.json",
-    "createdAt": "2026-07-13T08:44:28Z",
+    "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
+    "createdAt": "2026-07-13T08:55:41Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:eb9f679ee30f76c3441bf8c0f4bfc6d30ac8174acef7c1b9da0a878ec40ef174"
+    "hash": "sha256:f91d2725a4a0a41dc0e8c4f2fd6659fce6ed12d2d9ba1c82845e640df6360056"
   },
   "resume": {
     "blockers": [
@@ -498,7 +541,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0024"
+    "lastSafeResumeSnapshotId": "CP-0025"
   },
   "completedSlices": [
     {
@@ -1271,6 +1314,83 @@
       "nextAction": "Begin P4-S1 offline home-vitality task scaffolding without live game input",
       "phaseId": "P3",
       "verifiedAt": "2026-07-13T08:40:13Z"
+    },
+    {
+      "id": "P3-S4",
+      "title": "Offline home-vitality readiness scaffolding",
+      "status": "verified",
+      "startedAt": "2026-07-13T08:40:13Z",
+      "scope": [
+        "src/home-vitality-core.js",
+        "scripts/test_home_vitality_core.mjs",
+        "src/main.js",
+        "package.json"
+      ],
+      "nonGoals": [
+        "Do not send live game input",
+        "Do not require real HWND capture for slice close",
+        "Do not integrate OpenCV"
+      ],
+      "safetyBoundaries": [
+        "Offline readiness never authorizes live input",
+        "Missing template/image targets remain fail-closed needs_capture"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P3-S4-C1",
+          "text": "home-vitality blueprint reports step count and required visual targets offline",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0110",
+            "EVD-0112"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S4-C2",
+          "text": "missing entry.home/template assets are classified needs_capture rather than ready",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0110",
+            "EVD-0112"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S4-C3",
+          "text": "OCR/hotkey/restore steps classified without claiming live success",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0110",
+            "EVD-0112"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        },
+        {
+          "id": "P3-S4-C4",
+          "text": "core regression and Vite build remain green",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0110",
+            "EVD-0111",
+            "EVD-0112",
+            "EVD-0113"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "Optional: current-app launch gate prep; otherwise continue non-live polish or stop for handoff",
+      "phaseId": "P3",
+      "verifiedAt": "2026-07-13T08:48:21Z"
     }
   ]
 }

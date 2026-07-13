@@ -395,6 +395,8 @@ class ExecutionProgressTests(unittest.TestCase):
                 )
                 with self.assertRaises(RuntimeError):
                     progress.record_evidence(forged_verifier, allow_passed=True)
+                
+                self.assertIn("current-app-launch-v1", progress.SPECIALIZED_VERIFIER_ALLOWLIST["app_runtime"])
                 self.assertEqual(progress.load_jsonl(progress.EVIDENCE_PATH), [])
 
     def test_resume_check_returns_blocked_for_malformed_ledger(self) -> None:
