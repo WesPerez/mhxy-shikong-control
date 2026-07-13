@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 345,
+  "revision": 347,
   "generation": 1,
-  "updatedAt": "2026-07-13T08:55:42Z",
+  "updatedAt": "2026-07-13T08:56:42Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -57,7 +57,8 @@
         "text": "specialized app_runtime verifier is allowlisted and rejects unowned/mismatched exe",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0115"
+          "EVD-0115",
+          "EVD-0117"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -79,7 +80,8 @@
         "text": "process ownership evidence includes command/cwd/pid and head fingerprint",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0115"
+          "EVD-0115",
+          "EVD-0117"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -91,7 +93,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0115",
-          "EVD-0116"
+          "EVD-0116",
+          "EVD-0117",
+          "EVD-0118"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -217,101 +221,55 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "0ac3656478fbf403f41d37b7c37c4036cfa44508",
+    "observedHead": "e8a627f84f46895c2c15dd31d729d75434595460",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "package.json",
-      "scripts/execution_progress.py",
-      "scripts/test_execution_progress.py",
-      "scripts/verify_app_runtime_launch.py"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M package.json",
-      " M scripts/execution_progress.py",
-      " M scripts/test_execution_progress.py",
-      "?? scripts/verify_app_runtime_launch.py"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "3d29378e04e51f3c921aa59b3e3946e3d1efd77426db8bd6e8d383b5a0c30682",
-        "size": 12001
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
-        "exists": true,
-        "sha256": "d0b15b206e8d9403344f368fe727cd201bbcd764d198c03bae768c4c5bbb6e03",
-        "size": 14487
+        "sha256": "f4e2a4d5238464d5a3113f5acf0a2076ee97ca2cad59559eb819fd3bfbc64709",
+        "size": 11526
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "2dcf638f4c6512118f99914cb187fe7f4811299c18a06015ca176d7ba9215b59",
-        "size": 515332
+        "sha256": "2a714b29941e16d26b59bf51b6b8a31cca43f0b995da12e79633d6eddabd3cfe",
+        "size": 516653
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "e71c9e4c9090766b61cf0b491019e4bcf03f7cf5eb74ba67847d187770c91959",
-        "size": 253581
+        "sha256": "f310374f56a0cafeca090127ff44a80362948d5179fa614b6b17139227700259",
+        "size": 256512
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "cdb01fc0b5f8c49cc1be1474444b07d7411c4ed0e4a82542fa65a39e1d54db92",
-        "size": 45840
-      },
-      {
-        "path": "package.json",
-        "exists": true,
-        "sha256": "fb295e1b3364f84cfaf68e730b1dc7ca3bd097fc122398f95a75cb714951a22e",
-        "size": 4793
-      },
-      {
-        "path": "scripts/execution_progress.py",
-        "exists": true,
-        "sha256": "9e98086b011e003383595ebfa7288dc0b7812974fdf4df1b1ffeed402d0e38f3",
-        "size": 121635
-      },
-      {
-        "path": "scripts/test_execution_progress.py",
-        "exists": true,
-        "sha256": "1acef0aa7d30cc990265c831aede1dbcbc62f44d30b12996174b320ef77ea0c2",
-        "size": 42615
-      },
-      {
-        "path": "scripts/verify_app_runtime_launch.py",
-        "exists": true,
-        "sha256": "f45cbf34b9f834f3886ad9739bdf557b7387855668b865a806f3e92aaffe3846",
-        "size": 12738
+        "sha256": "8b2d8eb0e9948b63c44b59fdbfc94798b477ef0979338afbc078553e921738e1",
+        "size": 43493
       }
     ],
-    "workingTreeFingerprint": "sha256:7192f45bd97430b1e1487975a443eb7fe1a209669fbb694fee957d645007e2d3",
+    "workingTreeFingerprint": "sha256:8c7d9221a1bb6cb685a215829a50d466ac20ac085295c7348ebe5ac32ea92a30",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json",
-        "displayPath": "docs/execution/checkpoints/CP-0025-p3-s5-app-launched.json"
       },
       {
         "status": " M",
@@ -330,30 +288,6 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "package.json",
-        "displayPath": "package.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/execution_progress.py",
-        "displayPath": "scripts/execution_progress.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_execution_progress.py",
-        "displayPath": "scripts/test_execution_progress.py"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "scripts/verify_app_runtime_launch.py",
-        "displayPath": "scripts/verify_app_runtime_launch.py"
       }
     ]
   },
@@ -512,14 +446,14 @@
     ]
   },
   "eventTail": {
-    "seq": 310,
-    "id": "EVT-0310",
-    "hash": "sha256:c39def9ab44032a427619411ea0b393af7d71b7e77ec40c8057fe68ecc8fce2c"
+    "seq": 312,
+    "id": "EVT-0312",
+    "hash": "sha256:94f54b9e3347b1718c68b25c7709c3a5049c879f323bb3b9c2502c4ba89def79"
   },
   "evidenceTail": {
-    "seq": 116,
-    "id": "EVD-0116",
-    "hash": "sha256:7eec46224aa76be639d071f0d2f64da27afd6c2cde7c3011edcba67fbb2edaa7"
+    "seq": 118,
+    "id": "EVD-0118",
+    "hash": "sha256:567197803fba333054d1b10dc52e32ea8cdc50c2d9e8316ccab7e6ac4f4a2e91"
   },
   "checkpointCounter": 25,
   "lastCheckpoint": {
