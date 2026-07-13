@@ -1,5 +1,5 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:0c4e6b51c081360e65160d70b37b1a3d20132eb80f3595b9f11303b25f638518 -->
+<!-- state-digest: sha256:ab9ccb3d58a08bc71cb026177144baa02add277a34be6069edaf45193c620fc8 -->
 <!-- checkpoint-id: CP-0018 -->
 # 长任务执行状态
 
@@ -8,26 +8,26 @@
 
 ## 恢复首屏
 
-- 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-13T07:39:39Z`
-- 更新时间（北京时间）：`2026-07-13T15:39:39+08:00`
+- 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
+- 更新时间（UTC）：`2026-07-13T07:39:55Z`
+- 更新时间（北京时间）：`2026-07-13T15:39:55+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
 - 当前阶段：`P2`
 - 当前切片：`P2-S2` - 五视口真实渲染与检查器交互验收
-- 阶段状态：`verified`；切片状态：`verified`；动作状态：`running`
+- 阶段状态：`verified`；切片状态：`verified`；动作状态：`succeeded`
 - 当前切片验收：已满足 `4`，待验证或阻塞 `0`，合计 `4`
 - 本轮是否发送真实游戏输入：`false`
-- 当前工作：未决动作 `ACT-COMMIT-P2S2-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：P2-S2 after real viewport pass: full Node/Python core regression including continuity tests（EVD-0080，当前工作区绑定有效）
-- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-P2S2-001；结果明确前禁止重放
+- 当前工作：当前没有副作用动作在执行，停在下一动作之前
+- 最新当前有效证据：最近事件：副作用动作 ACT-COMMIT-P2S2-001 -> succeeded（EVT-0235；不是当前验收通过证据）
+- 唯一下一动作：Start P3 health-verified capture provider work
 - 当前切片执行 blocker：缺少本地预览进程启动与只读 UI 测试授权
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
 - 最新 checkpoint：`CP-0018`；safeToResume=`true`；safeToRunLiveInput=`false`
-- 当前允许：只读审计、连续性元数据对账。
-- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`132769s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
+- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
+- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`132785s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -83,15 +83,11 @@
 
 ## 当前动作
 
-- actionId：`ACT-COMMIT-P2S2-001`
-- 类型：`git_commit`
-- 目标：`P2-S2 viewport verification tooling and ledger`
-- 副作用级别：`git_commit`
-- 状态：`running`
+- 当前没有未决副作用动作。
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-COMMIT-P2S2-001；结果明确前禁止重放
+- 唯一下一动作：Start P3 health-verified capture provider work
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -107,10 +103,10 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`fc49aaffd0a458aa6b3cab17eb2ee1261f7a97be`
+- observed HEAD：`cf3578c1e367d5700d152baaa428512799ec47e7`
 - verified HEAD：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:a451d11b07c39e0676d101ad13496b01cf01636ea296ebe9f3873077cbcd11a3`
+- working tree fingerprint：`sha256:3ad9e22b551b3b7b27d7c9ef4ca85fc4ab0e2ca26413ba18af4d821c5b580a67`
 - 最新 checkpoint：`CP-0018` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
@@ -118,15 +114,8 @@
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0018-p2-s2-verified.json`
 - `docs/execution/events.jsonl`
-- `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
-- `playwright.workbench.config.mjs`
-- `scripts/audit_workbench_viewport_test.py`
-- `scripts/execution_progress.py`
-- `scripts/playwright/workbench-viewports.spec.mjs`
-- `scripts/test_execution_progress.py`
 
 ## 运行进程与产物
 
@@ -161,16 +150,15 @@
 | `EVD-0074` | `test` | `passed` | `stale` | P2-S2 Playwright verifier 加入后全部 core 与连续性回归通过；真实 UI 尚未执行<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0075` | `test` | `passed` | `stale` | P2-S2 五视口 verifier 静态覆盖、布局审计和安全审计通过；真实 UI 尚未执行<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0076` | `build` | `passed` | `stale` | P2-S2 Playwright verifier 加入后 Vite 生产构建通过<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0077` | `test` | `passed` | `valid` | P2-S2 five-viewport Playwright on owned vite build/preview: 10/10 passed; no page-level horizontal overflow; lists reachable; inspector keyboard/pointer navigation works<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0078` | `build` | `passed` | `valid` | P2-S2 after real viewport pass: Vite production build still succeeds<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0079` | `test` | `passed` | `valid` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0080` | `test` | `passed` | `valid` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0077` | `test` | `passed` | `stale` | P2-S2 five-viewport Playwright on owned vite build/preview: 10/10 passed; no page-level horizontal overflow; lists reachable; inspector keyboard/pointer navigation works<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0078` | `build` | `passed` | `stale` | P2-S2 after real viewport pass: Vite production build still succeeds<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0079` | `test` | `passed` | `stale` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0080` | `test` | `passed` | `stale` | P2-S2 after real viewport pass: full Node/Python core regression including continuity tests<br>证据 HEAD 与当前 observed HEAD 不同 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 225 | `2026-07-13T07:33:37Z` | `scope_change` | 设置 P2-S2-C1 的证据类别门禁 |
 | 226 | `2026-07-13T07:33:59Z` | `test_run` | P2-S2 five-viewport Playwright on owned vite build/preview: 10/10 passed; no page-level horizontal overflow; lists reachable; inspector keyboard/pointer navigation works |
 | 227 | `2026-07-13T07:34:47Z` | `scope_change` | 设置 P2-S2-C4 的证据类别门禁 |
 | 228 | `2026-07-13T07:34:49Z` | `test_run` | P2-S2 after real viewport pass: Vite production build still succeeds |
@@ -180,6 +168,7 @@
 | 232 | `2026-07-13T07:37:49Z` | `decision` | P2-S2 closed with production vite preview + Edge channel Playwright because Chromium download was blocked at 0 bytes |
 | 233 | `2026-07-13T07:37:51Z` | `checkpoint` | 创建 CP-0018：P2-S2 criteria all passed with real Playwright UI evidence |
 | 234 | `2026-07-13T07:39:39Z` | `action_intent` | 登记副作用动作 ACT-COMMIT-P2S2-001 |
+| 235 | `2026-07-13T07:39:44Z` | `action_result` | 副作用动作 ACT-COMMIT-P2S2-001 -> succeeded |
 
 ## 异常恢复
 

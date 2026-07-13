@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 249,
+  "revision": 251,
   "generation": 1,
-  "updatedAt": "2026-07-13T07:39:39Z",
+  "updatedAt": "2026-07-13T07:39:55Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,7 +29,7 @@
   "overallStatus": "active",
   "currentPhaseId": "P2",
   "phaseStatus": "verified",
-  "actionStatus": "running",
+  "actionStatus": "succeeded",
   "acceptanceLevel": "design",
   "activeSlice": {
     "id": "P2-S2",
@@ -216,109 +216,47 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "fc49aaffd0a458aa6b3cab17eb2ee1261f7a97be",
+    "observedHead": "cf3578c1e367d5700d152baaa428512799ec47e7",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0018-p2-s2-verified.json",
       "docs/execution/events.jsonl",
-      "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "playwright.workbench.config.mjs",
-      "scripts/audit_workbench_viewport_test.py",
-      "scripts/execution_progress.py",
-      "scripts/playwright/workbench-viewports.spec.mjs",
-      "scripts/test_execution_progress.py"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0018-p2-s2-verified.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M playwright.workbench.config.mjs",
-      " M scripts/audit_workbench_viewport_test.py",
-      " M scripts/execution_progress.py",
-      " M scripts/playwright/workbench-viewports.spec.mjs",
-      " M scripts/test_execution_progress.py"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "d178d1b7d79518bcff01f1d516ea599ec49c875da89d9390ec00e844dc977c0c",
-        "size": 12237
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0018-p2-s2-verified.json",
-        "exists": true,
-        "sha256": "e06857ea0aae7f3e81ce3b5c6d213de8eadcdfb76b61b06f122d701f94d1489c",
-        "size": 13527
+        "sha256": "6a85e5bf0240da8822ab487a694a2b756b3e71de2536c309552b8ca267cb78f9",
+        "size": 11707
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "b7a0af56f6038c646e860484b7d6b21a1107a7af49bbabc39fcf0d65aeb6cf11",
-        "size": 446524
-      },
-      {
-        "path": "docs/execution/evidence.jsonl",
-        "exists": true,
-        "sha256": "8a155113cb527d9e557de210cdcb570a35db515c4b8f95da9be6a63772b42353",
-        "size": 195012
+        "sha256": "364aa8986c0c48df55344a7f03e315596ced91383dd96c8b244d0ec57454192d",
+        "size": 447824
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "34853455f13e34be3850ef43b489e1216ec6170173baebe0ff6f4a9489551274",
-        "size": 32151
-      },
-      {
-        "path": "playwright.workbench.config.mjs",
-        "exists": true,
-        "sha256": "7f2637917b80cfefc0d2b06bdb28738fa1076170b8d30f6ce37d87ce5da35398",
-        "size": 1204
-      },
-      {
-        "path": "scripts/audit_workbench_viewport_test.py",
-        "exists": true,
-        "sha256": "72adecc5ac7d57561a7fbafb0146bfb4a279c93cc431d6a5954c04117f791871",
-        "size": 5109
-      },
-      {
-        "path": "scripts/execution_progress.py",
-        "exists": true,
-        "sha256": "53e250bf106231c201dd8a5299cc304b79198a1f004469d00b78edae43fb7cc4",
-        "size": 121615
-      },
-      {
-        "path": "scripts/playwright/workbench-viewports.spec.mjs",
-        "exists": true,
-        "sha256": "cebed60832c31c62adf8fc54297caf017eb215cf13f230758350780a251899da",
-        "size": 3747
-      },
-      {
-        "path": "scripts/test_execution_progress.py",
-        "exists": true,
-        "sha256": "7e48552a5a3624403991fc731e17c09b23baaeefd24791eca387045400d0c68a",
-        "size": 42485
+        "sha256": "344c62d7a5415b6b2173974ee2f54ca53fa75030d156f527316cfe2f0699c92c",
+        "size": 27477
       }
     ],
-    "workingTreeFingerprint": "sha256:a451d11b07c39e0676d101ad13496b01cf01636ea296ebe9f3873077cbcd11a3",
+    "workingTreeFingerprint": "sha256:3ad9e22b551b3b7b27d7c9ef4ca85fc4ab0e2ca26413ba18af4d821c5b580a67",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0018-p2-s2-verified.json",
-        "displayPath": "docs/execution/checkpoints/CP-0018-p2-s2-verified.json"
       },
       {
         "status": " M",
@@ -329,48 +267,13 @@
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "docs/execution/evidence.jsonl",
-        "displayPath": "docs/execution/evidence.jsonl"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "playwright.workbench.config.mjs",
-        "displayPath": "playwright.workbench.config.mjs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/audit_workbench_viewport_test.py",
-        "displayPath": "scripts/audit_workbench_viewport_test.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/execution_progress.py",
-        "displayPath": "scripts/execution_progress.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/playwright/workbench-viewports.spec.mjs",
-        "displayPath": "scripts/playwright/workbench-viewports.spec.mjs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_execution_progress.py",
-        "displayPath": "scripts/test_execution_progress.py"
       }
     ]
   },
-  "inFlightAction": {
+  "inFlightAction": null,
+  "lastAction": {
     "actionId": "ACT-COMMIT-P2S2-001",
     "kind": "git_commit",
     "targetIdentity": "P2-S2 viewport verification tooling and ledger",
@@ -385,27 +288,9 @@
       "p2s2-criteria-verified",
       "git-status-project-owned-paths"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P2S2-PLAYWRIGHT-001",
-    "kind": "process_start",
-    "targetIdentity": "playwright+vite@127.0.0.1:4173 for P2-S2 viewports",
-    "sideEffectClass": "process_start",
-    "expectedPrecondition": "resume-check allows code work; port 4173 free; playwright 1.61.1 installed; tests owned by this task",
-    "expectedPostcondition": "viewport tests complete with report/screenshots; owned server stopped; no leftover unmanaged process",
-    "idempotencyKey": "p2s2:playwright:fc49aaf:4173",
-    "startedAt": "2026-07-13T07:02:09Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "goal-externalAuthorization-local_preview_server_owned_process_only",
-      "playwright.webServer.command=npm run dev -- --port 4173 --strictPort",
-      "cwd=E:\\Project\\Common\\mhxy-shikong-control"
-    ],
     "status": "succeeded",
-    "leaseTokenHash": "e54f7a5b4c750cac1d5c83774eb6b6b67f61ae679dea79394b274bddf291c9b2",
-    "endedAt": "2026-07-13T07:33:28Z",
-    "result": "Playwright 10/10 passed via Edge channel + vite build/preview on 127.0.0.1:4173; report assets/resource/ShiKong/reports/playwright-workbench/report.json; owned webServer stopped after suite; screenshots for 5 viewports present"
+    "endedAt": "2026-07-13T07:39:44Z",
+    "result": "local commit for P2-S2 verification tooling and ledger"
   },
   "safety": {
     "realInputSent": false,
@@ -499,9 +384,9 @@
     ]
   },
   "eventTail": {
-    "seq": 234,
-    "id": "EVT-0234",
-    "hash": "sha256:8ee80dfde436152f8eaee52b82716bb2daf8e13c2d9874d07905658ff459f04b"
+    "seq": 235,
+    "id": "EVT-0235",
+    "hash": "sha256:0ca5ba4bc464e996ccbbc1f2cc2037a6eb15675c6239cf3a9a6a7867914d268b"
   },
   "evidenceTail": {
     "seq": 80,
