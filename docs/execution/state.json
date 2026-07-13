@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 381,
+  "revision": 388,
   "generation": 1,
-  "updatedAt": "2026-07-13T09:26:54Z",
+  "updatedAt": "2026-07-13T09:38:43Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -58,7 +58,8 @@
         "text": "entry.home binds to jiayuan/jiayuan.png and is ready only when template key available",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0126"
+          "EVD-0126",
+          "EVD-0128"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -69,7 +70,8 @@
         "text": "offline scaffold can be ready with builtin templates while liveReady remains false",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0126"
+          "EVD-0126",
+          "EVD-0128"
         ],
         "requiredEvidenceCategories": [
           "test"
@@ -81,7 +83,9 @@
         "status": "passed",
         "evidenceIds": [
           "EVD-0126",
-          "EVD-0127"
+          "EVD-0127",
+          "EVD-0128",
+          "EVD-0129"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -89,7 +93,7 @@
         ]
       }
     ],
-    "nextAction": "Commit P3-S7 entry.home offline binding product+ledger; next P4 still needs live capture/OCR/window identity for true e2e"
+    "nextAction": "P3 remaining polish optional; P4 blocked on live window identity/OCR/capture of real home UI; keep or stop owned app via process_stop"
   },
   "phases": [
     {
@@ -205,110 +209,58 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "c51aac25953c39d01324c356f3e9a503bc796ba7",
+    "observedHead": "5b76cfb52b1e287b82511f0fe0f836b12166ece2",
     "verifiedHead": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "4eb8f9e41ffad8ad703a38819fa2262d127ad0e8",
     "dirtyPaths": [
-      "assets/resource/ShiKong/image/jiayuan/jiayuan.png",
-      "assets/resource/ShiKong/template_mapping.json",
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json",
+      "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "scripts/test_home_vitality_core.mjs",
-      "src/home-vitality-core.js",
-      "src/main.js"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
-      "?? assets/resource/ShiKong/image/jiayuan/jiayuan.png",
-      " M assets/resource/ShiKong/template_mapping.json",
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json",
+      "?? docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M scripts/test_home_vitality_core.mjs",
-      " M src/home-vitality-core.js",
-      " M src/main.js"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
-        "path": "assets/resource/ShiKong/image/jiayuan/jiayuan.png",
-        "exists": true,
-        "sha256": "f469630625834f28051c31b1db838520b23604fd5ee51db3d01fea2409b05781",
-        "size": 4920
-      },
-      {
-        "path": "assets/resource/ShiKong/template_mapping.json",
-        "exists": true,
-        "sha256": "cb7c2503056efb263c38771622374d41a6e8e0e08cc75e7d2b63a8b811fa65d1",
-        "size": 85897
-      },
-      {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "f666fdb00ca8312938cac3a08bc54f0983ee916210acd40b0f8fad6d3296c72f",
-        "size": 11948
+        "sha256": "2b9132837eb66157141bb5e5a646c49c0a84b6c71155a5181b48f52e3b9e0f5c",
+        "size": 11800
       },
       {
-        "path": "docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json",
+        "path": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
         "exists": true,
-        "sha256": "dcc697624e67e26da844987fd06559dd9a00f95e8eb8b05a255c007af1d4c2ef",
-        "size": 15604
+        "sha256": "b0d0f86789e70d7dca46856d448b2a54ac4bbb7de1212db952715f4d669dd21f",
+        "size": 12260
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "8c15bd88dd3acc94eeb36b5d75ce95a6200ae98e2708c75de907b1701d8939f5",
-        "size": 544879
+        "sha256": "0c9efa9c409a84e073e6757e1abf9a9abd60e92169db71be1218190c589b0d8a",
+        "size": 549556
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "51467e54c5cba325bfb3ce97c5b87e52e5a0023c6c0f5b7e589c6e22c55c080a",
-        "size": 272312
+        "sha256": "2ac6182db900a623a2b214e6c0aefbf7bdfa3104e2cb418ef03eb308bcc3bab6",
+        "size": 275371
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "5c75f5c6b540896e10190080f4df85380cfc2e5a7eadd7af25224bea8a1adaa3",
-        "size": 51061
-      },
-      {
-        "path": "scripts/test_home_vitality_core.mjs",
-        "exists": true,
-        "sha256": "7801f9c8ed08679c7f735e830313a9f761516e97a4265bc6f17b3227519dea63",
-        "size": 4837
-      },
-      {
-        "path": "src/home-vitality-core.js",
-        "exists": true,
-        "sha256": "44513dcf5f4c8d2c280a318f1b3f197f26e1e9e5a62933f12169b292490c4394",
-        "size": 8768
-      },
-      {
-        "path": "src/main.js",
-        "exists": true,
-        "sha256": "27eb49cfdc839d06b7d0a1ff4c6bcf88dfb7db73509fab6f07df942f87bbec66",
-        "size": 356129
+        "sha256": "d5577cc2b0d1c5b2a0f357763f3394906bd01f44cd534ef0684e6868a304800e",
+        "size": 48688
       }
     ],
-    "workingTreeFingerprint": "sha256:9b59d80b2b8496b05c089660af319cf5ad10621841cdb84430894cae52e4cdf1",
+    "workingTreeFingerprint": "sha256:09a4b66ddcaebaeb807ee8415b08b0e13cfe526f1f03737f40c63e3642e6dfd6",
     "dirtyEntries": [
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "assets/resource/ShiKong/image/jiayuan/jiayuan.png",
-        "displayPath": "assets/resource/ShiKong/image/jiayuan/jiayuan.png"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "assets/resource/ShiKong/template_mapping.json",
-        "displayPath": "assets/resource/ShiKong/template_mapping.json"
-      },
       {
         "status": " M",
         "sourcePath": null,
@@ -318,8 +270,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json",
-        "displayPath": "docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
+        "displayPath": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json"
       },
       {
         "status": " M",
@@ -338,24 +290,6 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_home_vitality_core.mjs",
-        "displayPath": "scripts/test_home_vitality_core.mjs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src/home-vitality-core.js",
-        "displayPath": "src/home-vitality-core.js"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src/main.js",
-        "displayPath": "src/main.js"
       }
     ]
   },
@@ -391,7 +325,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-13T09:23:43Z",
+    "observedAt": "2026-07-13T09:38:42Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -480,8 +414,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-13T09:11:08Z",
-        "lastObservedAt": "2026-07-13T09:23:43Z",
-        "lastSeenAt": "2026-07-13T09:23:43Z",
+        "lastObservedAt": "2026-07-13T09:38:42Z",
+        "lastSeenAt": "2026-07-13T09:38:42Z",
         "cleanupAllowed": false
       }
     ],
@@ -526,24 +460,24 @@
     ]
   },
   "eventTail": {
-    "seq": 341,
-    "id": "EVT-0341",
-    "hash": "sha256:94482e740d286c051041d7b769a585d5d88f9c7e801a0d8a6b5f81aa66c15b25"
+    "seq": 347,
+    "id": "EVT-0347",
+    "hash": "sha256:b9a074493bb71a813e5de8401ecc8b35e0d2ed1a32fbfdcec96e740ea6efd250"
   },
   "evidenceTail": {
-    "seq": 127,
-    "id": "EVD-0127",
-    "hash": "sha256:15025dd1ee466a62378aa0043d77ed7668386b9df8e41a434f67be7416f928e2"
+    "seq": 129,
+    "id": "EVD-0129",
+    "hash": "sha256:760ac69060a76f5238b8f172bb3ba5e8288c18615cdb212d8a55490dd70c27c2"
   },
-  "checkpointCounter": 29,
+  "checkpointCounter": 30,
   "lastCheckpoint": {
-    "id": "CP-0029",
+    "id": "CP-0030",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json",
-    "createdAt": "2026-07-13T09:26:55Z",
+    "path": "docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json",
+    "createdAt": "2026-07-13T09:38:43Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:cb48c2db09424c0d160a439369120772bf3f4f0494a0175ae48dd3d799d66a68"
+    "hash": "sha256:f396335a149c94713f7e1e4f4712566927f411e141939c9b7fdeda94e3c01307"
   },
   "resume": {
     "blockers": [
@@ -555,7 +489,7 @@
     "doNotDo": [
       "未扩展授权前不启动/停止应用、不发送游戏输入、不改写 AppData、不 commit/push"
     ],
-    "lastSafeResumeSnapshotId": "CP-0029"
+    "lastSafeResumeSnapshotId": "CP-0030"
   },
   "completedSlices": [
     {

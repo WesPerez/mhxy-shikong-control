@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:c79bb52d1e354608894ae279cfbe277c7416d7c94ad3b447eb94401aca365ee0 -->
-<!-- checkpoint-id: CP-0029 -->
+<!-- state-digest: sha256:9fcf6b63cc2a453f7134332b26ed2ce140b5c92d7f9c3885bf41ad268609c342 -->
+<!-- checkpoint-id: CP-0030 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,8 +9,8 @@
 ## 恢复首屏
 
 - 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-13T09:26:54Z`
-- 更新时间（北京时间）：`2026-07-13T17:26:54+08:00`
+- 更新时间（UTC）：`2026-07-13T09:38:43Z`
+- 更新时间（北京时间）：`2026-07-13T17:38:43+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
@@ -20,14 +20,14 @@
 - 当前切片验收：已满足 `3`，待验证或阻塞 `0`，合计 `3`
 - 本轮是否发送真实游戏输入：`false`
 - 当前工作：当前没有副作用动作在执行，停在下一动作之前
-- 最新当前有效证据：P3-S7 entry.home offline binding: Vite build green（EVD-0127，当前工作区绑定有效）
-- 唯一下一动作：Commit P3-S7 entry.home offline binding product+ledger; next P4 still needs live capture/OCR/window identity for true e2e
+- 最新当前有效证据：P3-S7 rebind on 5b76cfb: Vite build after entry.home binding commit（EVD-0129，当前工作区绑定有效）
+- 唯一下一动作：P3 remaining polish optional; P4 blocked on live window identity/OCR/capture of real home UI; keep or stop owned app via process_stop
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P2 UI 切片需要启动本任务构建的本地应用；externalAuthorization=appdata_backup_only 不包含进程启动
-- 最新 checkpoint：`CP-0029`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0030`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-13T09:23:43Z`；年龄=`191s`；TTL=`300s`；expiresAt=`2026-07-13T09:28:43Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-13T09:38:42Z`；年龄=`1s`；TTL=`300s`；expiresAt=`2026-07-13T09:43:42Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -83,9 +83,9 @@
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P3-S7-C1` | entry.home binds to jiayuan/jiayuan.png and is ready only when template key available | `passed` | `test` | `EVD-0126` |
-| `P3-S7-C2` | offline scaffold can be ready with builtin templates while liveReady remains false | `passed` | `test` | `EVD-0126` |
-| `P3-S7-C3` | core regression and Vite build remain green after entry.home binding | `passed` | `build`, `test` | `EVD-0126`, `EVD-0127` |
+| `P3-S7-C1` | entry.home binds to jiayuan/jiayuan.png and is ready only when template key available | `passed` | `test` | `EVD-0126`, `EVD-0128` |
+| `P3-S7-C2` | offline scaffold can be ready with builtin templates while liveReady remains false | `passed` | `test` | `EVD-0126`, `EVD-0128` |
+| `P3-S7-C3` | core regression and Vite build remain green after entry.home binding | `passed` | `build`, `test` | `EVD-0126`, `EVD-0127`, `EVD-0128`, `EVD-0129` |
 
 ## 当前动作
 
@@ -93,7 +93,7 @@
 
 ## 下一步
 
-- 唯一下一动作：Commit P3-S7 entry.home offline binding product+ledger; next P4 still needs live capture/OCR/window identity for true e2e
+- 唯一下一动作：P3 remaining polish optional; P4 blocked on live window identity/OCR/capture of real home UI; keep or stop owned app via process_stop
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -109,26 +109,21 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`c51aac25953c39d01324c356f3e9a503bc796ba7`
+- observed HEAD：`5b76cfb52b1e287b82511f0fe0f836b12166ece2`
 - verified HEAD：`4eb8f9e41ffad8ad703a38819fa2262d127ad0e8`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:9b59d80b2b8496b05c089660af319cf5ad10621841cdb84430894cae52e4cdf1`
-- 最新 checkpoint：`CP-0029` (state_snapshot)
+- working tree fingerprint：`sha256:09a4b66ddcaebaeb807ee8415b08b0e13cfe526f1f03737f40c63e3642e6dfd6`
+- 最新 checkpoint：`CP-0030` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
-- `assets/resource/ShiKong/image/jiayuan/jiayuan.png`
-- `assets/resource/ShiKong/template_mapping.json`
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0029-p3-s7-entry-home-offline-bound.json`
+- `docs/execution/checkpoints/CP-0030-p3-s7-rebind-5b76cfb.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
-- `scripts/test_home_vitality_core.mjs`
-- `src/home-vitality-core.js`
-- `src/main.js`
 
 ## 运行进程与产物
 
@@ -161,29 +156,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0120` | `build` | `passed` | `stale` | P3-S5 rebind on 4eb8f9e: Vite build after gate ownership fix<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0121` | `app_runtime` | `passed` | `stale` | Current-commit controller app launched and observed as created_by_current_run process<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0122` | `test` | `passed` | `stale` | P3-S6 match overlay: full core regression green<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0123` | `build` | `passed` | `stale` | P3-S6 match overlay: Vite build green<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0124` | `test` | `passed` | `stale` | P3-S6 rebind on 3716f9f: core regression after product commit<br>证据 HEAD 与当前 observed HEAD 不同 |
 | `EVD-0125` | `build` | `passed` | `stale` | P3-S6 rebind on 3716f9f: Vite build after product commit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0126` | `test` | `passed` | `valid` | P3-S7 entry.home offline binding: full core regression green<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0127` | `build` | `passed` | `valid` | P3-S7 entry.home offline binding: Vite build green<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0126` | `test` | `passed` | `stale` | P3-S7 entry.home offline binding: full core regression green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0127` | `build` | `passed` | `stale` | P3-S7 entry.home offline binding: Vite build green<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0128` | `test` | `passed` | `valid` | P3-S7 rebind on 5b76cfb: core regression after entry.home binding commit<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0129` | `build` | `passed` | `valid` | P3-S7 rebind on 5b76cfb: Vite build after entry.home binding commit<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 332 | `2026-07-13T09:18:58Z` | `test_run` | P3-S6 rebind on 3716f9f: core regression after product commit |
-| 333 | `2026-07-13T09:19:07Z` | `test_run` | P3-S6 rebind on 3716f9f: Vite build after product commit |
-| 334 | `2026-07-13T09:23:43Z` | `runtime_observation` | Refresh owned controller observation before P3-S6 rebind commit |
-| 335 | `2026-07-13T09:23:44Z` | `slice_state_changed` | P3-S6 rebind complete on HEAD 3716f9f with EVD-0124/0125; product match overlay committed |
-| 336 | `2026-07-13T09:23:45Z` | `checkpoint` | 创建 CP-0028：P3-S6 criteria rebound on product HEAD 3716f9f before P4-S1 |
-| 337 | `2026-07-13T09:25:08Z` | `slice_started` | 开始切片 P3-S7：Offline bind entry.home to jiayuan/jiayuan template without live input |
 | 338 | `2026-07-13T09:26:02Z` | `test_run` | P3-S7 entry.home offline binding: full core regression green |
 | 339 | `2026-07-13T09:26:47Z` | `test_run` | P3-S7 entry.home offline binding: Vite build green |
 | 340 | `2026-07-13T09:26:53Z` | `slice_state_changed` | P3-S7 verified: entry.home offline binds to jiayuan/jiayuan.png; offline scaffold ready with builtin keys; liveReady remains false; EVD-0126/0127 |
 | 341 | `2026-07-13T09:26:55Z` | `checkpoint` | 创建 CP-0029：P3-S7 offline entry.home template binding verified without live input |
+| 342 | `2026-07-13T09:27:29Z` | `runtime_observation` | Refresh owned controller after P3-S7 product commit |
+| 343 | `2026-07-13T09:28:27Z` | `test_run` | P3-S7 rebind on 5b76cfb: core regression after entry.home binding commit |
+| 344 | `2026-07-13T09:38:34Z` | `test_run` | P3-S7 rebind on 5b76cfb: Vite build after entry.home binding commit |
+| 345 | `2026-07-13T09:38:35Z` | `slice_state_changed` | P3-S7 rebind complete on HEAD 5b76cfb with EVD-0128/0129; entry.home offline binding product committed |
+| 346 | `2026-07-13T09:38:42Z` | `runtime_observation` | Refresh runtime freshness after P3-S7 rebind evidence |
+| 347 | `2026-07-13T09:38:43Z` | `checkpoint` | 创建 CP-0030：P3-S7 criteria rebound on product HEAD 5b76cfb |
 
 ## 异常恢复
 
