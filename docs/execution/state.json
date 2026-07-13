@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 251,
+  "revision": 252,
   "generation": 1,
-  "updatedAt": "2026-07-13T07:39:55Z",
+  "updatedAt": "2026-07-13T07:39:56Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -216,53 +216,39 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "cf3578c1e367d5700d152baaa428512799ec47e7",
+    "observedHead": "3c7ee80927d1bc75d67ddc49a728953d6a7f8624",
     "verifiedHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/events.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      " M docs/execution/events.jsonl",
       " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "6a85e5bf0240da8822ab487a694a2b756b3e71de2536c309552b8ca267cb78f9",
-        "size": 11707
-      },
-      {
-        "path": "docs/execution/events.jsonl",
-        "exists": true,
-        "sha256": "364aa8986c0c48df55344a7f03e315596ced91383dd96c8b244d0ec57454192d",
-        "size": 447824
+        "sha256": "771ad499cd9f37496d6d71625e6a7ba7a04d6832c99b4ba332a3e95eff360f1a",
+        "size": 11623
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "344c62d7a5415b6b2173974ee2f54ca53fa75030d156f527316cfe2f0699c92c",
-        "size": 27477
+        "sha256": "8320f1cfab1778a41dfe5eb76f88457c0a84e3096fbd2781918f33cd4b1b2754",
+        "size": 26126
       }
     ],
-    "workingTreeFingerprint": "sha256:3ad9e22b551b3b7b27d7c9ef4ca85fc4ab0e2ca26413ba18af4d821c5b580a67",
+    "workingTreeFingerprint": "sha256:5b0131ec7027cad234c6ba1dde34ef34078c52957c092cd162fe8d362b6a5252",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/events.jsonl",
-        "displayPath": "docs/execution/events.jsonl"
       },
       {
         "status": " M",

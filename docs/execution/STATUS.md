@@ -1,5 +1,5 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:ab9ccb3d58a08bc71cb026177144baa02add277a34be6069edaf45193c620fc8 -->
+<!-- state-digest: sha256:7fd7acc46084d250f8169f3b80a95f339dd200c6cc1efa7b0c52d30797887388 -->
 <!-- checkpoint-id: CP-0018 -->
 # 长任务执行状态
 
@@ -9,8 +9,8 @@
 ## 恢复首屏
 
 - 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-13T07:39:55Z`
-- 更新时间（北京时间）：`2026-07-13T15:39:55+08:00`
+- 更新时间（UTC）：`2026-07-13T07:39:56Z`
+- 更新时间（北京时间）：`2026-07-13T15:39:56+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `1`
 - 总体状态：`active`
@@ -27,7 +27,7 @@
 - 最新 checkpoint：`CP-0018`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`132785s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**已过期**；observedAt=`2026-07-11T18:46:50Z`；年龄=`132786s`；TTL=`300s`；expiresAt=`2026-07-11T18:51:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -103,10 +103,10 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`cf3578c1e367d5700d152baaa428512799ec47e7`
+- observed HEAD：`3c7ee80927d1bc75d67ddc49a728953d6a7f8624`
 - verified HEAD：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:3ad9e22b551b3b7b27d7c9ef4ca85fc4ab0e2ca26413ba18af4d821c5b580a67`
+- working tree fingerprint：`sha256:5b0131ec7027cad234c6ba1dde34ef34078c52957c092cd162fe8d362b6a5252`
 - 最新 checkpoint：`CP-0018` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
@@ -114,7 +114,6 @@
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/events.jsonl`
 - `docs/execution/state.json`
 
 ## 运行进程与产物
