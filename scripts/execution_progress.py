@@ -105,6 +105,7 @@ PROFILE_CATEGORY_BY_NAME = {
     "p0-preflight": "source_audit",
     "home-vitality-offline": "source_audit",
     "save-coordinator-offline": "source_audit",
+    "asset-store-offline": "source_audit",
     "p0-safety-boundary": "cleanup_audit",
     "ui-viewports": "test",
 }
@@ -2321,6 +2322,12 @@ def command_run_evidence(args: argparse.Namespace) -> None:
             "commands": [[sys.executable, str(ROOT / "scripts" / "audit_save_coordinator.py")]],
             "artifacts": [],
         },
+        "asset-store-offline": {
+            "category": "source_audit",
+            "cwd": ROOT,
+            "commands": [[sys.executable, str(ROOT / "scripts" / "audit_asset_store.py")]],
+            "artifacts": [],
+        },
         "home-vitality-offline": {
             "category": "source_audit",
             "cwd": ROOT,
@@ -2539,7 +2546,7 @@ def build_parser() -> argparse.ArgumentParser:
     repair_parser.set_defaults(func=command_repair_tail)
 
     run_parser = subparsers.add_parser("run-evidence", help="execute a bounded audit/test/build and record its real exit code and log")
-    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "p0-safety-boundary", "ui-viewports"])
+    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "asset-store-offline", "p0-safety-boundary", "ui-viewports"])
     run_parser.add_argument("--claim", required=True)
     run_parser.add_argument("--criterion", action="append")
     run_parser.add_argument("--timeout-seconds", type=int, default=1800)

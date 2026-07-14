@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1019,
+  "revision": 1040,
   "generation": 1,
-  "updatedAt": "2026-07-14T17:10:58Z",
+  "updatedAt": "2026-07-14T17:22:12Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,34 +32,33 @@
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P5-S1",
-    "title": "Persistence baseline: SaveCoordinator and future-schema protection",
+    "id": "P5-S2",
+    "title": "Asset fileization and content-hash dedupe",
     "status": "verified",
-    "startedAt": "2026-07-14T14:34:41Z",
+    "startedAt": "2026-07-14T17:12:08Z",
     "scope": [
+      "src/asset-store-core.js",
       "src/main.js",
-      "src/workspace-migration-core.js",
+      "scripts/test_asset_store_core.mjs",
+      "scripts/audit_asset_store.py",
       "docs/execution"
     ],
     "nonGoals": [
-      "Do not force SQLite without scale proof"
+      "Do not force SQLite yet",
+      "No real AppData overwrite"
     ],
     "safetyBoundaries": [
-      "No real AppData overwrite without backup verifier"
+      "No real AppData overwrite without backup verifier",
+      "No game input in this slice"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P5-S1-C1",
-        "text": "SaveCoordinator/atomic save and future-schema protection covered by tests and audit",
+        "id": "P5-S2-C1",
+        "text": "Asset fileization extracts dataUrl into content-hash assets and dedupes identical bytes",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0426",
-          "EVD-0427",
-          "EVD-0428",
-          "EVD-0430",
-          "EVD-0431",
-          "EVD-0434",
-          "EVD-0436"
+          "EVD-0437",
+          "EVD-0439"
         ],
         "requiredEvidenceCategories": [
           "source_audit",
@@ -67,21 +66,20 @@
         ]
       },
       {
-        "id": "P5-S1-C2",
-        "text": "Workspace migration import/export consistency tests pass",
+        "id": "P5-S2-C2",
+        "text": "Workspace prepare-for-save strips inline dataUrl when hash/path present; core tests and vite pass",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0425",
-          "EVD-0427",
-          "EVD-0430",
-          "EVD-0436"
+          "EVD-0439",
+          "EVD-0440"
         ],
         "requiredEvidenceCategories": [
+          "build",
           "test"
         ]
       }
     ],
-    "nextAction": "P5-S2 asset fileization/hash dedupe"
+    "nextAction": "P5-S3 backup/restore UI and AppData restart persistence verifier"
   },
   "phases": [
     {
@@ -153,16 +151,16 @@
     },
     "automated": {
       "status": "passed",
-      "note": "P5-S1 clean rebind core EVD-0436",
+      "note": "P5-S2 core EVD-0439",
       "evidenceIds": [
-        "EVD-0436"
+        "EVD-0439"
       ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "P5-S1 clean rebind vite EVD-0435",
+      "note": "P5-S2 vite EVD-0440",
       "evidenceIds": [
-        "EVD-0435"
+        "EVD-0440"
       ]
     },
     "currentCommitAppLaunched": {
@@ -198,57 +196,105 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "62cca8a6ac23d147ba12e41645c0c4eaa66611bd",
+    "observedHead": "be2beaaef55b1c87d5e4760c7ca81034531f2e93",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json",
+      "docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/state.json",
+      "package.json",
+      "scripts/audit_asset_store.py",
+      "scripts/execution_progress.py",
+      "scripts/test_asset_store_core.mjs",
+      "src/asset-store-core.js",
+      "src/main.js"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json",
+      "?? docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/state.json",
+      " M package.json",
+      "?? scripts/audit_asset_store.py",
+      " M scripts/execution_progress.py",
+      "?? scripts/test_asset_store_core.mjs",
+      "?? src/asset-store-core.js",
+      " M src/main.js"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "b62f04f8de04dea106556d6a597262a3d0aa52434745af70fc2b70e35cf1cfdf",
-        "size": 13124
+        "sha256": "7dc2fc5c2ff1ad1f61c92ff09cfdcb231ad86b8cfbc8034d1d1756000d45af5c",
+        "size": 13296
       },
       {
-        "path": "docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json",
+        "path": "docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json",
         "exists": true,
-        "sha256": "3c682bf05059c30857e84a90cc736a0eaeedd85e0410328d4394606d03523bc9",
-        "size": 26412
+        "sha256": "ee55fe135e54cfee553b6c980a8c93d04aac653af0eb98954b3d5e0af7ff5d99",
+        "size": 30054
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "c261c4a8a5ca49a139feb9a221bcc91032ef3d2132831c58d226912fb60e07a8",
-        "size": 1483695
+        "sha256": "3b96545b58dc63466a711b5d07ecf142746329b0a6bc53db47a134aa358046d5",
+        "size": 1502982
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "203f4a09a959acca813fdc9f01e639fd4a8ca2b95116b06bc51f7395ca8cb283",
-        "size": 1230160
+        "sha256": "c1fcfd07381ed885761da03d99155b941b1973176a6be6ed51e8d7a4305601af",
+        "size": 1236799
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "bfd95f5c6205cf7f641a49da1787a833dedd6d5e8445c7304ee037085f4c08ed",
-        "size": 82443
+        "sha256": "6600c943f40f6123934fdebfb6bde016631cd33b6be9818134561345b59200d7",
+        "size": 86699
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "4a1adaa0b0d8adf961f6e990a2d02df8abb753200a46d94fd8f3233deefc967e",
+        "size": 6459
+      },
+      {
+        "path": "scripts/audit_asset_store.py",
+        "exists": true,
+        "sha256": "e34fd0eca0a0096ff7b05b7696752d2e94e8ac6054c4620af0e01c2040b4ff2d",
+        "size": 1486
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "exists": true,
+        "sha256": "eaa0f486a62e3ab267dfbb57431c11ae59c97595b747aeed36df14dc31457efd",
+        "size": 128874
+      },
+      {
+        "path": "scripts/test_asset_store_core.mjs",
+        "exists": true,
+        "sha256": "e9d5704602bf6739fbce27626ad9ab699319fd6b243a325785105b3c73144f38",
+        "size": 3055
+      },
+      {
+        "path": "src/asset-store-core.js",
+        "exists": true,
+        "sha256": "5c0fc50fb3deb578ffc8355492868e3a21e813e609d0e9f6dfe1cf55f2efc091",
+        "size": 9009
+      },
+      {
+        "path": "src/main.js",
+        "exists": true,
+        "sha256": "d32db9039f4cc79050e74d0f9fa077594ed60da41c980b3cc10ee166591f74db",
+        "size": 361924
       }
     ],
-    "workingTreeFingerprint": "sha256:20556de5f2e158699aa9764267f1e2db1c3ec454022388b49cc00e454ff15629",
+    "workingTreeFingerprint": "sha256:4c76fbe2bf985ff6780d4d4d7fc94b44a1be620e366724c6008f7d195264bb6e",
     "dirtyEntries": [
       {
         "status": " M",
@@ -259,8 +305,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json",
-        "displayPath": "docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json",
+        "displayPath": "docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json"
       },
       {
         "status": " M",
@@ -279,10 +325,61 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_asset_store.py",
+        "displayPath": "scripts/audit_asset_store.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_asset_store_core.mjs",
+        "displayPath": "scripts/test_asset_store_core.mjs"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src/asset-store-core.js",
+        "displayPath": "src/asset-store-core.js"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "src/main.js",
+        "displayPath": "src/main.js"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P5-COMMIT-S2-001",
+    "kind": "git_commit",
+    "targetIdentity": "local-repo",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P5-S2 criteria passed with EVD-0437/0439/0440",
+    "expectedPostcondition": "P5-S2 asset store committed",
+    "idempotencyKey": "p5s2-asset-store-commit",
+    "startedAt": "2026-07-14T17:22:12Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "cwd=E:\\Project\\Common\\mhxy-shikong-control"
+    ],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P5-COMMIT-REBIND-002",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
@@ -296,22 +393,9 @@
       "cwd=E:\\Project\\Common\\mhxy-shikong-control",
       "branch=main"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P5-COMMIT-REBIND-001",
-    "kind": "git_commit",
-    "targetIdentity": "main",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "rebind ledger",
-    "expectedPostcondition": "commit",
-    "idempotencyKey": "p5-rebind-001",
-    "startedAt": "2026-07-14T14:41:02Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [],
     "status": "succeeded",
-    "endedAt": "2026-07-14T14:41:04Z",
-    "result": "ok"
+    "endedAt": "2026-07-14T17:11:13Z",
+    "result": "committed be2beaaef55b1c87d5e4760c7ca81034531f2e93 P5-S1 rebind ledger"
   },
   "safety": {
     "realInputSent": true,
@@ -321,7 +405,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T17:10:23Z",
+    "observedAt": "2026-07-14T17:22:02Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -660,8 +744,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T17:10:21Z",
-        "lastSeenAt": "2026-07-14T17:10:21Z",
+        "lastObservedAt": "2026-07-14T17:22:01Z",
+        "lastSeenAt": "2026-07-14T17:22:01Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -763,8 +847,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T14:29:10Z",
-        "lastObservedAt": "2026-07-14T17:10:23Z",
-        "lastSeenAt": "2026-07-14T17:10:23Z",
+        "lastObservedAt": "2026-07-14T17:22:02Z",
+        "lastSeenAt": "2026-07-14T17:22:02Z",
         "cleanupAllowed": false
       }
     ],
@@ -824,24 +908,24 @@
     }
   },
   "eventTail": {
-    "seq": 969,
-    "id": "EVT-0969",
-    "hash": "sha256:b5aa011214cca4b7c8ec3bab26042674bee86839ca7726bfc4b1bfafa2b819c7"
+    "seq": 990,
+    "id": "EVT-0990",
+    "hash": "sha256:2895941432682824b36765ebb460709c2de405eb789eb53ca53b03569c2b8f1e"
   },
   "evidenceTail": {
-    "seq": 436,
-    "id": "EVD-0436",
-    "hash": "sha256:1500053e40f5166c51d1bf456e10b5d5d41d510c9a7cbb7e3b6e312279ab1025"
+    "seq": 440,
+    "id": "EVD-0440",
+    "hash": "sha256:782f891e2046412ee0de36c71e709f0e2b25d74b386557adccc641225f7791a3"
   },
-  "checkpointCounter": 70,
+  "checkpointCounter": 71,
   "lastCheckpoint": {
-    "id": "CP-0070",
+    "id": "CP-0071",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0070-pre-commit-p5s1-rebind.json",
-    "createdAt": "2026-07-14T17:10:55Z",
+    "path": "docs/execution/checkpoints/CP-0071-pre-commit-p5s2.json",
+    "createdAt": "2026-07-14T17:22:10Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:bf574db51e31c540b181680a7def4bc9d7a56544e875dd731c1569be7661f3ab"
+    "hash": "sha256:01cf6e01aa54fc73786629955a6e6474410537e10c95510edfa9130eca0bfdc5"
   },
   "resume": {
     "blockers": [
@@ -853,7 +937,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0070"
+    "lastSafeResumeSnapshotId": "CP-0071"
   },
   "completedSlices": [
     {
@@ -2510,6 +2594,60 @@
       "nextAction": "Begin P5-S1 persistence baseline.",
       "phaseId": "P4",
       "verifiedAt": "2026-07-14T14:34:41Z"
+    },
+    {
+      "id": "P5-S1",
+      "title": "Persistence baseline: SaveCoordinator and future-schema protection",
+      "status": "verified",
+      "startedAt": "2026-07-14T14:34:41Z",
+      "scope": [
+        "src/main.js",
+        "src/workspace-migration-core.js",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "Do not force SQLite without scale proof"
+      ],
+      "safetyBoundaries": [
+        "No real AppData overwrite without backup verifier"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P5-S1-C1",
+          "text": "SaveCoordinator/atomic save and future-schema protection covered by tests and audit",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0426",
+            "EVD-0427",
+            "EVD-0428",
+            "EVD-0430",
+            "EVD-0431",
+            "EVD-0434",
+            "EVD-0436"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P5-S1-C2",
+          "text": "Workspace migration import/export consistency tests pass",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0425",
+            "EVD-0427",
+            "EVD-0430",
+            "EVD-0436"
+          ],
+          "requiredEvidenceCategories": [
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "P5-S2 asset fileization/hash dedupe",
+      "phaseId": "P5",
+      "verifiedAt": "2026-07-14T17:12:08Z"
     }
   ]
 }

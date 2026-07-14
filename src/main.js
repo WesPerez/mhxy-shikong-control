@@ -54,6 +54,10 @@ import {
 } from "./home-vitality-core.js";
 import { createSaveCoordinator } from "./save-coordinator-core.js";
 import {
+  fileizeWorkspaceAssets,
+  prepareWorkspaceForPersistence,
+} from "./asset-store-core.js";
+import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
   mergeLiveValidationRunHistory,
@@ -1415,7 +1419,20 @@ async function saveWorkspaceNow() {
   state.saveTimer = null;
   try {
     state.workspace.updatedAt = new Date().toISOString();
-    const result = await invokeBackend("save_workflow_workspace", { workspace: state.workspace });
+    const previousTargets = Array.isArray(state.workspace?.targets) ? state.workspace.targets : [];
+    const fileized = await fileizeWorkspaceAssets(state.workspace);
+    const mergedTargets = (fileized.workspace.targets || []).map((target) => {
+      if (target?.dataUrl) return target;
+      const previous = previousTargets.find((item) => item && item.id === target?.id);
+      if (previous?.dataUrl) return { ...target, dataUrl: previous.dataUrl };
+      return target;
+    });
+    state.workspace = {
+      ...fileized.workspace,
+      targets: mergedTargets,
+    };
+    const prepared = prepareWorkspaceForPersistence(state.workspace);
+    const result = await invokeBackend("save_workflow_workspace", { workspace: prepared.workspace });
     state.workspacePath = result.savedPath;
     state.workspaceBackupPath = result.backupPath || state.workspaceBackupPath || "";
     $("#workspace-state").textContent = "saved";
