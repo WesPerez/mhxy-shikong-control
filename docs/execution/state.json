@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1149,
+  "revision": 1173,
   "generation": 1,
-  "updatedAt": "2026-07-14T18:03:02Z",
+  "updatedAt": "2026-07-14T18:08:25Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,32 +32,30 @@
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P6-S1",
-    "title": "Welfare sign-in offline blueprint and live-ready gates",
+    "id": "P6-S2",
+    "title": "Bag organize offline blueprint and bounded live",
     "status": "verified",
-    "startedAt": "2026-07-14T17:54:57Z",
+    "startedAt": "2026-07-14T18:03:59Z",
     "scope": [
+      "src/bag-organize-core.js",
       "src/main.js",
-      "src",
       "scripts",
       "docs/execution"
     ],
     "nonGoals": [
-      "No purchase or irreversible ops",
-      "No force push"
+      "No trading"
     ],
     "safetyBoundaries": [
-      "No game input without elevated gates and manual confirmation",
-      "Only verified HWND background input"
+      "No game input without gates"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P6-S1-C1",
-        "text": "Welfare sign-in blueprint has >=10 steps with readiness and recovery offline",
+        "id": "P6-S2-C1",
+        "text": "Bag organize blueprint >=10 steps offline readiness",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0459",
-          "EVD-0461"
+          "EVD-0468",
+          "EVD-0470"
         ],
         "requiredEvidenceCategories": [
           "source_audit",
@@ -65,12 +63,12 @@
         ]
       },
       {
-        "id": "P6-S1-C2",
-        "text": "Bounded welfare live step path proves inputSent and postcondition without claiming full multi-task suite",
+        "id": "P6-S2-C2",
+        "text": "Bounded bag-related live path proves inputSent and postcondition",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0466",
-          "EVD-0467"
+          "EVD-0473",
+          "EVD-0474"
         ],
         "requiredEvidenceCategories": [
           "live_input",
@@ -78,7 +76,7 @@
         ]
       }
     ],
-    "nextAction": "P6-S2 bag organize offline then live vertical"
+    "nextAction": "P6-S3 team observe offline+live"
   },
   "phases": [
     {
@@ -150,16 +148,16 @@
     },
     "automated": {
       "status": "passed",
-      "note": "EVD-0461",
+      "note": "EVD-0470",
       "evidenceIds": [
-        "EVD-0461"
+        "EVD-0470"
       ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "EVD-0460",
+      "note": "EVD-0469",
       "evidenceIds": [
-        "EVD-0460"
+        "EVD-0469"
       ]
     },
     "currentCommitAppLaunched": {
@@ -171,16 +169,16 @@
     },
     "hwndInputActuallySent": {
       "status": "passed",
-      "note": "EVD-0466 live_input",
+      "note": "EVD-0473",
       "evidenceIds": [
-        "EVD-0466"
+        "EVD-0473"
       ]
     },
     "gamePostconditionObserved": {
       "status": "passed",
-      "note": "EVD-0467 live_outcome",
+      "note": "EVD-0474",
       "evidenceIds": [
-        "EVD-0467"
+        "EVD-0474"
       ]
     },
     "foregroundUnaffected": {
@@ -203,105 +201,105 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "02f564f8219bfceaf725ee21ff08f48c2104e4b0",
+    "observedHead": "1bcac47412ce1d25f8eeef64cda0429f724ad4a5",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json",
+      "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
       "docs/execution/state.json",
       "package.json",
-      "scripts/audit_welfare_sign_in_offline.py",
+      "scripts/audit_bag_organize_offline.py",
       "scripts/execution_progress.py",
-      "scripts/test_welfare_sign_in_core.mjs",
-      "src/main.js",
-      "src/welfare-sign-in-core.js"
+      "scripts/test_bag_organize_core.mjs",
+      "src/bag-organize-core.js",
+      "src/main.js"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json",
+      "?? docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json",
       " M package.json",
-      "?? scripts/audit_welfare_sign_in_offline.py",
+      "?? scripts/audit_bag_organize_offline.py",
       " M scripts/execution_progress.py",
-      "?? scripts/test_welfare_sign_in_core.mjs",
-      " M src/main.js",
-      "?? src/welfare-sign-in-core.js"
+      "?? scripts/test_bag_organize_core.mjs",
+      "?? src/bag-organize-core.js",
+      " M src/main.js"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "d0558c5455fa54be567d6aef31f8fac28911071ecb425594f7839c20d79fa213",
-        "size": 13625
+        "sha256": "f9afa9a63a6eec8b5190023b3d89c0578d57576067fc4b8188fd6951548620c0",
+        "size": 13481
       },
       {
-        "path": "docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json",
+        "path": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
         "exists": true,
-        "sha256": "b9e6b03b63d32cefdefe6742df87c58a2b289b0a165ec8166c296b6117c16644",
-        "size": 30939
+        "sha256": "37d8dde64495328dafb6715e9f378cbee977c028138acade58f270901e9b4a87",
+        "size": 30678
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "d00c772c4dac710c107c3789e43c9dd68a2d429060273cc6bf0de78dfb26062d",
-        "size": 1608112
+        "sha256": "d759b8cb315c1f60c3f7f3882dd1db8f90ba87e5b885acda0e9e5ac9aea045f7",
+        "size": 1630615
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "1285b896824a8a4d6abce43889a454da36a42244db1dabd0e72f15808536c319",
-        "size": 1297071
+        "sha256": "152f9ed8782a685ef91aafc1717b4bbf1352193f0be1a08d51f907f30fe36e3e",
+        "size": 1318864
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "50deea849f71cfe100fbdfc81fbfa2f47fb2fbac57087965dcab9184c776ef15",
-        "size": 92427
+        "sha256": "bd902c57d7e88f7ec7f0c870dcfed669f49fe43946ee1f3c45916e6e1980fa5f",
+        "size": 92983
       },
       {
         "path": "package.json",
         "exists": true,
-        "sha256": "a14daab7d7f5d4a41fbf549584a600ef8d7f153eabbe1c2d194fdb5afd4ade09",
-        "size": 7036
+        "sha256": "7df0f6e135c98132d6278b278d6dc8f379488224cd4a426ac6c1bc9892e92208",
+        "size": 7253
       },
       {
-        "path": "scripts/audit_welfare_sign_in_offline.py",
+        "path": "scripts/audit_bag_organize_offline.py",
         "exists": true,
-        "sha256": "ad6b50519b16b8603e0bbc0df57958a4abf829b3a30c44cf3c7e2c278cbc648c",
-        "size": 1178
+        "sha256": "34a3c72bb5260a913859d264de77dc92c1cd19d617a9635ec24b8955c7d069a7",
+        "size": 592
       },
       {
         "path": "scripts/execution_progress.py",
         "exists": true,
-        "sha256": "b496792324ad72fe3b8c7baee1b6b96b9898e9e9b5722243c961e770f117b92a",
-        "size": 129567
+        "sha256": "c06428b7f8955dda9dad779f55633d0e3e8f2662f4db42b44129a2e820141776",
+        "size": 129882
       },
       {
-        "path": "scripts/test_welfare_sign_in_core.mjs",
+        "path": "scripts/test_bag_organize_core.mjs",
         "exists": true,
-        "sha256": "4d8d04af00cfb96fe1e4f0e71df2f4a63ed02f2cea46fcc29d254770ba68f12a",
-        "size": 1706
+        "sha256": "c421baed4f8be8dac4b596026fc233f6d49446d087e2ae56d3d34b0c7b8fb97b",
+        "size": 544
+      },
+      {
+        "path": "src/bag-organize-core.js",
+        "exists": true,
+        "sha256": "ee1fe7c8a0e0ce9221c690e06fdd27a8ed3f5e30b93ae6578661d372f6607e8e",
+        "size": 6092
       },
       {
         "path": "src/main.js",
         "exists": true,
-        "sha256": "2cd509eb66d51d29c635e522dc1b79379c08b2072f3282294e4fbeb741ee2788",
-        "size": 362102
-      },
-      {
-        "path": "src/welfare-sign-in-core.js",
-        "exists": true,
-        "sha256": "affecb2517cbb9aac16a7e30c2027416db4604bb18688f4e78dd5b4a5c507042",
-        "size": 7428
+        "sha256": "32105d26a66e75793786723917ac6c90ad863caed1a53595b2fcc56804e8762e",
+        "size": 362229
       }
     ],
-    "workingTreeFingerprint": "sha256:77b13349a34d87b6775365f6b04b46cdb9c34ea84b41b487cb93563b2cabcbf1",
+    "workingTreeFingerprint": "sha256:069ef1be3ea757fb5f7e66601d70a0fa4716ce2086d86061ae44311fff2c158c",
     "dirtyEntries": [
       {
         "status": " M",
@@ -312,8 +310,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json",
-        "displayPath": "docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
+        "displayPath": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json"
       },
       {
         "status": " M",
@@ -342,8 +340,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "scripts/audit_welfare_sign_in_offline.py",
-        "displayPath": "scripts/audit_welfare_sign_in_offline.py"
+        "destinationPath": "scripts/audit_bag_organize_offline.py",
+        "displayPath": "scripts/audit_bag_organize_offline.py"
       },
       {
         "status": " M",
@@ -354,24 +352,39 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "scripts/test_welfare_sign_in_core.mjs",
-        "displayPath": "scripts/test_welfare_sign_in_core.mjs"
+        "destinationPath": "scripts/test_bag_organize_core.mjs",
+        "displayPath": "scripts/test_bag_organize_core.mjs"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src/bag-organize-core.js",
+        "displayPath": "src/bag-organize-core.js"
       },
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "src/main.js",
         "displayPath": "src/main.js"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "src/welfare-sign-in-core.js",
-        "displayPath": "src/welfare-sign-in-core.js"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P6-COMMIT-S2-001",
+    "kind": "git_commit",
+    "targetIdentity": "local-repo",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P6-S2 passed",
+    "expectedPostcondition": "committed",
+    "idempotencyKey": "p6s2-bag",
+    "startedAt": "2026-07-14T18:08:25Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "cwd=E:/Project/Common/mhxy-shikong-control"
+    ],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P6-COMMIT-S1-001",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
@@ -384,31 +397,9 @@
     "ownershipEvidence": [
       "cwd=E:/Project/Common/mhxy-shikong-control"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P6S1-APP-001",
-    "kind": "process_start",
-    "targetIdentity": "E:/Project/Common/mhxy-shikong-control/src-tauri/target-p5-s4/debug/mhxy-shikong-control.exe",
-    "sideEffectClass": "process_start",
-    "expectedPrecondition": "launch controller for live gates",
-    "expectedPostcondition": "app_runtime evidence",
-    "idempotencyKey": "p6s1-app-01",
-    "startedAt": "2026-07-14T17:59:55Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "exePath=E:/Project/Common/mhxy-shikong-control/src-tauri/target-p5-s4/debug/mhxy-shikong-control.exe",
-      "exeSha256=d7c4004ed81955a92461e365803a36d3e7bd361a139f75557cebdc0184b057e8",
-      "expectedHead=02f564f8219bfceaf725ee21ff08f48c2104e4b0",
-      "elevated=true",
-      "cwd=E:/Project/Common/mhxy-shikong-control",
-      "role=controller-app"
-    ],
     "status": "succeeded",
-    "leaseTokenHash": "c350de0be5e8b8d1bd8d28ccfd0180baff88fd84d79ecfa3eb2f1b6a7b01d1f1",
-    "endedAt": "2026-07-14T18:00:03Z",
-    "result": "controller app launched pid=52124 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p5-s4\\debug\\mhxy-shikong-control.exe evidence=EVD-0463",
-    "verifiedEvidenceId": "EVD-0463"
+    "endedAt": "2026-07-14T18:03:04Z",
+    "result": "committed 1bcac47412ce1d25f8eeef64cda0429f724ad4a5"
   },
   "safety": {
     "realInputSent": true,
@@ -418,7 +409,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T18:02:50Z",
+    "observedAt": "2026-07-14T18:08:13Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -757,8 +748,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:02:50Z",
-        "lastSeenAt": "2026-07-14T18:02:50Z",
+        "lastObservedAt": "2026-07-14T18:08:13Z",
+        "lastSeenAt": "2026-07-14T18:08:13Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -884,8 +875,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T18:00:00Z",
-        "lastObservedAt": "2026-07-14T18:02:49Z",
-        "lastSeenAt": "2026-07-14T18:02:49Z",
+        "lastObservedAt": "2026-07-14T18:08:12Z",
+        "lastSeenAt": "2026-07-14T18:08:12Z",
         "cleanupAllowed": false
       }
     ],
@@ -931,8 +922,8 @@
     "lastWindowIdentity": {
       "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
       "verified": true,
-      "observedAt": "2026-07-14T18:00:21Z",
-      "evidenceId": "EVD-0464",
+      "observedAt": "2026-07-14T18:06:26Z",
+      "evidenceId": "EVD-0471",
       "identity": {
         "hwnd": 26157554,
         "pid": 86812,
@@ -945,24 +936,24 @@
     }
   },
   "eventTail": {
-    "seq": 1099,
-    "id": "EVT-1099",
-    "hash": "sha256:2e531890c27e2243590b2d5e61003a4936c87fbe78d3c246e856f32c6a76a743"
+    "seq": 1123,
+    "id": "EVT-1123",
+    "hash": "sha256:62cb44bb84d64fb38598eee9ab8046d327cf8170c1223ba01fb1c39012e457b4"
   },
   "evidenceTail": {
-    "seq": 467,
-    "id": "EVD-0467",
-    "hash": "sha256:8208ce5e51d0d624baef80f11e6baa953013fe8e5b98753e00076c51232a4e66"
+    "seq": 474,
+    "id": "EVD-0474",
+    "hash": "sha256:a144c707e81414ebc10c09df6234116c3458ff982053737f199cd8cae3912d72"
   },
-  "checkpointCounter": 76,
+  "checkpointCounter": 77,
   "lastCheckpoint": {
-    "id": "CP-0076",
+    "id": "CP-0077",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json",
-    "createdAt": "2026-07-14T18:03:00Z",
+    "path": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
+    "createdAt": "2026-07-14T18:08:23Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:b93ad11a74170867babe9e470d4e7a50c891aba733f4790a537ba37eb720b053"
+    "hash": "sha256:dcf18f7210e7e0a64cc7f80d18f88d1af8a5b692cce2e67d0836358d086dd9b5"
   },
   "resume": {
     "blockers": [
@@ -974,7 +965,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0076"
+    "lastSafeResumeSnapshotId": "CP-0077"
   },
   "completedSlices": [
     {
@@ -2850,6 +2841,57 @@
       "nextAction": "Begin P6-S1 welfare sign-in offline blueprint then live vertical",
       "phaseId": "P5",
       "verifiedAt": "2026-07-14T17:54:57Z"
+    },
+    {
+      "id": "P6-S1",
+      "title": "Welfare sign-in offline blueprint and live-ready gates",
+      "status": "verified",
+      "startedAt": "2026-07-14T17:54:57Z",
+      "scope": [
+        "src/main.js",
+        "src",
+        "scripts",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "No purchase or irreversible ops",
+        "No force push"
+      ],
+      "safetyBoundaries": [
+        "No game input without elevated gates and manual confirmation",
+        "Only verified HWND background input"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P6-S1-C1",
+          "text": "Welfare sign-in blueprint has >=10 steps with readiness and recovery offline",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0459",
+            "EVD-0461"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P6-S1-C2",
+          "text": "Bounded welfare live step path proves inputSent and postcondition without claiming full multi-task suite",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0466",
+            "EVD-0467"
+          ],
+          "requiredEvidenceCategories": [
+            "live_input",
+            "live_outcome"
+          ]
+        }
+      ],
+      "nextAction": "P6-S2 bag organize offline then live vertical",
+      "phaseId": "P6",
+      "verifiedAt": "2026-07-14T18:03:59Z"
     }
   ]
 }

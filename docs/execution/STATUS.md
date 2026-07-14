@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:7496cdb8d9fc26fe14a7126b9d90a87f09b8c27fdd919edbaabe21e0263739f4 -->
-<!-- checkpoint-id: CP-0076 -->
+<!-- state-digest: sha256:4b219c91981836e73dc83598db621acc26e3a5d69c581aaab511b0a5de42193c -->
+<!-- checkpoint-id: CP-0077 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,39 +9,39 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T18:03:02Z`
-- 更新时间（北京时间）：`2026-07-15T02:03:02+08:00`
+- 更新时间（UTC）：`2026-07-14T18:08:25Z`
+- 更新时间（北京时间）：`2026-07-15T02:08:25+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
 - 当前阶段：`P6`
-- 当前切片：`P6-S1` - Welfare sign-in offline blueprint and live-ready gates
+- 当前切片：`P6-S2` - Bag organize offline blueprint and bounded live
 - 阶段状态：`in_progress`；切片状态：`verified`；动作状态：`running`
 - 当前切片验收：已满足 `2`，待验证或阻塞 `0`，合计 `2`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P6-COMMIT-S1-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：Bounded home-vitality live outcome observed after inputSent（EVD-0467，当前工作区绑定有效）
-- 唯一下一动作：对账未决副作用动作 ACT-P6-COMMIT-S1-001；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P6-COMMIT-S2-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：Bounded home-vitality live outcome observed after inputSent（EVD-0474，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-P6-COMMIT-S2-001；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
-- 最新 checkpoint：`CP-0076`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0077`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T18:02:50Z`；年龄=`12s`；TTL=`300s`；expiresAt=`2026-07-14T18:07:50Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T18:08:13Z`；年龄=`12s`；TTL=`300s`；expiresAt=`2026-07-14T18:13:13Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已通过` | EVD-0461 |
-| 当前提交构建 | `已通过` | EVD-0460 |
-| 当前提交应用已启动 | `已通过` | EVD-0463 app |
-| 后台 HWND 输入已实际发送 | `已通过` | EVD-0466 live_input |
-| 游戏后置状态已观察 | `已通过` | EVD-0467 live_outcome |
+| 自动测试 | `已通过` | EVD-0470 |
+| 当前提交构建 | `已通过` | EVD-0469 |
+| 当前提交应用已启动 | `已过期` | EVD-0463 app；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 后台 HWND 输入已实际发送 | `已通过` | EVD-0473 |
+| 游戏后置状态已观察 | `已通过` | EVD-0474 |
 | 前台鼠标键盘未受影响 | `部分` | 静态安全审计只允许 PostMessageW 路径，但尚缺当前版本实测前后台 HWND、鼠标位置和用户并行操作证据。 |
 | 双窗口隔离 | `未验证` | 两个游戏进程存在，但当前 HEAD 尚未完成双窗口不同队列并行隔离验收。 |
-| 重启持久化 | `已通过` | EVD-0462 real AppData |
+| 重启持久化 | `已过期` | EVD-0462 real AppData；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
 
 ## 阶段表
 
@@ -62,31 +62,29 @@
 
 ### 范围
 
+- src/bag-organize-core.js
 - src/main.js
-- src
 - scripts
 - docs/execution
 
 ### 非目标
 
-- No purchase or irreversible ops
-- No force push
+- No trading
 
 ### 安全边界
 
-- No game input without elevated gates and manual confirmation
-- Only verified HWND background input
+- No game input without gates
 
 ### 验收条件
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P6-S1-C1` | Welfare sign-in blueprint has >=10 steps with readiness and recovery offline | `passed` | `source_audit`, `test` | `EVD-0459`, `EVD-0461` |
-| `P6-S1-C2` | Bounded welfare live step path proves inputSent and postcondition without claiming full multi-task suite | `passed` | `live_input`, `live_outcome` | `EVD-0466`, `EVD-0467` |
+| `P6-S2-C1` | Bag organize blueprint >=10 steps offline readiness | `passed` | `source_audit`, `test` | `EVD-0468`, `EVD-0470` |
+| `P6-S2-C2` | Bounded bag-related live path proves inputSent and postcondition | `passed` | `live_input`, `live_outcome` | `EVD-0473`, `EVD-0474` |
 
 ## 当前动作
 
-- actionId：`ACT-P6-COMMIT-S1-001`
+- actionId：`ACT-P6-COMMIT-S2-001`
 - 类型：`git_commit`
 - 目标：`local-repo`
 - 副作用级别：`git_commit`
@@ -94,7 +92,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P6-COMMIT-S1-001；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P6-COMMIT-S2-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -110,27 +108,27 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`02f564f8219bfceaf725ee21ff08f48c2104e4b0`
+- observed HEAD：`1bcac47412ce1d25f8eeef64cda0429f724ad4a5`
 - verified HEAD：`9a15ec0ed96772984af950178a44ae1ca861a90e`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:77b13349a34d87b6775365f6b04b46cdb9c34ea84b41b487cb93563b2cabcbf1`
-- 最新 checkpoint：`CP-0076` (state_snapshot)
+- working tree fingerprint：`sha256:069ef1be3ea757fb5f7e66601d70a0fa4716ce2086d86061ae44311fff2c158c`
+- 最新 checkpoint：`CP-0077` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0076-pre-commit-p6s1.json`
+- `docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
 - `package.json`
-- `scripts/audit_welfare_sign_in_offline.py`
+- `scripts/audit_bag_organize_offline.py`
 - `scripts/execution_progress.py`
-- `scripts/test_welfare_sign_in_core.mjs`
+- `scripts/test_bag_organize_core.mjs`
+- `src/bag-organize-core.js`
 - `src/main.js`
-- `src/welfare-sign-in-core.js`
 
 ## 运行进程与产物
 
@@ -188,29 +186,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0460` | `build` | `passed` | `valid` | P6-S1-vite<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0461` | `test` | `passed` | `valid` | P6-S1-core<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0462` | `persistence` | `passed` | `valid` | P6 rebind real AppData observe<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0463` | `app_runtime` | `passed` | `valid` | Current-commit controller app launched and observed as created_by_current_run process<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0464` | `window_identity` | `passed` | `valid` | Verified live window identity for game-client (read-only, no input)<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0465` | `live_preflight` | `passed` | `valid` | Strict target capture completed bounded zero-input wait_image preflight<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0466` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0467` | `live_outcome` | `passed` | `valid` | Bounded home-vitality live outcome observed after inputSent<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0467` | `live_outcome` | `passed` | `stale` | Bounded home-vitality live outcome observed after inputSent<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0468` | `source_audit` | `passed` | `valid` | P6-S2-audit<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0469` | `build` | `passed` | `valid` | P6-S2-vite<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0470` | `test` | `passed` | `valid` | P6-S2-core<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0471` | `window_identity` | `passed` | `valid` | Verified live window identity for game-client (read-only, no input)<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0472` | `live_preflight` | `passed` | `valid` | Strict target capture completed bounded zero-input wait_image preflight<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0473` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0474` | `live_outcome` | `passed` | `valid` | Bounded home-vitality live outcome observed after inputSent<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 1090 | `2026-07-14T18:02:38Z` | `runtime_observation` | Bounded home-vitality live outcome observed after inputSent |
-| 1091 | `2026-07-14T18:02:49Z` | `runtime_observation` | after P6 live |
-| 1092 | `2026-07-14T18:02:50Z` | `runtime_observation` | after P6 live game |
-| 1093 | `2026-07-14T18:02:52Z` | `slice_state_changed` | 更新验收轴 hwndInputActuallySent -> passed |
-| 1094 | `2026-07-14T18:02:53Z` | `slice_state_changed` | 更新验收轴 gamePostconditionObserved -> passed |
-| 1095 | `2026-07-14T18:02:54Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
-| 1096 | `2026-07-14T18:02:57Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
-| 1097 | `2026-07-14T18:02:58Z` | `slice_state_changed` | P6-S1 welfare offline blueprint and bounded live ALT+N/ESC verified |
-| 1098 | `2026-07-14T18:03:00Z` | `checkpoint` | 创建 CP-0076：Commit P6-S1 welfare sign-in |
-| 1099 | `2026-07-14T18:03:02Z` | `action_intent` | 登记副作用动作 ACT-P6-COMMIT-S1-001 |
+| 1114 | `2026-07-14T18:07:40Z` | `runtime_observation` | Bounded home-vitality live outcome observed after inputSent |
+| 1115 | `2026-07-14T18:08:12Z` | `runtime_observation` | P6-S2 close |
+| 1116 | `2026-07-14T18:08:13Z` | `runtime_observation` | P6-S2 close game |
+| 1117 | `2026-07-14T18:08:14Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
+| 1118 | `2026-07-14T18:08:16Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
+| 1119 | `2026-07-14T18:08:18Z` | `slice_state_changed` | 更新验收轴 hwndInputActuallySent -> passed |
+| 1120 | `2026-07-14T18:08:19Z` | `slice_state_changed` | 更新验收轴 gamePostconditionObserved -> passed |
+| 1121 | `2026-07-14T18:08:20Z` | `slice_state_changed` | P6-S2 bag organize offline+bounded live verified |
+| 1122 | `2026-07-14T18:08:23Z` | `checkpoint` | 创建 CP-0077：Commit P6-S2 |
+| 1123 | `2026-07-14T18:08:25Z` | `action_intent` | 登记副作用动作 ACT-P6-COMMIT-S2-001 |
 
 ## 异常恢复
 

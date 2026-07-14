@@ -64,6 +64,11 @@ import {
   assessWelfareSignInReadiness,
 } from "./welfare-sign-in-core.js";
 import {
+  BAG_ORGANIZE_BLUEPRINT,
+  BAG_ORGANIZE_BLUEPRINT_ID,
+  assessBagOrganizeReadiness,
+} from "./bag-organize-core.js";
+import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
   mergeLiveValidationRunHistory,
