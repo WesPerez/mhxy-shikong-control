@@ -56,8 +56,7 @@ export async function defaultHashBytes(bytes) {
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
   }
-  const { createHash } = await import("node:crypto");
-  return createHash("sha256").update(view).digest("hex");
+  throw new Error("SHA-256 is unavailable in this environment");
 }
 
 export function bytesToDataUrl(bytes, mime = "application/octet-stream") {

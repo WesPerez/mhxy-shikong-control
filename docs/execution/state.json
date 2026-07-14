@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1242,
+  "revision": 1262,
   "generation": 1,
-  "updatedAt": "2026-07-14T18:34:57Z",
+  "updatedAt": "2026-07-14T18:43:17Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -27,55 +27,58 @@
     "owner": "primary-agent"
   },
   "overallStatus": "active",
-  "currentPhaseId": "P8",
-  "phaseStatus": "verified",
+  "currentPhaseId": "P9",
+  "phaseStatus": "in_progress",
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P8-S1",
-    "title": "Regression suite and failure matrix catalog",
-    "status": "verified",
-    "startedAt": "2026-07-14T18:31:53Z",
+    "id": "P9-S1",
+    "title": "Cleanup package validate and release gate",
+    "status": "in_progress",
+    "startedAt": "2026-07-14T18:35:15Z",
     "scope": [
-      "src/regression-suite-core.js",
-      "fixtures/regression",
-      "docs/execution"
+      "docs/execution",
+      "package.json",
+      "scripts"
     ],
     "nonGoals": [
       "No force push"
     ],
     "safetyBoundaries": [
-      "No new live input required for catalog"
+      "No stop of user game processes"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P8-S1-C1",
-        "text": "Regression catalog has >=5 validated tasks and full failure matrix",
+        "id": "P9-S1-C1",
+        "text": "Full core tests and production vite build pass on release HEAD",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0496",
-          "EVD-0498"
-        ],
-        "requiredEvidenceCategories": [
-          "source_audit",
-          "test"
-        ]
-      },
-      {
-        "id": "P8-S1-C2",
-        "text": "Core tests and vite pass with regression suite",
-        "status": "passed",
-        "evidenceIds": [
-          "EVD-0497",
-          "EVD-0498"
+          "EVD-0499",
+          "EVD-0500",
+          "EVD-0502",
+          "EVD-0504"
         ],
         "requiredEvidenceCategories": [
           "build",
           "test"
         ]
+      },
+      {
+        "id": "P9-S1-C2",
+        "text": "Execution state audit clean and tracked worktree clean after release commit",
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0501",
+          "EVD-0503",
+          "EVD-0505"
+        ],
+        "requiredEvidenceCategories": [
+          "cleanup_audit",
+          "source_audit"
+        ]
       }
     ],
-    "nextAction": "Begin P9 cleanup package commit push"
+    "nextAction": "rebind tests build package smoke then commit push"
   },
   "phases": [
     {
@@ -135,7 +138,7 @@
     {
       "id": "P9",
       "title": "源码清理、稳定提交和发布",
-      "status": "pending",
+      "status": "in_progress",
       "summary": "在调用链和完整验证后清理、提交、推送和发布稳定版本。"
     }
   ],
@@ -202,194 +205,126 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "0c88cdffb3898a17cb561f956511fd48fce942c7",
+    "observedHead": "9588282eb1eacfe9ff5599cf6b5082332af621ef",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
+      "LICENSE",
+      "NOTICE",
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json",
+      "docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
       "docs/execution/state.json",
-      "fixtures/regression/bag-organize.failure.json",
-      "fixtures/regression/bag-organize.success.json",
-      "fixtures/regression/catalog.json",
-      "fixtures/regression/home-vitality.failure.json",
-      "fixtures/regression/home-vitality.success.json",
-      "fixtures/regression/stall-search.failure.json",
-      "fixtures/regression/stall-search.success.json",
-      "fixtures/regression/team-observe.failure.json",
-      "fixtures/regression/team-observe.success.json",
-      "fixtures/regression/welfare-sign-in.failure.json",
-      "fixtures/regression/welfare-sign-in.success.json",
-      "package.json",
       "scripts/audit_regression_suite_offline.py",
+      "scripts/audit_release_cleanup.py",
       "scripts/execution_progress.py",
-      "scripts/test_regression_suite_core.mjs",
-      "src/main.js",
-      "src/regression-suite-core.js"
+      "src/asset-store-core.js",
+      "src/main.js"
     ],
     "dirtyStatus": [
+      "?? LICENSE",
+      "?? NOTICE",
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json",
+      "?? docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json",
-      "?? fixtures/regression/bag-organize.failure.json",
-      "?? fixtures/regression/bag-organize.success.json",
-      "?? fixtures/regression/catalog.json",
-      "?? fixtures/regression/home-vitality.failure.json",
-      "?? fixtures/regression/home-vitality.success.json",
-      "?? fixtures/regression/stall-search.failure.json",
-      "?? fixtures/regression/stall-search.success.json",
-      "?? fixtures/regression/team-observe.failure.json",
-      "?? fixtures/regression/team-observe.success.json",
-      "?? fixtures/regression/welfare-sign-in.failure.json",
-      "?? fixtures/regression/welfare-sign-in.success.json",
-      " M package.json",
-      "?? scripts/audit_regression_suite_offline.py",
+      " M scripts/audit_regression_suite_offline.py",
+      "?? scripts/audit_release_cleanup.py",
       " M scripts/execution_progress.py",
-      "?? scripts/test_regression_suite_core.mjs",
-      " M src/main.js",
-      "?? src/regression-suite-core.js"
+      " M src/asset-store-core.js",
+      "M  src/main.js"
     ],
     "dirtyFiles": [
       {
-        "path": "docs/execution/STATUS.md",
+        "path": "LICENSE",
         "exists": true,
-        "sha256": "c02104fd76e85dc6e4eb08929c7ac8245c5de54a0ce9055dc568a50050f139bc",
-        "size": 13843
+        "sha256": "e03bd88e8a1dca08630bc22d9213b0c68799aee6093c21e4e382a53fe6a04958",
+        "size": 1091
       },
       {
-        "path": "docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json",
+        "path": "NOTICE",
         "exists": true,
-        "sha256": "6e587e1e1e600ce8ae9e13251942388d57cfeb6cd1515956b129ed0cb9087c47",
-        "size": 39236
+        "sha256": "31d8f00a88a209c1f1952e9bc85ffbeeff6d25f1b42c9c39724a53b8c157b759",
+        "size": 453
+      },
+      {
+        "path": "docs/execution/STATUS.md",
+        "exists": true,
+        "sha256": "3ba73f5a5a7b4b85df600e25978031fcbfb53c6b64045fa559ecc8d9f1dec063",
+        "size": 13365
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json",
+        "exists": true,
+        "sha256": "94fa9b0700cef924c950cb5ec2a4b1b848095e20c25936e2e88931cb7a8706c0",
+        "size": 31627
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "075ab5428f0c70760a4cbbcb90689b088a1e15fcec25e7c72a13b9c4b1acac6b",
-        "size": 1707097
+        "sha256": "67747011ec3f66f97532112bf8d108be9b0e13fffe64f77168bf62afa7364e38",
+        "size": 1723974
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "29f90dd76e445c8a048373117e336dc6b43d44a9ed03c0c13d67add0cf8495f8",
-        "size": 1383841
+        "sha256": "ff02ced48c5a44afaa47181f7ba11d35954677a8d58b5287bf7300af25a225be",
+        "size": 1394968
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "fc34293fc83280de9d5bbff6a4862f90a9506666de4f8c4cda2c0a4842d06419",
-        "size": 104192
-      },
-      {
-        "path": "fixtures/regression/bag-organize.failure.json",
-        "exists": true,
-        "sha256": "25a3d7379d186e9ecdcc1aa77ff9e1a9c55f0d702ce9168151a796a264bf07b2",
-        "size": 150
-      },
-      {
-        "path": "fixtures/regression/bag-organize.success.json",
-        "exists": true,
-        "sha256": "b2e672fdda6639d5a9665c3d797b62830f6e412684ce5d14dc73a593476e3b81",
-        "size": 131
-      },
-      {
-        "path": "fixtures/regression/catalog.json",
-        "exists": true,
-        "sha256": "51b08fbcdbb2450544797fb27197b43f825a013ed67c5a9eece5a6d56c8651b1",
-        "size": 1881
-      },
-      {
-        "path": "fixtures/regression/home-vitality.failure.json",
-        "exists": true,
-        "sha256": "ade63757ffbd07acb420af828df5ffccd84c5f4e09eccd9c3c97624e54c0fbf4",
-        "size": 151
-      },
-      {
-        "path": "fixtures/regression/home-vitality.success.json",
-        "exists": true,
-        "sha256": "65e5856b4bf3d1823065ba575ca5b35fdabcf55085e642da09eb335b76086562",
-        "size": 132
-      },
-      {
-        "path": "fixtures/regression/stall-search.failure.json",
-        "exists": true,
-        "sha256": "3c89cca56792141ef0304e91a1671fc025e5c76ea2247214b57969cbe85b24af",
-        "size": 150
-      },
-      {
-        "path": "fixtures/regression/stall-search.success.json",
-        "exists": true,
-        "sha256": "8edc0b507e0d23fc59d2d668c2b92ccf91744d2bb6af8f4a64ba1e864f143b92",
-        "size": 131
-      },
-      {
-        "path": "fixtures/regression/team-observe.failure.json",
-        "exists": true,
-        "sha256": "d13ab66f5b83b7f09e9b3032e213439a945e09b70e9919fab1c4a57df857e84f",
-        "size": 150
-      },
-      {
-        "path": "fixtures/regression/team-observe.success.json",
-        "exists": true,
-        "sha256": "a11f15b96a94ff258022adcef02d1e739893c4a8f58e162cef0b556efabf7c44",
-        "size": 131
-      },
-      {
-        "path": "fixtures/regression/welfare-sign-in.failure.json",
-        "exists": true,
-        "sha256": "f0c07b310a4061a3af62766ed11cad2d98ddb94c5cf320689b77c24b194ba635",
-        "size": 153
-      },
-      {
-        "path": "fixtures/regression/welfare-sign-in.success.json",
-        "exists": true,
-        "sha256": "5922dec5b3bc9d3d32bcfe2112c674ca05a57a8f71b0af2dc26eb773f91ba331",
-        "size": 134
-      },
-      {
-        "path": "package.json",
-        "exists": true,
-        "sha256": "d195bc902b27d6b57b4714ceaea4c8a7a9d0f0902267a1f2df5a3a940dbfe61a",
-        "size": 8390
+        "sha256": "40ac4cb336c8354d4fa3584cda87480f358ca28a20f2ac5e6d3964834ca11c7a",
+        "size": 99951
       },
       {
         "path": "scripts/audit_regression_suite_offline.py",
         "exists": true,
-        "sha256": "d916af2fe1cb2d3f1c708d318ec3c8f1261e13969b779db81600eb738d829482",
-        "size": 810
+        "sha256": "17ef0e5eb00cd2c7ffe0070d57960ee176ccc9f2522e1338fb91a5c1c4840ff7",
+        "size": 704
+      },
+      {
+        "path": "scripts/audit_release_cleanup.py",
+        "exists": true,
+        "sha256": "589f9cd55359a37f7193239d5a578159fae608d02b74d6df1cb5c079f955affa",
+        "size": 288
       },
       {
         "path": "scripts/execution_progress.py",
         "exists": true,
-        "sha256": "5e5405b3abb6b01bd90bb40219f76b20c5d238292ba57b4d08ebf4266ff245ed",
-        "size": 131222
+        "sha256": "2d4ec88a29b81d30d4509aed896d8eb413e20ca2f3cddd30e4862efea05608e6",
+        "size": 131543
       },
       {
-        "path": "scripts/test_regression_suite_core.mjs",
+        "path": "src/asset-store-core.js",
         "exists": true,
-        "sha256": "4665ed4bc8a72c55b0978aa99d36be5e97523a3ca879318bfe07b4dbc6a2a382",
-        "size": 851
+        "sha256": "e84411a74ac67fa8af2607a4180bb6baa9b1bb4031a41326419fa7e0fdf1d7f0",
+        "size": 9226
       },
       {
         "path": "src/main.js",
         "exists": true,
-        "sha256": "f8726236e829c06f09cd68c06ebbb9b4c10ecfc53c2e45125dbd840564c97fe2",
-        "size": 362656
-      },
-      {
-        "path": "src/regression-suite-core.js",
-        "exists": true,
-        "sha256": "74c098cdb756ac76b943f4e3ebd35b1a80521c0899ca63992210b4223badb9a4",
-        "size": 2178
+        "sha256": "de54f864480dabda0191425194604fa652b001bd26b7689e401361396d1ade3a",
+        "size": 362552
       }
     ],
-    "workingTreeFingerprint": "sha256:715d4161e3cc08058074cfea3d52dcb225a8fdcc2081c578f1f0bc5a37d2d34b",
+    "workingTreeFingerprint": "sha256:4b2fe990f2db1587aa72484852a9458275cb13b9c77606d2cdb4c4facbb55272",
     "dirtyEntries": [
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "LICENSE",
+        "displayPath": "LICENSE"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "NOTICE",
+        "displayPath": "NOTICE"
+      },
       {
         "status": " M",
         "sourcePath": null,
@@ -399,8 +334,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json",
-        "displayPath": "docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json",
+        "displayPath": "docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json"
       },
       {
         "status": " M",
@@ -421,82 +356,16 @@
         "displayPath": "docs/execution/state.json"
       },
       {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/bag-organize.failure.json",
-        "displayPath": "fixtures/regression/bag-organize.failure.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/bag-organize.success.json",
-        "displayPath": "fixtures/regression/bag-organize.success.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/catalog.json",
-        "displayPath": "fixtures/regression/catalog.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/home-vitality.failure.json",
-        "displayPath": "fixtures/regression/home-vitality.failure.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/home-vitality.success.json",
-        "displayPath": "fixtures/regression/home-vitality.success.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/stall-search.failure.json",
-        "displayPath": "fixtures/regression/stall-search.failure.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/stall-search.success.json",
-        "displayPath": "fixtures/regression/stall-search.success.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/team-observe.failure.json",
-        "displayPath": "fixtures/regression/team-observe.failure.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/team-observe.success.json",
-        "displayPath": "fixtures/regression/team-observe.success.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/welfare-sign-in.failure.json",
-        "displayPath": "fixtures/regression/welfare-sign-in.failure.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "fixtures/regression/welfare-sign-in.success.json",
-        "displayPath": "fixtures/regression/welfare-sign-in.success.json"
-      },
-      {
         "status": " M",
-        "sourcePath": null,
-        "destinationPath": "package.json",
-        "displayPath": "package.json"
-      },
-      {
-        "status": "??",
         "sourcePath": null,
         "destinationPath": "scripts/audit_regression_suite_offline.py",
         "displayPath": "scripts/audit_regression_suite_offline.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_release_cleanup.py",
+        "displayPath": "scripts/audit_release_cleanup.py"
       },
       {
         "status": " M",
@@ -505,26 +374,35 @@
         "displayPath": "scripts/execution_progress.py"
       },
       {
-        "status": "??",
+        "status": " M",
         "sourcePath": null,
-        "destinationPath": "scripts/test_regression_suite_core.mjs",
-        "displayPath": "scripts/test_regression_suite_core.mjs"
+        "destinationPath": "src/asset-store-core.js",
+        "displayPath": "src/asset-store-core.js"
       },
       {
-        "status": " M",
+        "status": "M ",
         "sourcePath": null,
         "destinationPath": "src/main.js",
         "displayPath": "src/main.js"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "src/regression-suite-core.js",
-        "displayPath": "src/regression-suite-core.js"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P9-COMMIT-001",
+    "kind": "git_commit",
+    "targetIdentity": "local-repo",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P9 criteria offline passed",
+    "expectedPostcondition": "release commit on main",
+    "idempotencyKey": "p9-release-commit",
+    "startedAt": "2026-07-14T18:43:17Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "cwd=E:/Project/Common/mhxy-shikong-control"
+    ],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P8-COMMIT-S1-001",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
@@ -537,24 +415,9 @@
     "ownershipEvidence": [
       "cwd=E:/Project/Common/mhxy-shikong-control"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P7-COMMIT-S1-001",
-    "kind": "git_commit",
-    "targetIdentity": "local-repo",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P7-S1 passed",
-    "expectedPostcondition": "committed",
-    "idempotencyKey": "p7s1-dual-window",
-    "startedAt": "2026-07-14T18:30:34Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "cwd=E:/Project/Common/mhxy-shikong-control"
-    ],
     "status": "succeeded",
-    "endedAt": "2026-07-14T18:30:37Z",
-    "result": "committed 0c88cdffb3898a17cb561f956511fd48fce942c7"
+    "endedAt": "2026-07-14T18:35:00Z",
+    "result": "committed 9588282eb1eacfe9ff5599cf6b5082332af621ef"
   },
   "safety": {
     "realInputSent": true,
@@ -564,7 +427,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T18:34:49Z",
+    "observedAt": "2026-07-14T18:43:09Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -903,8 +766,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:34:46Z",
-        "lastSeenAt": "2026-07-14T18:34:46Z",
+        "lastObservedAt": "2026-07-14T18:43:07Z",
+        "lastSeenAt": "2026-07-14T18:43:07Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -1030,8 +893,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T18:00:00Z",
-        "lastObservedAt": "2026-07-14T18:34:49Z",
-        "lastSeenAt": "2026-07-14T18:34:49Z",
+        "lastObservedAt": "2026-07-14T18:43:09Z",
+        "lastSeenAt": "2026-07-14T18:43:09Z",
         "cleanupAllowed": false
       },
       {
@@ -1041,8 +904,8 @@
         "ownership": "created_by_current_run",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:34:47Z",
-        "lastSeenAt": "2026-07-14T18:34:47Z",
+        "lastObservedAt": "2026-07-14T18:43:08Z",
+        "lastSeenAt": "2026-07-14T18:43:08Z",
         "creationTime": "2026-07-14T18:21:59Z"
       }
     ],
@@ -1102,24 +965,24 @@
     }
   },
   "eventTail": {
-    "seq": 1192,
-    "id": "EVT-1192",
-    "hash": "sha256:3a4b874737513becf002b61c6819eedce260c624dc8dc839dad786b8f7e0d384"
+    "seq": 1212,
+    "id": "EVT-1212",
+    "hash": "sha256:65261ccdcd89ada0963fe25d9cc4a636a9e7ec2f0ccc866f991334781773a527"
   },
   "evidenceTail": {
-    "seq": 498,
-    "id": "EVD-0498",
-    "hash": "sha256:8dc52ce6e22248572989e7e2c1c75c9875423779b17426e73b6673131b5d8685"
+    "seq": 505,
+    "id": "EVD-0505",
+    "hash": "sha256:3d84131c2ddfa78be16cbf6962ca9a638474ed1890c0a60c869c3909d35634db"
   },
-  "checkpointCounter": 80,
+  "checkpointCounter": 81,
   "lastCheckpoint": {
-    "id": "CP-0080",
+    "id": "CP-0081",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0080-pre-commit-p8s1.json",
-    "createdAt": "2026-07-14T18:34:55Z",
+    "path": "docs/execution/checkpoints/CP-0081-pre-commit-p9-release.json",
+    "createdAt": "2026-07-14T18:43:14Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:a3c0fc99842fe91b8e665922b06edb3f8b66624908cfbd3aac8dc3adde79134a"
+    "hash": "sha256:a9096661611cce2dac8d1d5ac075b49ae9730bd5daadc2fee7ee54810137bd9e"
   },
   "resume": {
     "blockers": [
@@ -1131,7 +994,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0080"
+    "lastSafeResumeSnapshotId": "CP-0081"
   },
   "completedSlices": [
     {
@@ -3249,6 +3112,54 @@
       "nextAction": "Begin P8 failure matrix and regression tasks",
       "phaseId": "P7",
       "verifiedAt": "2026-07-14T18:31:53Z"
+    },
+    {
+      "id": "P8-S1",
+      "title": "Regression suite and failure matrix catalog",
+      "status": "verified",
+      "startedAt": "2026-07-14T18:31:53Z",
+      "scope": [
+        "src/regression-suite-core.js",
+        "fixtures/regression",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "No force push"
+      ],
+      "safetyBoundaries": [
+        "No new live input required for catalog"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P8-S1-C1",
+          "text": "Regression catalog has >=5 validated tasks and full failure matrix",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0496",
+            "EVD-0498"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P8-S1-C2",
+          "text": "Core tests and vite pass with regression suite",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0497",
+            "EVD-0498"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "Begin P9 cleanup package commit push",
+      "phaseId": "P8",
+      "verifiedAt": "2026-07-14T18:35:15Z"
     }
   ]
 }

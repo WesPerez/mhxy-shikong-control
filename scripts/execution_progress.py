@@ -114,6 +114,7 @@ PROFILE_CATEGORY_BY_NAME = {
     "regression-suite-offline": "source_audit",
     "team-observe-offline": "source_audit",
     "p0-safety-boundary": "cleanup_audit",
+    "release-cleanup-offline": "cleanup_audit",
     "ui-viewports": "test",
 }
 SPECIALIZED_VERIFIER_ALLOWLIST: Dict[str, set] = {
@@ -2389,6 +2390,12 @@ def command_run_evidence(args: argparse.Namespace) -> None:
             "commands": [[sys.executable, str(ROOT / "scripts" / "audit_p0_safety_boundary.py"), "--json"]],
             "artifacts": [],
         },
+        "release-cleanup-offline": {
+            "category": "cleanup_audit",
+            "cwd": ROOT,
+            "commands": [[sys.executable, str(ROOT / "scripts" / "audit_release_cleanup.py")]],
+            "artifacts": [],
+        },
         "ui-viewports": {
             "category": "test",
             "cwd": ROOT,
@@ -2595,7 +2602,7 @@ def build_parser() -> argparse.ArgumentParser:
     repair_parser.set_defaults(func=command_repair_tail)
 
     run_parser = subparsers.add_parser("run-evidence", help="execute a bounded audit/test/build and record its real exit code and log")
-    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "asset-store-offline", "workspace-persistence-offline", "welfare-sign-in-offline", "bag-organize-offline", "team-observe-offline", "stall-search-offline", "multi-window-isolation-offline", "regression-suite-offline", "p0-safety-boundary", "ui-viewports"])
+    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "asset-store-offline", "workspace-persistence-offline", "welfare-sign-in-offline", "bag-organize-offline", "team-observe-offline", "stall-search-offline", "multi-window-isolation-offline", "regression-suite-offline", "p0-safety-boundary", "release-cleanup-offline", "ui-viewports"])
     run_parser.add_argument("--claim", required=True)
     run_parser.add_argument("--criterion", action="append")
     run_parser.add_argument("--timeout-seconds", type=int, default=1800)

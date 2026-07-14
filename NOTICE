@@ -1,0 +1,11 @@
+Third-Party Notices
+===================
+
+This project depends on open-source packages distributed via npm and crates.io.
+Runtime dependencies are declared in package.json and src-tauri/Cargo.toml.
+Consult those manifests and the corresponding package licenses for full terms.
+
+Asset policy
+------------
+Game screenshots, templates, and AppData workspace content remain user-local
+and must not be published with credentials or unredacted personal data.
