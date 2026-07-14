@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1487,
+  "revision": 1491,
   "generation": 1,
-  "updatedAt": "2026-07-14T19:33:55Z",
+  "updatedAt": "2026-07-14T19:34:15Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -205,83 +205,47 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
+    "observedHead": "969680c97ebf6ae3028ee75bca9770781de30777",
     "verifiedHead": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
-    "upstreamHead": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
+    "upstreamHead": "969680c97ebf6ae3028ee75bca9770781de30777",
     "lastKnownStableCommit": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
-      "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
       "docs/execution/events.jsonl",
-      "docs/execution/evidence.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
-      "?? docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "7f6dee3521064e8026908dc0c9b5fb3544b9644b39c4291540c81e0e56a2f6f4",
-        "size": 14224
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
-        "exists": true,
-        "sha256": "1156f536bdab6139de98afafe6c485e59880d6219c5b7bf26dfbb60275528b88",
-        "size": 29463
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
-        "exists": true,
-        "sha256": "9723c1de19c9d299443de51dfddd6115b2beb37f354bbd268b2aa60921914d06",
-        "size": 30219
+        "sha256": "bdceb02b024a8c4780663522d37e4d88fb053d5d1dbd52bec520e6a55f9e62fd",
+        "size": 14485
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "a4bc3356937062780d76e8a9f89c20002e5e7b2e1692a6bf1669072b9cd3793f",
-        "size": 1926703
-      },
-      {
-        "path": "docs/execution/evidence.jsonl",
-        "exists": true,
-        "sha256": "a3b54fbf5dd8cdc69945e44855f62dc12123e077691cf29bf5b2d714591f895f",
-        "size": 1580113
+        "sha256": "84f2f2ed253e69b26562cfd5039c390c98af52ace674796a48c639b2b64eee8d",
+        "size": 1931115
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "80fd49aa4f4110eed54421c912f1cf4673b28c6c07b6730935b35d3365bb1997",
-        "size": 102631
+        "sha256": "53a2326c91dbad74014d53e8d8c9c3c3cd93f6c7252a5369dbfd7dfefb65a5b3",
+        "size": 100848
       }
     ],
-    "workingTreeFingerprint": "sha256:c4b95df955686343b9e7fd2ad7fe291cdd2b6c34f9c7070722623b1e07da2f87",
+    "workingTreeFingerprint": "sha256:8dd8290089f689320d70703976f484ca8b9fb526fffbe40e8793b3d71ad1536f",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
-        "displayPath": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
-        "displayPath": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json"
       },
       {
         "status": " M",
@@ -292,48 +256,39 @@
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "docs/execution/evidence.jsonl",
-        "displayPath": "docs/execution/evidence.jsonl"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
       }
     ]
   },
   "inFlightAction": {
-    "actionId": "ACT-P9S3-FINAL-COMMIT-001",
+    "actionId": "ACT-P9S3-LEDGER-TRAIL-001",
     "kind": "git_commit",
     "targetIdentity": "repo:main",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P9-S3 verified",
-    "expectedPostcondition": "ledger committed",
-    "idempotencyKey": "p9s3-final-commit-001",
-    "startedAt": "2026-07-14T19:33:55Z",
+    "expectedPrecondition": "post-push ledger dirty",
+    "expectedPostcondition": "trail committed",
+    "idempotencyKey": "p9s3-ledger-trail-001",
+    "startedAt": "2026-07-14T19:34:15Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
     "status": "running"
   },
   "lastAction": {
-    "actionId": "ACT-P9S3-HOTKEY-004",
-    "kind": "game_hotkey",
-    "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
-    "sideEffectClass": "game_input",
-    "expectedPrecondition": "after image_click",
-    "expectedPostcondition": "hotkey+outcome",
-    "idempotencyKey": "p9s3-hotkey-004",
-    "startedAt": "2026-07-14T19:30:44Z",
+    "actionId": "ACT-P9S3-PUSH-001",
+    "kind": "git_push",
+    "targetIdentity": "origin/main",
+    "sideEffectClass": "git_push",
+    "expectedPrecondition": "local commits ready",
+    "expectedPostcondition": "origin/main updated no force",
+    "idempotencyKey": "p9s3-push-001",
+    "startedAt": "2026-07-14T19:33:58Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "controller-pid=65304",
-      "window-evidence=EVD-0564"
-    ],
+    "ownershipEvidence": [],
     "status": "succeeded",
-    "leaseTokenHash": "111b90c698da5264c6d6618d9572932d87c6f429f2dbf8a63219a3899d98b31c",
-    "endedAt": "2026-07-14T19:31:25Z",
-    "result": "EVD-0568/0569 hotkey+outcome"
+    "leaseTokenHash": "ed6bb1954ef16f7c7fd9eaba5eb00cb3ff91e4fe06bde1f89582920d8d1b9edc",
+    "endedAt": "2026-07-14T19:34:04Z",
+    "result": "pushed main"
   },
   "safety": {
     "realInputSent": true,
@@ -939,9 +894,9 @@
     }
   },
   "eventTail": {
-    "seq": 1437,
-    "id": "EVT-1437",
-    "hash": "sha256:6a60bae03d60b15f965c6006d3f6adf142db434d13f6a3894eb4b63bae3995e1"
+    "seq": 1441,
+    "id": "EVT-1441",
+    "hash": "sha256:b7d19c78242cd0e1db04fdf744b5dfbfed10d4e07fbeee380ce90550ac422b7e"
   },
   "evidenceTail": {
     "seq": 570,
