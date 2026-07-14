@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:be8fc88cc94f1255abddcdcd7f6bdb47e03333ab621617660e3d73db03259ba7 -->
-<!-- checkpoint-id: CP-0072 -->
+<!-- state-digest: sha256:9a97ab964d7407f069839f50a5e844b60e274ea3a0eee6f5cb7aa8ebf59a0797 -->
+<!-- checkpoint-id: CP-0073 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,33 +9,33 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T17:25:37Z`
-- 更新时间（北京时间）：`2026-07-15T01:25:37+08:00`
+- 更新时间（UTC）：`2026-07-14T17:32:22Z`
+- 更新时间（北京时间）：`2026-07-15T01:32:22+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
 - 当前阶段：`P5`
-- 当前切片：`P5-S2` - Asset fileization and content-hash dedupe
+- 当前切片：`P5-S3` - Backup restore UI and AppData restart persistence verifier
 - 阶段状态：`in_progress`；切片状态：`verified`；动作状态：`running`
 - 当前切片验收：已满足 `2`，待验证或阻塞 `0`，合计 `2`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P5-COMMIT-S2-REBIND-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：P5-S2-rebind-core（EVD-0443，当前工作区绑定有效）
-- 唯一下一动作：对账未决副作用动作 ACT-P5-COMMIT-S2-REBIND-001；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P5-COMMIT-S3-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：P5-S3-core（EVD-0449，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-P5-COMMIT-S3-001；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
-- 最新 checkpoint：`CP-0072`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0073`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T17:25:30Z`；年龄=`7s`；TTL=`300s`；expiresAt=`2026-07-14T17:30:30Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T17:32:14Z`；年龄=`8s`；TTL=`300s`；expiresAt=`2026-07-14T17:37:14Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已通过` | P5-S2 rebind core EVD-0443 |
-| 当前提交构建 | `已通过` | P5-S2 rebind vite EVD-0442 |
+| 自动测试 | `已通过` | P5-S3 core EVD-0449 |
+| 当前提交构建 | `已通过` | P5-S3 vite EVD-0448 |
 | 当前提交应用已启动 | `版本过旧` | app evidence stale after HEAD advance; next slice will relaunch |
 | 后台 HWND 输入已实际发送 | `未验证` | 当前 HEAD 没有应用 UI 到指定 hwnd 的真实输入通过证据。 |
 | 游戏后置状态已观察 | `未验证` | 没有绑定当前 HEAD、exe、workspace 和窗口身份的游戏后置状态证据。 |
@@ -62,16 +62,14 @@
 
 ### 范围
 
-- src/asset-store-core.js
-- src/main.js
-- scripts/test_asset_store_core.mjs
-- scripts/audit_asset_store.py
+- scripts
+- src
 - docs/execution
 
 ### 非目标
 
-- Do not force SQLite yet
-- No real AppData overwrite
+- No force push
+- No real AppData overwrite without backup verifier
 
 ### 安全边界
 
@@ -82,12 +80,12 @@
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P5-S2-C1` | Asset fileization extracts dataUrl into content-hash assets and dedupes identical bytes | `passed` | `source_audit`, `test` | `EVD-0437`, `EVD-0439`, `EVD-0441`, `EVD-0443` |
-| `P5-S2-C2` | Workspace prepare-for-save strips inline dataUrl when hash/path present; core tests and vite pass | `passed` | `build`, `test` | `EVD-0439`, `EVD-0440`, `EVD-0442`, `EVD-0443` |
+| `P5-S3-C1` | Persistence specialized verifier and backup/restore contracts exist offline | `passed` | `source_audit`, `test` | `EVD-0447`, `EVD-0449` |
+| `P5-S3-C2` | Core tests and vite pass with persistence verifier wired | `passed` | `build`, `test` | `EVD-0448`, `EVD-0449` |
 
 ## 当前动作
 
-- actionId：`ACT-P5-COMMIT-S2-REBIND-001`
+- actionId：`ACT-P5-COMMIT-S3-001`
 - 类型：`git_commit`
 - 目标：`local-repo`
 - 副作用级别：`git_commit`
@@ -95,7 +93,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P5-COMMIT-S2-REBIND-001；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P5-COMMIT-S3-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -111,21 +109,26 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`0f8cd18b8396f52367953bcc241117d2bc5ecdf4`
+- observed HEAD：`bf1adb14289f3ec794c3fced54c4a828ecab270a`
 - verified HEAD：`9a15ec0ed96772984af950178a44ae1ca861a90e`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:16998020f04298466518e1415a6419a0e44c3f6ec20b252d879c5caedfc23a39`
-- 最新 checkpoint：`CP-0072` (state_snapshot)
+- working tree fingerprint：`sha256:d7b201e9cedb61d26126cef732bf0e532726f0857c41322565ee6445fe52e12a`
+- 最新 checkpoint：`CP-0073` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json`
+- `docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
+- `package.json`
+- `scripts/audit_workspace_persistence.py`
+- `scripts/execution_progress.py`
+- `scripts/test_verify_workspace_persistence.py`
+- `scripts/verify_workspace_persistence.py`
 
 ## 运行进程与产物
 
@@ -181,29 +184,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0436` | `test` | `passed` | `stale` | P5-S1-clean-rebind-core<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0437` | `source_audit` | `passed` | `stale` | P5-S2-asset-store-audit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0438` | `build` | `passed` | `stale` | P5-S2-vite<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0439` | `test` | `passed` | `stale` | P5-S2-core<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0440` | `build` | `passed` | `stale` | P5-S2-vite-c2<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0441` | `source_audit` | `passed` | `valid` | P5-S2-rebind-audit<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0442` | `build` | `passed` | `valid` | P5-S2-rebind-vite<br>绑定当前 HEAD、工作树指纹和受信来源 |
-| `EVD-0443` | `test` | `passed` | `valid` | P5-S2-rebind-core<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0442` | `build` | `passed` | `stale` | P5-S2-rebind-vite<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0443` | `test` | `passed` | `stale` | P5-S2-rebind-core<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0444` | `source_audit` | `passed` | `stale` | P5-S2-r2-audit<br>证据工作树指纹与当前现场不同 |
+| `EVD-0445` | `build` | `passed` | `stale` | P5-S2-r2-vite<br>证据工作树指纹与当前现场不同 |
+| `EVD-0446` | `test` | `passed` | `stale` | P5-S2-r2-core<br>证据工作树指纹与当前现场不同 |
+| `EVD-0447` | `source_audit` | `passed` | `valid` | P5-S3-persistence-audit<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0448` | `build` | `passed` | `valid` | P5-S3-vite<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0449` | `test` | `passed` | `valid` | P5-S3-core<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 991 | `2026-07-14T17:22:19Z` | `action_result` | 副作用动作 ACT-P5-COMMIT-S2-001 -> succeeded |
-| 992 | `2026-07-14T17:22:33Z` | `evidence_recorded` | P5-S2-rebind-audit |
-| 993 | `2026-07-14T17:22:39Z` | `test_run` | P5-S2-rebind-vite |
-| 994 | `2026-07-14T17:25:17Z` | `test_run` | P5-S2-rebind-core |
-| 995 | `2026-07-14T17:25:29Z` | `runtime_observation` | after P5-S2 rebind |
-| 996 | `2026-07-14T17:25:30Z` | `runtime_observation` | after P5-S2 rebind controller |
-| 997 | `2026-07-14T17:25:32Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
-| 998 | `2026-07-14T17:25:33Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
-| 999 | `2026-07-14T17:25:36Z` | `checkpoint` | 创建 CP-0072：Commit P5-S2 rebind ledger |
-| 1000 | `2026-07-14T17:25:37Z` | `action_intent` | 登记副作用动作 ACT-P5-COMMIT-S2-REBIND-001 |
+| 1012 | `2026-07-14T17:29:56Z` | `evidence_recorded` | P5-S3-persistence-audit |
+| 1013 | `2026-07-14T17:29:59Z` | `test_run` | P5-S3-vite |
+| 1014 | `2026-07-14T17:31:54Z` | `test_run` | P5-S3-core |
+| 1015 | `2026-07-14T17:32:12Z` | `runtime_observation` | pre-commit P5-S3 |
+| 1016 | `2026-07-14T17:32:14Z` | `runtime_observation` | pre-commit P5-S3 controller |
+| 1017 | `2026-07-14T17:32:15Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
+| 1018 | `2026-07-14T17:32:16Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
+| 1019 | `2026-07-14T17:32:18Z` | `slice_state_changed` | P5-S3 persistence verifier and offline backup/restore contracts verified |
+| 1020 | `2026-07-14T17:32:21Z` | `checkpoint` | 创建 CP-0073：Commit P5-S3 persistence verifier |
+| 1021 | `2026-07-14T17:32:22Z` | `action_intent` | 登记副作用动作 ACT-P5-COMMIT-S3-001 |
 
 ## 异常恢复
 

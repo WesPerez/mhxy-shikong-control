@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1050,
+  "revision": 1071,
   "generation": 1,
-  "updatedAt": "2026-07-14T17:25:37Z",
+  "updatedAt": "2026-07-14T17:32:22Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,20 +32,18 @@
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P5-S2",
-    "title": "Asset fileization and content-hash dedupe",
+    "id": "P5-S3",
+    "title": "Backup restore UI and AppData restart persistence verifier",
     "status": "verified",
-    "startedAt": "2026-07-14T17:12:08Z",
+    "startedAt": "2026-07-14T17:28:24Z",
     "scope": [
-      "src/asset-store-core.js",
-      "src/main.js",
-      "scripts/test_asset_store_core.mjs",
-      "scripts/audit_asset_store.py",
+      "scripts",
+      "src",
       "docs/execution"
     ],
     "nonGoals": [
-      "Do not force SQLite yet",
-      "No real AppData overwrite"
+      "No force push",
+      "No real AppData overwrite without backup verifier"
     ],
     "safetyBoundaries": [
       "No real AppData overwrite without backup verifier",
@@ -53,14 +51,12 @@
     ],
     "acceptanceCriteria": [
       {
-        "id": "P5-S2-C1",
-        "text": "Asset fileization extracts dataUrl into content-hash assets and dedupes identical bytes",
+        "id": "P5-S3-C1",
+        "text": "Persistence specialized verifier and backup/restore contracts exist offline",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0437",
-          "EVD-0439",
-          "EVD-0441",
-          "EVD-0443"
+          "EVD-0447",
+          "EVD-0449"
         ],
         "requiredEvidenceCategories": [
           "source_audit",
@@ -68,14 +64,12 @@
         ]
       },
       {
-        "id": "P5-S2-C2",
-        "text": "Workspace prepare-for-save strips inline dataUrl when hash/path present; core tests and vite pass",
+        "id": "P5-S3-C2",
+        "text": "Core tests and vite pass with persistence verifier wired",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0439",
-          "EVD-0440",
-          "EVD-0442",
-          "EVD-0443"
+          "EVD-0448",
+          "EVD-0449"
         ],
         "requiredEvidenceCategories": [
           "build",
@@ -83,7 +77,7 @@
         ]
       }
     ],
-    "nextAction": "P5-S3 backup/restore UI and AppData restart persistence verifier"
+    "nextAction": "P5-S4 real AppData restart persistence live proof or begin P6 if blocked"
   },
   "phases": [
     {
@@ -155,16 +149,16 @@
     },
     "automated": {
       "status": "passed",
-      "note": "P5-S2 rebind core EVD-0443",
+      "note": "P5-S3 core EVD-0449",
       "evidenceIds": [
-        "EVD-0443"
+        "EVD-0449"
       ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "P5-S2 rebind vite EVD-0442",
+      "note": "P5-S3 vite EVD-0448",
       "evidenceIds": [
-        "EVD-0442"
+        "EVD-0448"
       ]
     },
     "currentCommitAppLaunched": {
@@ -200,57 +194,97 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "0f8cd18b8396f52367953bcc241117d2bc5ecdf4",
+    "observedHead": "bf1adb14289f3ec794c3fced54c4a828ecab270a",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json",
+      "docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json"
+      "docs/execution/state.json",
+      "package.json",
+      "scripts/audit_workspace_persistence.py",
+      "scripts/execution_progress.py",
+      "scripts/test_verify_workspace_persistence.py",
+      "scripts/verify_workspace_persistence.py"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json",
+      "?? docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json"
+      " M docs/execution/state.json",
+      " M package.json",
+      "?? scripts/audit_workspace_persistence.py",
+      " M scripts/execution_progress.py",
+      "?? scripts/test_verify_workspace_persistence.py",
+      "?? scripts/verify_workspace_persistence.py"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "e47dfba01f81d1de4cc535a8274abbd2f4768765444ec68334f344a86a2f6acf",
-        "size": 13158
+        "sha256": "bb4e5621c040f9d694f9ee70718553f104200f218ff910651b401a616202afd3",
+        "size": 13139
       },
       {
-        "path": "docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json",
+        "path": "docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json",
         "exists": true,
-        "sha256": "a43654edca076e7947ba3f01aa265080d748d90b4ffabb6f66727b89aa36e6e5",
-        "size": 26524
+        "sha256": "f35e239b45b7599bcc8498bd98337325a9b03417f1b119795977e80beb35d024",
+        "size": 29622
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "e6cd6809a51e4a226c582d5c0ef3d8fa3754779276a149ecd515238e10d52966",
-        "size": 1511369
+        "sha256": "17c354e694b5205793874bc9ffeeaae3fd5f61a7c9ad0f01333d300d855611b8",
+        "size": 1530015
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "323840c8d785c745271e463bd71c5e53e47dba73e75ff3934109203a82635179",
-        "size": 1241299
+        "sha256": "f2bf3973457f62f12b295177340b26beb99cad3fa6d65d2f3ad2de0c1552f2d2",
+        "size": 1250861
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "049c62a7d888459688f5afb8d0f35752bbaea76aded61a36fe3491c81058b3fc",
-        "size": 84114
+        "sha256": "89dbc380f8dac04c456cfd2492a70c7adfa2a065b5f940d96f748257bd7d0365",
+        "size": 87935
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "sha256": "20574da2ce02e31d0211d9ce320db33465076e80a0df39fb9352eb3a156a8a66",
+        "size": 6801
+      },
+      {
+        "path": "scripts/audit_workspace_persistence.py",
+        "exists": true,
+        "sha256": "af16aae8561e8562b5bf4a6b8640b28c89617ac02b7d38b4f1affd55288ae371",
+        "size": 1260
+      },
+      {
+        "path": "scripts/execution_progress.py",
+        "exists": true,
+        "sha256": "10ddb6d6c348dc8ddb4eeb38ce6a9a52f44422486d8fc930e5e20abcb0334547",
+        "size": 129240
+      },
+      {
+        "path": "scripts/test_verify_workspace_persistence.py",
+        "exists": true,
+        "sha256": "c4dcf45b23ba0e62f5a3f6bec1d1c2717bb47b25801ddca6a5eb4177001dba1a",
+        "size": 951
+      },
+      {
+        "path": "scripts/verify_workspace_persistence.py",
+        "exists": true,
+        "sha256": "cadfa50337d9ad851e58a11f9b4804f6e2b6c5e187859f3b20a39d9e7ae7eb19",
+        "size": 6709
       }
     ],
-    "workingTreeFingerprint": "sha256:16998020f04298466518e1415a6419a0e44c3f6ec20b252d879c5caedfc23a39",
+    "workingTreeFingerprint": "sha256:d7b201e9cedb61d26126cef732bf0e532726f0857c41322565ee6445fe52e12a",
     "dirtyEntries": [
       {
         "status": " M",
@@ -261,8 +295,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json",
-        "displayPath": "docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json",
+        "displayPath": "docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json"
       },
       {
         "status": " M",
@@ -281,10 +315,55 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "package.json",
+        "displayPath": "package.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_workspace_persistence.py",
+        "displayPath": "scripts/audit_workspace_persistence.py"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
+        "destinationPath": "scripts/execution_progress.py",
+        "displayPath": "scripts/execution_progress.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/test_verify_workspace_persistence.py",
+        "displayPath": "scripts/test_verify_workspace_persistence.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/verify_workspace_persistence.py",
+        "displayPath": "scripts/verify_workspace_persistence.py"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P5-COMMIT-S3-001",
+    "kind": "git_commit",
+    "targetIdentity": "local-repo",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P5-S3 criteria offline verified",
+    "expectedPostcondition": "P5-S3 committed",
+    "idempotencyKey": "p5s3-persist-verifier",
+    "startedAt": "2026-07-14T17:32:22Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "cwd=E:\\Project\\Common\\mhxy-shikong-control"
+    ],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P5-COMMIT-S2-REBIND-001",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
@@ -297,24 +376,9 @@
     "ownershipEvidence": [
       "cwd=E:\\Project\\Common\\mhxy-shikong-control"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P5-COMMIT-S2-001",
-    "kind": "git_commit",
-    "targetIdentity": "local-repo",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P5-S2 criteria passed with EVD-0437/0439/0440",
-    "expectedPostcondition": "P5-S2 asset store committed",
-    "idempotencyKey": "p5s2-asset-store-commit",
-    "startedAt": "2026-07-14T17:22:12Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "cwd=E:\\Project\\Common\\mhxy-shikong-control"
-    ],
     "status": "succeeded",
-    "endedAt": "2026-07-14T17:22:19Z",
-    "result": "committed 0f8cd18b8396f52367953bcc241117d2bc5ecdf4 P5-S2 asset store"
+    "endedAt": "2026-07-14T17:25:39Z",
+    "result": "committed bf1adb14289f3ec794c3fced54c4a828ecab270a"
   },
   "safety": {
     "realInputSent": true,
@@ -324,7 +388,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T17:25:30Z",
+    "observedAt": "2026-07-14T17:32:14Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -663,8 +727,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T17:25:29Z",
-        "lastSeenAt": "2026-07-14T17:25:29Z",
+        "lastObservedAt": "2026-07-14T17:32:12Z",
+        "lastSeenAt": "2026-07-14T17:32:12Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -766,8 +830,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T14:29:10Z",
-        "lastObservedAt": "2026-07-14T17:25:30Z",
-        "lastSeenAt": "2026-07-14T17:25:30Z",
+        "lastObservedAt": "2026-07-14T17:32:14Z",
+        "lastSeenAt": "2026-07-14T17:32:14Z",
         "cleanupAllowed": false
       }
     ],
@@ -827,24 +891,24 @@
     }
   },
   "eventTail": {
-    "seq": 1000,
-    "id": "EVT-1000",
-    "hash": "sha256:4b43463688cbd79cc9919a1873f5af520247be817ca06d4d49dd5d0697d5b10f"
+    "seq": 1021,
+    "id": "EVT-1021",
+    "hash": "sha256:8a8f4d3f5fc87da7c3fbcc7dc345884aa5a42bbce5f1831011d763ccd4afcfc2"
   },
   "evidenceTail": {
-    "seq": 443,
-    "id": "EVD-0443",
-    "hash": "sha256:43554c34bdee482916ee8631048856e07686459f02b58a99e9de7e17e85ab86a"
+    "seq": 449,
+    "id": "EVD-0449",
+    "hash": "sha256:a18c501fddcacfd2ee10cc7866da072662b8c23212b02879cb823f795b03ca82"
   },
-  "checkpointCounter": 72,
+  "checkpointCounter": 73,
   "lastCheckpoint": {
-    "id": "CP-0072",
+    "id": "CP-0073",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0072-pre-commit-p5s2-rebind.json",
-    "createdAt": "2026-07-14T17:25:35Z",
+    "path": "docs/execution/checkpoints/CP-0073-pre-commit-p5s3.json",
+    "createdAt": "2026-07-14T17:32:20Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:7eec3408243ab7a94cbe542b48a3551e74bdc2a8bb1e87e950bbd628f38d4205"
+    "hash": "sha256:2881b948006591d461cb67b818426f2f9032a721413755ec3ebd9132d873126b"
   },
   "resume": {
     "blockers": [
@@ -856,7 +920,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0072"
+    "lastSafeResumeSnapshotId": "CP-0073"
   },
   "completedSlices": [
     {
@@ -2567,6 +2631,66 @@
       "nextAction": "P5-S2 asset fileization/hash dedupe",
       "phaseId": "P5",
       "verifiedAt": "2026-07-14T17:12:08Z"
+    },
+    {
+      "id": "P5-S2",
+      "title": "Asset fileization and content-hash dedupe",
+      "status": "verified",
+      "startedAt": "2026-07-14T17:12:08Z",
+      "scope": [
+        "src/asset-store-core.js",
+        "src/main.js",
+        "scripts/test_asset_store_core.mjs",
+        "scripts/audit_asset_store.py",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "Do not force SQLite yet",
+        "No real AppData overwrite"
+      ],
+      "safetyBoundaries": [
+        "No real AppData overwrite without backup verifier",
+        "No game input in this slice"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P5-S2-C1",
+          "text": "Asset fileization extracts dataUrl into content-hash assets and dedupes identical bytes",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0437",
+            "EVD-0439",
+            "EVD-0441",
+            "EVD-0443",
+            "EVD-0444",
+            "EVD-0446"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P5-S2-C2",
+          "text": "Workspace prepare-for-save strips inline dataUrl when hash/path present; core tests and vite pass",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0439",
+            "EVD-0440",
+            "EVD-0442",
+            "EVD-0443",
+            "EVD-0445",
+            "EVD-0446"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        }
+      ],
+      "nextAction": "P5-S3 backup/restore UI and AppData restart persistence verifier",
+      "phaseId": "P5",
+      "verifiedAt": "2026-07-14T17:28:24Z"
     }
   ]
 }

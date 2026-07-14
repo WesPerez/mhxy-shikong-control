@@ -106,6 +106,7 @@ PROFILE_CATEGORY_BY_NAME = {
     "home-vitality-offline": "source_audit",
     "save-coordinator-offline": "source_audit",
     "asset-store-offline": "source_audit",
+    "workspace-persistence-offline": "source_audit",
     "p0-safety-boundary": "cleanup_audit",
     "ui-viewports": "test",
 }
@@ -116,7 +117,7 @@ SPECIALIZED_VERIFIER_ALLOWLIST: Dict[str, set] = {
     "live_input": {"bounded-live-input-v1"},
     "live_outcome": {"bounded-live-input-v1"},
     "multi_window": set(),
-    "persistence": set(),
+    "persistence": {"workspace-persistence-v1"},
     "appdata_backup": {"p0-workspace-backup-v1"},
 }
 ACTION_KINDS = {
@@ -2328,6 +2329,12 @@ def command_run_evidence(args: argparse.Namespace) -> None:
             "commands": [[sys.executable, str(ROOT / "scripts" / "audit_asset_store.py")]],
             "artifacts": [],
         },
+        "workspace-persistence-offline": {
+            "category": "source_audit",
+            "cwd": ROOT,
+            "commands": [[sys.executable, str(ROOT / "scripts" / "audit_workspace_persistence.py")]],
+            "artifacts": [],
+        },
         "home-vitality-offline": {
             "category": "source_audit",
             "cwd": ROOT,
@@ -2546,7 +2553,7 @@ def build_parser() -> argparse.ArgumentParser:
     repair_parser.set_defaults(func=command_repair_tail)
 
     run_parser = subparsers.add_parser("run-evidence", help="execute a bounded audit/test/build and record its real exit code and log")
-    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "asset-store-offline", "p0-safety-boundary", "ui-viewports"])
+    run_parser.add_argument("--profile", required=True, choices=["node-all", "python-audits", "frontend-build", "rust-static", "p0-preflight", "home-vitality-offline", "save-coordinator-offline", "asset-store-offline", "workspace-persistence-offline", "p0-safety-boundary", "ui-viewports"])
     run_parser.add_argument("--claim", required=True)
     run_parser.add_argument("--criterion", action="append")
     run_parser.add_argument("--timeout-seconds", type=int, default=1800)
