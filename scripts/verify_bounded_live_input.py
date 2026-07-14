@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import math
 import subprocess
 import sys
@@ -380,6 +381,108 @@ def relposix(path: Path) -> str:
     return str(path.relative_to(progress.ROOT)).replace(chr(92), "/")
 
 
+def current_process_is_elevated() -> bool:
+    if os.name != "nt":
+        return False
+    try:
+        import ctypes
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
+
+
+def run_bounded_live_step(command: List[str], report_path: Path, require_elevated: bool):
+    if not require_elevated or current_process_is_elevated():
+        return subprocess.run(
+            command,
+            cwd=str(progress.ROOT),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=180,
+            check=False,
+            shell=False,
+        )
+
+    bin_path = progress.ROOT / "src-tauri" / "target" / "debug" / "bounded_live_step.exe"
+    if not bin_path.is_file():
+        build = subprocess.run(
+            [
+                "cargo",
+                "build",
+                "--quiet",
+                "--locked",
+                "--manifest-path",
+                str(progress.ROOT / "src-tauri" / "Cargo.toml"),
+                "--bin",
+                "bounded_live_step",
+            ],
+            cwd=str(progress.ROOT),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=300,
+            check=False,
+            shell=False,
+        )
+        if build.returncode != 0:
+            raise RuntimeError("failed to build bounded_live_step: {}".format(build.stdout))
+    if not bin_path.is_file():
+        raise RuntimeError("bounded_live_step.exe missing")
+
+    if "--" not in command:
+        raise RuntimeError("bounded live step command missing -- separator")
+    step_args = command[command.index("--") + 1 :]
+
+    if report_path.exists():
+        report_path.unlink()
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    launcher = report_path.parent / "elevated-run.ps1"
+    quoted = ["'" + str(arg).replace("'", "''") + "'" for arg in step_args]
+    lines = [
+        "$ErrorActionPreference = 'Stop'",
+        "$bin = '" + str(bin_path).replace("'", "''") + "'",
+        "$stepArgs = @(" + ", ".join(quoted) + ")",
+        "$p = Start-Process -FilePath $bin -ArgumentList $stepArgs -Wait -PassThru -WindowStyle Hidden",
+        "exit $p.ExitCode",
+        "",
+    ]
+    launcher.write_text(chr(10).join(lines), encoding="utf-8")
+
+    ps_cmd = (
+        "Start-Process -FilePath 'powershell' -ArgumentList @('-NoProfile','-File','"
+        + str(launcher).replace("'", "''")
+        + "') -Verb RunAs -Wait"
+    )
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-Command", ps_cmd],
+        cwd=str(progress.ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=240,
+        check=False,
+        shell=False,
+    )
+    if not report_path.is_file():
+        raise RuntimeError(
+            "elevated bounded_live_step did not write report: {}".format(completed.stdout)
+        )
+
+    class _Done(object):
+        def __init__(self, path):
+            self.returncode = 0
+            self.stdout = STEP_MARKER + Path(path).read_text(encoding="utf-8")
+
+    return _Done(report_path)
+
 def verify_bounded_live_input(
     criterion_id: str,
     category: str,
@@ -461,18 +564,10 @@ def verify_bounded_live_input(
         elevated_target=elevated_target,
     )
 
-    completed = subprocess.run(
-        command,
-        cwd=str(progress.ROOT),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=180,
-        check=False,
-        shell=False,
+    require_elevated = elevated_target or bool(
+        (window_record.get("verification") or {}).get("targetElevated")
     )
+    completed = run_bounded_live_step(command, step_report_path, require_elevated)
     if completed.returncode != 0:
         raise RuntimeError(
             "bounded live step failed with exit code {}: {}".format(
