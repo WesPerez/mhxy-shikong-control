@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1285,
+  "revision": 1293,
   "generation": 1,
-  "updatedAt": "2026-07-14T18:47:11Z",
+  "updatedAt": "2026-07-14T18:47:56Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -82,7 +82,7 @@
         ]
       }
     ],
-    "nextAction": "git push origin main"
+    "nextAction": "commit trailing ledger and optional second push for tracked clean"
   },
   "phases": [
     {
@@ -209,9 +209,9 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "5351de3d1d1e574af1af4290eab610ba04ef0e2d",
+    "observedHead": "2a5986a598920c99875d49c330c95b522dac96a2",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
-    "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
+    "upstreamHead": "2a5986a598920c99875d49c330c95b522dac96a2",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
@@ -227,23 +227,23 @@
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "d2ad9d4074b9bfd49f36fa2dc9f819dbc37fe84a3fb4da1a33674164d0756ee3",
-        "size": 13359
+        "sha256": "bfe4a5d8f01442a20f4ae9a6dc06c86304b7b74e48ce13703a533280bcaaeebb",
+        "size": 13396
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "b66e050732f88c5a734e365c02a53e63f40f0c11e656c6a7ef8a73b8a7717866",
-        "size": 1743117
+        "sha256": "9ed6bdec2b98cbf789f2f44e35f54ad17088eb7f6005d7596a3ac7a4f43879da",
+        "size": 1750639
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "7abb7e90312509d03bdc28865579b3e353da1c4b108baf80a5757c658f9899b8",
-        "size": 95955
+        "sha256": "2273aef536a7c9d63bed86101fff66ddd9b57f10b1333aabe393ca38e2507c81",
+        "size": 96119
       }
     ],
-    "workingTreeFingerprint": "sha256:30fa865733a83818d7e480c44981d39778a94aa61762e0341bd19ff6ee1d5120",
+    "workingTreeFingerprint": "sha256:f6d9a50ad50bb42b233f63199a13e0209b2828c2534033213f0fdf50b63005d9",
     "dirtyEntries": [
       {
         "status": " M",
@@ -266,14 +266,14 @@
     ]
   },
   "inFlightAction": {
-    "actionId": "ACT-P9-COMMIT-LEDGER-003",
+    "actionId": "ACT-P9-COMMIT-LEDGER-004",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "trailing ledger dirty",
-    "expectedPostcondition": "clean",
-    "idempotencyKey": "p9-ledger-trail",
-    "startedAt": "2026-07-14T18:47:11Z",
+    "expectedPrecondition": "post-push ledger dirty",
+    "expectedPostcondition": "clean or second push",
+    "idempotencyKey": "p9-post-push-ledger",
+    "startedAt": "2026-07-14T18:47:56Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
       "cwd=E:/Project/Common/mhxy-shikong-control"
@@ -281,21 +281,23 @@
     "status": "running"
   },
   "lastAction": {
-    "actionId": "ACT-P9-COMMIT-LEDGER-002",
-    "kind": "git_commit",
-    "targetIdentity": "local-repo",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "post rebind action-finish dirty ledger",
-    "expectedPostcondition": "tracked clean",
-    "idempotencyKey": "p9-ledger-final",
-    "startedAt": "2026-07-14T18:47:08Z",
+    "actionId": "ACT-P9-PUSH-001",
+    "kind": "git_push",
+    "targetIdentity": "origin/main",
+    "sideEffectClass": "git_push",
+    "expectedPrecondition": "local main ahead of origin/main no force",
+    "expectedPostcondition": "origin/main updated to local HEAD",
+    "idempotencyKey": "p9-push-f4879c2",
+    "startedAt": "2026-07-14T18:47:15Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
-      "cwd=E:/Project/Common/mhxy-shikong-control"
+      "branch=main",
+      "no-force"
     ],
     "status": "succeeded",
-    "endedAt": "2026-07-14T18:47:10Z",
-    "result": "committed 5351de3d1d1e574af1af4290eab610ba04ef0e2d"
+    "leaseTokenHash": "84b49caee1b23b7f0979cf31da0573ade5a3af8d8bcfc428f6ef2ac633e74d9c",
+    "endedAt": "2026-07-14T18:47:30Z",
+    "result": "pushed 2a5986a598920c99875d49c330c95b522dac96a2 to origin/main"
   },
   "safety": {
     "realInputSent": true,
@@ -305,7 +307,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T18:47:07Z",
+    "observedAt": "2026-07-14T18:47:53Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -644,8 +646,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:47:05Z",
-        "lastSeenAt": "2026-07-14T18:47:05Z",
+        "lastObservedAt": "2026-07-14T18:47:50Z",
+        "lastSeenAt": "2026-07-14T18:47:50Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -771,8 +773,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T18:00:00Z",
-        "lastObservedAt": "2026-07-14T18:47:07Z",
-        "lastSeenAt": "2026-07-14T18:47:07Z",
+        "lastObservedAt": "2026-07-14T18:47:53Z",
+        "lastSeenAt": "2026-07-14T18:47:53Z",
         "cleanupAllowed": false
       },
       {
@@ -782,8 +784,8 @@
         "ownership": "created_by_current_run",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:47:06Z",
-        "lastSeenAt": "2026-07-14T18:47:06Z",
+        "lastObservedAt": "2026-07-14T18:47:52Z",
+        "lastSeenAt": "2026-07-14T18:47:52Z",
         "creationTime": "2026-07-14T18:21:59Z"
       }
     ],
@@ -843,9 +845,9 @@
     }
   },
   "eventTail": {
-    "seq": 1235,
-    "id": "EVT-1235",
-    "hash": "sha256:2c9c434e2a0239eaf07217a57f79a6b1d757fd59863d8dd659e5f7fb586e4cb8"
+    "seq": 1243,
+    "id": "EVT-1243",
+    "hash": "sha256:5a287c30954ac3b4b14a76fec5bf1257f1adeab5f5e463b5f4f3bf71e2f46367"
   },
   "evidenceTail": {
     "seq": 509,

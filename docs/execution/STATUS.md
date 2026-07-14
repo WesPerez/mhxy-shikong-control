@@ -1,5 +1,5 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:6be592442148775191839a46ac17f4c9e05ec33aefc6c0d1f962de54e2a6d60e -->
+<!-- state-digest: sha256:283a8894241a7ea741861d9a657b9dfc1655017b60d3a9a42c7c7bee1aaa50c5 -->
 <!-- checkpoint-id: CP-0082 -->
 # 长任务执行状态
 
@@ -9,8 +9,8 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T18:47:11Z`
-- 更新时间（北京时间）：`2026-07-15T02:47:11+08:00`
+- 更新时间（UTC）：`2026-07-14T18:47:56Z`
+- 更新时间（北京时间）：`2026-07-15T02:47:56+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
@@ -19,15 +19,15 @@
 - 阶段状态：`verified`；切片状态：`verified`；动作状态：`running`
 - 当前切片验收：已满足 `2`，待验证或阻塞 `0`，合计 `2`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P9-COMMIT-LEDGER-003` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-P9-COMMIT-LEDGER-003（EVT-1235；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-003；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P9-COMMIT-LEDGER-004` 处于 `running`，等待只读对账
+- 最新当前有效证据：最近事件：登记副作用动作 ACT-P9-COMMIT-LEDGER-004（EVT-1243；不是当前验收通过证据）
+- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-004；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
 - 最新 checkpoint：`CP-0082`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T18:47:07Z`；年龄=`4s`；TTL=`300s`；expiresAt=`2026-07-14T18:52:07Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T18:47:53Z`；年龄=`3s`；TTL=`300s`；expiresAt=`2026-07-14T18:52:53Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -83,7 +83,7 @@
 
 ## 当前动作
 
-- actionId：`ACT-P9-COMMIT-LEDGER-003`
+- actionId：`ACT-P9-COMMIT-LEDGER-004`
 - 类型：`git_commit`
 - 目标：`local-repo`
 - 副作用级别：`git_commit`
@@ -91,7 +91,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-003；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-004；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -107,10 +107,10 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`5351de3d1d1e574af1af4290eab610ba04ef0e2d`
+- observed HEAD：`2a5986a598920c99875d49c330c95b522dac96a2`
 - verified HEAD：`9a15ec0ed96772984af950178a44ae1ca861a90e`
-- origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:30fa865733a83818d7e480c44981d39778a94aa61762e0341bd19ff6ee1d5120`
+- origin/main：`2a5986a598920c99875d49c330c95b522dac96a2`
+- working tree fingerprint：`sha256:f6d9a50ad50bb42b233f63199a13e0209b2828c2534033213f0fdf50b63005d9`
 - 最新 checkpoint：`CP-0082` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
@@ -191,16 +191,16 @@
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 1226 | `2026-07-14T18:46:40Z` | `slice_state_changed` | P9 release rebind complete; ready to push |
-| 1227 | `2026-07-14T18:46:43Z` | `checkpoint` | 创建 CP-0082：before push |
-| 1228 | `2026-07-14T18:46:44Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-001 |
-| 1229 | `2026-07-14T18:46:46Z` | `action_result` | 副作用动作 ACT-P9-COMMIT-LEDGER-001 -> succeeded |
-| 1230 | `2026-07-14T18:47:05Z` | `runtime_observation` | pre-push final |
-| 1231 | `2026-07-14T18:47:06Z` | `runtime_observation` | pre-push final B |
-| 1232 | `2026-07-14T18:47:07Z` | `runtime_observation` | pre-push final controller |
-| 1233 | `2026-07-14T18:47:09Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-002 |
 | 1234 | `2026-07-14T18:47:10Z` | `action_result` | 副作用动作 ACT-P9-COMMIT-LEDGER-002 -> succeeded |
 | 1235 | `2026-07-14T18:47:11Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-003 |
+| 1236 | `2026-07-14T18:47:14Z` | `action_result` | 副作用动作 ACT-P9-COMMIT-LEDGER-003 -> succeeded |
+| 1237 | `2026-07-14T18:47:15Z` | `action_intent` | 登记副作用动作 ACT-P9-PUSH-001 |
+| 1238 | `2026-07-14T18:47:30Z` | `action_result` | 副作用动作 ACT-P9-PUSH-001 -> succeeded |
+| 1239 | `2026-07-14T18:47:50Z` | `runtime_observation` | post-push ledger |
+| 1240 | `2026-07-14T18:47:52Z` | `runtime_observation` | post-push ledger B |
+| 1241 | `2026-07-14T18:47:53Z` | `runtime_observation` | post-push controller |
+| 1242 | `2026-07-14T18:47:54Z` | `decision` | origin/main pushed to 2a5986a; remaining dirty is post-push ledger metadata only |
+| 1243 | `2026-07-14T18:47:56Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-004 |
 
 ## 异常恢复
 
