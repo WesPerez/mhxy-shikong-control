@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 989,
+  "revision": 992,
   "generation": 1,
-  "updatedAt": "2026-07-14T14:38:30Z",
+  "updatedAt": "2026-07-14T14:38:45Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -74,7 +74,7 @@
         ]
       }
     ],
-    "nextAction": "Continue P5 asset fileization / backup restore as next slices"
+    "nextAction": "Begin P5-S2 asset fileization/hash dedupe or backup-restore UI after rebind on 287e3d7."
   },
   "phases": [
     {
@@ -193,97 +193,41 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "80885ed398fdd42bb7f3a90348886835093051fa",
+    "observedHead": "287e3d766e3d3b445b5065165335dcba77551dc2",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
       "docs/execution/events.jsonl",
-      "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "package.json",
-      "scripts/audit_save_coordinator.py",
-      "scripts/execution_progress.py",
-      "scripts/test_save_coordinator_core.mjs",
-      "src/main.js",
-      "src/save-coordinator-core.js"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
       " M docs/execution/events.jsonl",
-      " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M package.json",
-      "?? scripts/audit_save_coordinator.py",
-      " M scripts/execution_progress.py",
-      "?? scripts/test_save_coordinator_core.mjs",
-      " M src/main.js",
-      "?? src/save-coordinator-core.js"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "1d3c94003b880d8b73cd76d6b50ed1ea71970af605ee2f333684680795ea4433",
-        "size": 13516
+        "sha256": "2616070f5483eb437e48dbfe04e1a34ca4d996255633a7446c9f2587654449b7",
+        "size": 13434
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "af1fed59ecf819a0b777ae8fa0f55fad98083236e8c3c67592d64d68c3e10d93",
-        "size": 1458898
-      },
-      {
-        "path": "docs/execution/evidence.jsonl",
-        "exists": true,
-        "sha256": "38d259146ce021e0daf04a7b1888198030cc700cd95c91bc8de62715a4dd6197",
-        "size": 1216229
+        "sha256": "6defc9418cdc172fb7a006ce8bca4403f2b79f547aadc84c1efe16af2fc6b9d2",
+        "size": 1461826
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "4d870cdfb3da8449578371005337214fb45e1be93e9aa1397c300f2a27524c8a",
-        "size": 84100
-      },
-      {
-        "path": "package.json",
-        "exists": true,
-        "sha256": "af67cd2acb621a31bd1637adf1c9f4c6e5ece44464a5dc62c197a097a8c79929",
-        "size": 6348
-      },
-      {
-        "path": "scripts/audit_save_coordinator.py",
-        "exists": true,
-        "sha256": "1c3c1b1e53059fbce6ab5d63202e1004f66d9dc7141fe18a2c04aa7f6f4886a7",
-        "size": 1197
-      },
-      {
-        "path": "scripts/execution_progress.py",
-        "exists": true,
-        "sha256": "56d4cd1d6a97b60885dcff4647911f587ee75cd6289dc8963255f11240f2500a",
-        "size": 128571
-      },
-      {
-        "path": "scripts/test_save_coordinator_core.mjs",
-        "exists": true,
-        "sha256": "498d78ebe4bf5a93e92815261d117f86d7555b03d0a718632d0f0d44c0140ae6",
-        "size": 1074
-      },
-      {
-        "path": "src/main.js",
-        "exists": true,
-        "sha256": "9171cd9edefbada1242b4581570d1175803791939fe64351edff381eb6773686",
-        "size": 361160
-      },
-      {
-        "path": "src/save-coordinator-core.js",
-        "exists": true,
-        "sha256": "43d30563c36c6d8b35235f5b0d9060ae3dfb8be7b6d607af840a81f52d02f9dc",
-        "size": 1499
+        "sha256": "00a8a510016cbd5bedb385863e935ada48ba940bec6dd675a55099401c8648ed",
+        "size": 81055
       }
     ],
-    "workingTreeFingerprint": "sha256:581de19f63eb2bb6f36f0fd3673598dd7fa0a7f8440389f406c215942146dbb3",
+    "workingTreeFingerprint": "sha256:2b35e6abf0b5a7715e4d40c98aae8184b480d79b7a43cf591aaeadaa6e47fe36",
     "dirtyEntries": [
       {
         "status": " M",
@@ -300,54 +244,25 @@
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "docs/execution/evidence.jsonl",
-        "displayPath": "docs/execution/evidence.jsonl"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "package.json",
-        "displayPath": "package.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "scripts/audit_save_coordinator.py",
-        "displayPath": "scripts/audit_save_coordinator.py"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/execution_progress.py",
-        "displayPath": "scripts/execution_progress.py"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "scripts/test_save_coordinator_core.mjs",
-        "displayPath": "scripts/test_save_coordinator_core.mjs"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "src/main.js",
-        "displayPath": "src/main.js"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "src/save-coordinator-core.js",
-        "displayPath": "src/save-coordinator-core.js"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P5S1-COMMIT-LEDGER-001",
+    "kind": "git_commit",
+    "targetIdentity": "main",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "ledger dirty after finish",
+    "expectedPostcondition": "clean ledger commit",
+    "idempotencyKey": "p5-s1-ledger-001",
+    "startedAt": "2026-07-14T14:38:45Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P5S1-COMMIT-002",
     "kind": "git_commit",
     "targetIdentity": "main",
@@ -358,22 +273,9 @@
     "startedAt": "2026-07-14T14:38:30Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P5S1-COMMIT-OPEN-001",
-    "kind": "git_commit",
-    "targetIdentity": "main",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P4-S6 verified; P5-S1 begun",
-    "expectedPostcondition": "commit",
-    "idempotencyKey": "p5-s1-open-001",
-    "startedAt": "2026-07-14T14:32:27Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [],
     "status": "succeeded",
-    "endedAt": "2026-07-14T14:32:28Z",
-    "result": "P5-S1 open"
+    "endedAt": "2026-07-14T14:38:33Z",
+    "result": "committed 287e3d766e3d3b445b5065165335dcba77551dc2"
   },
   "safety": {
     "realInputSent": true,
@@ -886,9 +788,9 @@
     }
   },
   "eventTail": {
-    "seq": 939,
-    "id": "EVT-0939",
-    "hash": "sha256:431c19bedacc3842b459da1f8b3020c1133796a9c9120c5b497fbfb9fd1fe742"
+    "seq": 942,
+    "id": "EVT-0942",
+    "hash": "sha256:f0c23a1c90000606e1e100926b565922ba7a6a458bbd4c89d9bf47b7d86a2bed"
   },
   "evidenceTail": {
     "seq": 427,
