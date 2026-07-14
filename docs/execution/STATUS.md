@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:a87a7a52bef6043aacfc3e6e582ec8f352fb3fe72e9cb2aede9d38beabc22766 -->
-<!-- checkpoint-id: CP-0088 -->
+<!-- state-digest: sha256:163eb59b0ff1cf81b29b9a72260fed1705aa8f5945b62e5caf87a8877e3800c6 -->
+<!-- checkpoint-id: CP-0090 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,39 +9,39 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T19:34:15Z`
-- 更新时间（北京时间）：`2026-07-15T03:34:15+08:00`
+- 更新时间（UTC）：`2026-07-14T19:45:27Z`
+- 更新时间（北京时间）：`2026-07-15T03:45:27+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
 - 当前阶段：`P9`
-- 当前切片：`P9-S3` - Full multi-step live and pause isolation closeout
+- 当前切片：`P9-S4` - Comprehensive final validation matrix
 - 阶段状态：`verified`；切片状态：`verified`；动作状态：`running`
-- 当前切片验收：已满足 `2`，待验证或阻塞 `0`，合计 `2`
+- 当前切片验收：已满足 `3`，待验证或阻塞 `0`，合计 `3`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P9S3-LEDGER-TRAIL-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-P9S3-LEDGER-TRAIL-001（EVT-1441；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-P9S3-LEDGER-TRAIL-001；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P9S4-COMMIT-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：Bounded home-vitality live outcome observed after inputSent（EVD-0596，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-P9S4-COMMIT-001；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
-- 最新 checkpoint：`CP-0088`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0090`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T19:31:15Z`；年龄=`180s`；TTL=`300s`；expiresAt=`2026-07-14T19:36:15Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T19:44:47Z`；年龄=`40s`；TTL=`300s`；expiresAt=`2026-07-14T19:49:47Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已过期` | EVD-0570 final core e77ab1b；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交构建 | `已过期` | EVD-0561；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交应用已启动 | `已过期` | EVD-0562；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 后台 HWND 输入已实际发送 | `已过期` | image_click+hotkey EVD-0567/0568；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 游戏后置状态已观察 | `已过期` | EVD-0569 outcome；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 自动测试 | `已通过` | EVD-0574 core + EVD-0583 ui |
+| 当前提交构建 | `已通过` | EVD-0573 |
+| 当前提交应用已启动 | `已通过` | EVD-0575 |
+| 后台 HWND 输入已实际发送 | `已通过` | P9-S4 dual matrix image_click+hotkeys |
+| 游戏后置状态已观察 | `已通过` | P9-S4 dual outcomes |
 | 前台鼠标键盘未受影响 | `部分` | 静态安全审计只允许 PostMessageW 路径，但尚缺当前版本实测前后台 HWND、鼠标位置和用户并行操作证据。 |
-| 双窗口隔离 | `已过期` | EVD-0565；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 重启持久化 | `已过期` | EVD-0563；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 双窗口隔离 | `已通过` | EVD-0577 |
+| 重启持久化 | `已通过` | EVD-0576 |
 
 ## 阶段表
 
@@ -64,6 +64,7 @@
 
 - docs/execution
 - scripts
+- src
 
 ### 非目标
 
@@ -71,18 +72,19 @@
 
 ### 安全边界
 
-- verified HWND only; manual confirmation recorded
+- verified HWND only; background PostMessage only; no real mouse move
 
 ### 验收条件
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P9-S3-C1` | Multi-step live paths including match_only/image_click/hotkey with postconditions | `passed` | `live_input`, `live_outcome` | `EVD-0567`, `EVD-0568`, `EVD-0569` |
-| `P9-S3-C2` | Dual-window isolation with sequential live inputs and pause-scope contract | `passed` | `live_input`, `multi_window` | `EVD-0540`, `EVD-0553`, `EVD-0558`, `EVD-0565` |
+| `P9-S4-C1` | Full automated offline matrix passes on current HEAD | `passed` | `build`, `source_audit`, `test` | `EVD-0571`, `EVD-0572`, `EVD-0573`, `EVD-0574`, `EVD-0583` |
+| `P9-S4-C2` | Multi-task bounded live matrix with postconditions on dual windows | `passed` | `live_input`, `live_outcome` | `EVD-0582`, `EVD-0584`, `EVD-0585`, `EVD-0586`, `EVD-0587`, `EVD-0588`, `EVD-0589`, `EVD-0590`, `EVD-0591`, `EVD-0592`, `EVD-0593`, `EVD-0594`, `EVD-0595`, `EVD-0596` |
+| `P9-S4-C3` | Dual-window isolation and current-commit app runtime revalidated | `passed` | `app_runtime`, `multi_window` | `EVD-0575`, `EVD-0577` |
 
 ## 当前动作
 
-- actionId：`ACT-P9S3-LEDGER-TRAIL-001`
+- actionId：`ACT-P9S4-COMMIT-001`
 - 类型：`git_commit`
 - 目标：`repo:main`
 - 副作用级别：`git_commit`
@@ -90,7 +92,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P9S3-LEDGER-TRAIL-001；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P9S4-COMMIT-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -106,18 +108,21 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`969680c97ebf6ae3028ee75bca9770781de30777`
-- verified HEAD：`e77ab1b714a196b3b3b1203cda799c6c978349ee`
-- origin/main：`969680c97ebf6ae3028ee75bca9770781de30777`
-- working tree fingerprint：`sha256:8dd8290089f689320d70703976f484ca8b9fb526fffbe40e8793b3d71ad1536f`
-- 最新 checkpoint：`CP-0088` (state_snapshot)
+- observed HEAD：`e7632d7611346cce9aa2dd42f0b24bbb36f1389d`
+- verified HEAD：`e7632d7611346cce9aa2dd42f0b24bbb36f1389d`
+- origin/main：`e7632d7611346cce9aa2dd42f0b24bbb36f1389d`
+- working tree fingerprint：`sha256:afb24607e1a24c9c55ed982103f90a20fbce8f741f4a3995d176176fdaab5cb1`
+- 最新 checkpoint：`CP-0090` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
+- `docs/execution/checkpoints/CP-0089-p9-s4-pre-live-comprehensive-matrix.json`
+- `docs/execution/checkpoints/CP-0090-p9-s4-comprehensive-verified.json`
 - `docs/execution/events.jsonl`
+- `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
 
 ## 运行进程与产物
@@ -129,7 +134,7 @@
 - PID `8604`：controller-app；cleanupAllowed=`true`
 - PID `71160`：controller-app；cleanupAllowed=`true`
 - PID `51816`：controller-app；cleanupAllowed=`true`
-- PID `65304`：controller-app；cleanupAllowed=`true`
+- PID `52516`：controller-app；cleanupAllowed=`true`
 
 ### 只观察到的外部进程
 
@@ -163,7 +168,8 @@
 - PID `88548`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `38688`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `87256`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
-- PID `65304`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `65304`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `52516`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 
 ### 本轮管理的产物
 
@@ -182,29 +188,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0563` | `persistence` | `passed` | `stale` | persist-escape-fix<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0564` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0565` | `multi_window` | `passed` | `stale` | dual-pause-e77ab1b<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0566` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0567` | `live_input` | `passed` | `stale` | Bounded home-vitality live input executed with inputSent after elevated gates<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0568` | `live_input` | `passed` | `stale` | Bounded home-vitality live input executed with inputSent after elevated gates<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0569` | `live_outcome` | `passed` | `stale` | Bounded home-vitality live outcome observed after inputSent<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0570` | `test` | `passed` | `stale` | final core rebind e77ab1b<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0589` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0590` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0591` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0592` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0593` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0594` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0595` | `live_outcome` | `passed` | `valid` | Bounded home-vitality live outcome observed after inputSent<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0596` | `live_outcome` | `passed` | `valid` | Bounded home-vitality live outcome observed after inputSent<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 1432 | `2026-07-14T19:31:34Z` | `slice_state_changed` | 更新验收轴 restartPersistenceVerified -> passed |
-| 1433 | `2026-07-14T19:33:18Z` | `test_run` | final core rebind e77ab1b |
-| 1434 | `2026-07-14T19:33:41Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
-| 1435 | `2026-07-14T19:33:43Z` | `checkpoint` | 创建 CP-0088：criteria passed and live closeout |
-| 1436 | `2026-07-14T19:33:53Z` | `slice_state_changed` | P9-S3 multi-step live image_click/hotkey/outcome + dual-window pause isolation; elevated launcher fixed for PS5.1 |
-| 1437 | `2026-07-14T19:33:55Z` | `action_intent` | 登记副作用动作 ACT-P9S3-FINAL-COMMIT-001 |
-| 1438 | `2026-07-14T19:33:57Z` | `action_result` | 副作用动作 ACT-P9S3-FINAL-COMMIT-001 -> succeeded |
-| 1439 | `2026-07-14T19:33:58Z` | `action_intent` | 登记副作用动作 ACT-P9S3-PUSH-001 |
-| 1440 | `2026-07-14T19:34:04Z` | `action_result` | 副作用动作 ACT-P9S3-PUSH-001 -> succeeded |
-| 1441 | `2026-07-14T19:34:15Z` | `action_intent` | 登记副作用动作 ACT-P9S3-LEDGER-TRAIL-001 |
+| 1498 | `2026-07-14T19:45:06Z` | `slice_state_changed` | 更新验收轴 hwndInputActuallySent -> passed |
+| 1499 | `2026-07-14T19:45:07Z` | `slice_state_changed` | 更新验收轴 gamePostconditionObserved -> passed |
+| 1500 | `2026-07-14T19:45:08Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
+| 1501 | `2026-07-14T19:45:10Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
+| 1502 | `2026-07-14T19:45:11Z` | `slice_state_changed` | 更新验收轴 currentCommitAppLaunched -> passed |
+| 1503 | `2026-07-14T19:45:12Z` | `slice_state_changed` | 更新验收轴 secondWindowIsolationVerified -> passed |
+| 1504 | `2026-07-14T19:45:14Z` | `slice_state_changed` | 更新验收轴 restartPersistenceVerified -> passed |
+| 1505 | `2026-07-14T19:45:15Z` | `slice_state_changed` | P9-S4 comprehensive offline+UI+dual-window multi-task bounded live matrix 14/14 |
+| 1506 | `2026-07-14T19:45:17Z` | `checkpoint` | 创建 CP-0090：full automated + dual live matrix |
+| 1507 | `2026-07-14T19:45:27Z` | `action_intent` | 登记副作用动作 ACT-P9S4-COMMIT-001 |
 
 ## 异常恢复
 
