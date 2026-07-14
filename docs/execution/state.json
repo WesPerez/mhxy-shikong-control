@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1396,
+  "revision": 1425,
   "generation": 1,
-  "updatedAt": "2026-07-14T19:19:48Z",
+  "updatedAt": "2026-07-14T19:25:07Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -62,7 +62,8 @@
         "text": "Dual-window isolation with sequential live inputs and pause-scope contract",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0540"
+          "EVD-0540",
+          "EVD-0553"
         ],
         "requiredEvidenceCategories": [
           "live_input",
@@ -142,33 +143,33 @@
     },
     "automated": {
       "status": "passed",
-      "note": "confirm core EVD-0537",
+      "note": "EVD-0549 core on 29b2c4e",
       "evidenceIds": [
-        "EVD-0537"
+        "EVD-0549"
       ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "confirm vite EVD-0533",
+      "note": "EVD-0546 vite on 29b2c4e",
       "evidenceIds": [
-        "EVD-0533"
+        "EVD-0546"
       ]
     },
     "currentCommitAppLaunched": {
       "status": "passed",
-      "note": "confirm app EVD-0534",
+      "note": "EVD-0548 app PID 38688 on 29b2c4e",
       "evidenceIds": [
-        "EVD-0534"
+        "EVD-0548"
       ]
     },
     "hwndInputActuallySent": {
       "status": "not_verified",
-      "note": "await P9-S3 multi-step live rebind",
+      "note": "await live",
       "evidenceIds": []
     },
     "gamePostconditionObserved": {
       "status": "not_verified",
-      "note": "await P9-S3 live outcome rebind",
+      "note": "await live",
       "evidenceIds": []
     },
     "foregroundUnaffected": {
@@ -185,21 +186,21 @@
     },
     "restartPersistenceVerified": {
       "status": "passed",
-      "note": "confirm persist EVD-0541",
+      "note": "EVD-0547 AppData on 29b2c4e",
       "evidenceIds": [
-        "EVD-0541"
+        "EVD-0547"
       ]
     }
   },
   "git": {
     "branch": "main",
-    "observedHead": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
-    "verifiedHead": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
+    "observedHead": "29b2c4eef7beb337169cce8f43287b7134276bca",
+    "verifiedHead": "29b2c4eef7beb337169cce8f43287b7134276bca",
     "upstreamHead": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
-    "lastKnownStableCommit": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
+    "lastKnownStableCommit": "29b2c4eef7beb337169cce8f43287b7134276bca",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json",
+      "docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
       "docs/execution/state.json",
@@ -207,7 +208,7 @@
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json",
+      "?? docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json",
@@ -217,41 +218,41 @@
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "87c1c97e6ba5d23548efc8944cd4601bb17f688c0de2761c2ebf74b0d56bb511",
-        "size": 14244
+        "sha256": "13445867a9b55f7925e0aed9e64e43a0bc6c2c35378ac7ad14cae25636cf2c8d",
+        "size": 14351
       },
       {
-        "path": "docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json",
+        "path": "docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json",
         "exists": true,
-        "sha256": "75aeb17ee2006a248d599266867e59ae405221f72e027baf2eda3ab2b70b75a2",
-        "size": 28345
+        "sha256": "e55bc12d7568a332190c8eb0b04eb018e478bf1efcbb1895a29345682d875315",
+        "size": 28743
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "c320a6bd1d63028c63ef854a023de4b5b8e8eeb1279c1a3652c3c2fb9da0767b",
-        "size": 1840231
+        "sha256": "e2853fdb299c4984add26162235e6a4b4cf21d71fdb3646ff64db9538560a4b4",
+        "size": 1868597
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "3fea61fb76ed2f15ea77b0ad24a04a62d89f83935084e334d5a92b80508f3453",
-        "size": 1509894
+        "sha256": "965f81322dcdb075a565ec26ef3830bd25ef043982f5303343eea8faebc15bb3",
+        "size": 1529963
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "dfc4e37591401430ec49135e680ac3fad30ab8fd05af558f423cbbd849015b45",
-        "size": 101590
+        "sha256": "49adda2ae9d436a34accd3c117930ff81457c72a516e09cc432247fc2d60a2bf",
+        "size": 101902
       },
       {
         "path": "scripts/verify_bounded_live_input.py",
         "exists": true,
-        "sha256": "2e3e080ba356c97b6efa6bf153adef94e196941644cf9d530bec5a01d6632aaf",
-        "size": 32556
+        "sha256": "0de075a7c08f6b1a81e7af31cfb3862b58f01c40c5fec0dcd4eface9ec7c3c96",
+        "size": 32910
       }
     ],
-    "workingTreeFingerprint": "sha256:47a6cd3aded38ed93e18147b3a89e4143a081b02b0fbb642ca3986333d9a733c",
+    "workingTreeFingerprint": "sha256:6f3c90f35caa9653148c339ade5d7747c98906baae66cfe165aee4980f6cf1bf",
     "dirtyEntries": [
       {
         "status": " M",
@@ -262,8 +263,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json",
-        "displayPath": "docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json",
+        "displayPath": "docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json"
       },
       {
         "status": " M",
@@ -292,36 +293,36 @@
     ]
   },
   "inFlightAction": {
-    "actionId": "ACT-P9S3-FIX-LAUNCHER-001",
+    "actionId": "ACT-P9S3-FIX-LAUNCHER-002",
     "kind": "git_commit",
     "targetIdentity": "repo:main",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "image_click elevated arg fix ready",
-    "expectedPostcondition": "launcher fix committed",
-    "idempotencyKey": "p9s3-fix-launcher-001",
-    "startedAt": "2026-07-14T19:19:48Z",
+    "expectedPrecondition": "PS5.1 compatible elevated cmdline",
+    "expectedPostcondition": "committed",
+    "idempotencyKey": "p9s3-fix-launcher-002",
+    "startedAt": "2026-07-14T19:25:08Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
     "status": "running"
   },
   "lastAction": {
-    "actionId": "ACT-P9S3-IMG-CLICK-001",
+    "actionId": "ACT-P9S3-IMG-CLICK-002",
     "kind": "game_image_click",
-    "targetIdentity": "game-client:72520@MyGame_x64r.exe:50401600",
+    "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
     "sideEffectClass": "game_input",
-    "expectedPrecondition": "pre-live CP-0084; EVD-0543/0545; elevated controller",
-    "expectedPostcondition": "image_click inputSent with foreground/cursor unchanged",
-    "idempotencyKey": "p9s3-img-click-001",
-    "startedAt": "2026-07-14T19:18:01Z",
+    "expectedPrecondition": "CP pre-live; EVD-0551/0552; controller 38688",
+    "expectedPostcondition": "image_click+hotkey+outcome inputSent",
+    "idempotencyKey": "p9s3-img-click-002",
+    "startedAt": "2026-07-14T19:24:27Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
-      "controller-pid=88548",
-      "window-evidence=EVD-0543"
+      "controller-pid=38688",
+      "window-evidence=EVD-0551"
     ],
     "status": "failed",
-    "leaseTokenHash": "ff3cfb93741f684dc6cb00672d1f439117ec22750db150280a600f08d768a499",
-    "endedAt": "2026-07-14T19:19:40Z",
-    "result": "elevated ArgumentList re-tokenized manual confirmation JSON; launcher fixed in scripts/verify_bounded_live_input.py"
+    "leaseTokenHash": "f3e837bbb07d8cf53beacfd724a4702aef98a7d187df82ebdc34822a2a6c6108",
+    "endedAt": "2026-07-14T19:25:04Z",
+    "result": "PS5.1 ArgumentList missing; switched to escaped Arguments cmdline"
   },
   "safety": {
     "realInputSent": true,
@@ -331,7 +332,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T19:15:35Z",
+    "observedAt": "2026-07-14T19:23:54Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -474,32 +475,30 @@
         "lastObservedAt": "2026-07-14T14:20:40Z"
       },
       {
-        "pid": 88548,
+        "pid": 38688,
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe",
         "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
         "commandLine": "",
-        "creationTime": "2026-07-14T19:04:44Z",
+        "creationTime": "2026-07-14T19:21:03Z",
         "ownership": "created_by_current_run",
         "ownershipEvidence": [
-          "exePath=E:/Project/Common/mhxy-shikong-control/src-tauri/target/debug/mhxy-shikong-control.exe",
-          "exeSha256=13be5d27e00ec627cea480a6455c0c66726b811b21a42456f479775965aed327",
-          "expectedHead=ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
-          "elevated=true",
-          "cwd=E:/Project/Common/mhxy-shikong-control",
+          "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe",
+          "cwd=E:\\Project\\Common\\mhxy-shikong-control",
           "role=controller-app",
+          "elevated=true",
           "verifier=current-app-launch-v1",
           "exeSha256=13be5d27e00ec627cea480a6455c0c66726b811b21a42456f479775965aed327",
-          "observedHead=ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
-          "actionId=ACT-GAP-APP-001"
+          "observedHead=29b2c4eef7beb337169cce8f43287b7134276bca",
+          "actionId=ACT-P9S3-APP-REBIND-002"
         ],
         "cleanupAllowed": true,
         "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
-        "createdByActionId": "ACT-GAP-APP-001",
-        "createdAt": "2026-07-14T19:04:47Z",
+        "createdByActionId": "ACT-P9S3-APP-REBIND-002",
+        "createdAt": "2026-07-14T19:21:06Z",
         "present": true,
-        "lastObservedAt": "2026-07-14T19:04:47Z"
+        "lastObservedAt": "2026-07-14T19:21:06Z"
       }
     ],
     "observedExternalProcesses": [
@@ -670,8 +669,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T19:13:49Z",
-        "lastSeenAt": "2026-07-14T19:13:49Z",
+        "lastObservedAt": "2026-07-14T19:20:01Z",
+        "lastSeenAt": "2026-07-14T19:20:01Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -809,8 +808,8 @@
         "ownership": "created_by_current_run",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T19:13:50Z",
-        "lastSeenAt": "2026-07-14T19:13:50Z",
+        "lastObservedAt": "2026-07-14T19:20:02Z",
+        "lastSeenAt": "2026-07-14T19:20:02Z",
         "creationTime": "2026-07-14T18:21:59Z"
       },
       {
@@ -830,10 +829,22 @@
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "ownership": "created_by_current_run",
-        "present": true,
+        "present": false,
         "creationTime": "2026-07-14T19:04:44Z",
-        "lastObservedAt": "2026-07-14T19:13:48Z",
-        "lastSeenAt": "2026-07-14T19:13:48Z",
+        "lastObservedAt": "2026-07-14T19:20:59Z",
+        "lastSeenAt": "2026-07-14T19:19:59Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-14T19:20:59Z"
+      },
+      {
+        "pid": 38688,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-14T19:21:03Z",
+        "lastObservedAt": "2026-07-14T19:21:06Z",
+        "lastSeenAt": "2026-07-14T19:21:06Z",
         "cleanupAllowed": false
       }
     ],
@@ -877,13 +888,13 @@
       }
     ],
     "lastWindowIdentity": {
-      "targetIdentity": "game-client:72520@MyGame_x64r.exe:50401600",
+      "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
       "verified": true,
-      "observedAt": "2026-07-14T19:14:06Z",
-      "evidenceId": "EVD-0543",
+      "observedAt": "2026-07-14T19:23:08Z",
+      "evidenceId": "EVD-0551",
       "identity": {
-        "hwnd": 50401600,
-        "pid": 72520,
+        "hwnd": 26157554,
+        "pid": 86812,
         "title": "梦幻西游：时空",
         "process": "MyGame_x64r.exe",
         "clientWidth": 509,
@@ -893,24 +904,24 @@
     }
   },
   "eventTail": {
-    "seq": 1346,
-    "id": "EVT-1346",
-    "hash": "sha256:53146e25c1f33738ae55e81632f8233571c76529cf9259def5e5fcfab097ce5c"
+    "seq": 1375,
+    "id": "EVT-1375",
+    "hash": "sha256:8fc982b7997cf1a6f0cd64b20e322f810b115ebcfa98f9caa5c1cc28d64cba80"
   },
   "evidenceTail": {
-    "seq": 545,
-    "id": "EVD-0545",
-    "hash": "sha256:e25d1ba9ccef63f50944e2a5f9434cdbec1220f07e9f02bfcd6815afa1df89a0"
+    "seq": 553,
+    "id": "EVD-0553",
+    "hash": "sha256:7a5ba9d01c82fff7ca61331596d1f3f4a2ca8ce07b15d9518bcdda75f858e86b"
   },
-  "checkpointCounter": 84,
+  "checkpointCounter": 85,
   "lastCheckpoint": {
-    "id": "CP-0084",
+    "id": "CP-0085",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json",
-    "createdAt": "2026-07-14T19:16:56Z",
+    "path": "docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json",
+    "createdAt": "2026-07-14T19:24:24Z",
     "safeToResume": true,
     "safeToRunLiveInput": true,
-    "hash": "sha256:9d8b82d73cd04774fbbba875a28e62f555cc9be2c553f7566ce137bffaf5d244"
+    "hash": "sha256:af4ae237c07826d4f0bf3c8a0b0957f8ef51f8affe778fef35b276456928a89a"
   },
   "resume": {
     "blockers": [
@@ -922,7 +933,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0084"
+    "lastSafeResumeSnapshotId": "CP-0085"
   },
   "completedSlices": [
     {

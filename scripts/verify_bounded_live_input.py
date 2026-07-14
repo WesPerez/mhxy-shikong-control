@@ -440,8 +440,17 @@ def run_bounded_live_step(command: List[str], report_path: Path, require_elevate
         report_path.unlink()
     report_path.parent.mkdir(parents=True, exist_ok=True)
     argfile = report_path.parent / "elevated-args.txt"
-    # One argument per line. utf-8 without BOM avoids corrupting the first token.
+    # One argument per line; also emit a Windows-escaped command line for PS 5.1.
     argfile.write_text(chr(10).join(str(a) for a in step_args) + chr(10), encoding="utf-8")
+
+    def _win_escape(arg):
+        text_arg = str(arg)
+        if text_arg == "" or any(ch in text_arg for ch in [' ', '	', '"']):
+            return '"' + text_arg.replace('\', '\\').replace('"', '\"') + '"'
+        return text_arg
+
+    cmdline_file = report_path.parent / "elevated-cmdline.txt"
+    cmdline_file.write_text(" ".join(_win_escape(a) for a in step_args), encoding="utf-8")
     log = report_path.parent / "elevated-run.log"
     launcher = report_path.parent / "elevated-run.ps1"
     nl = chr(10)
@@ -449,21 +458,21 @@ def run_bounded_live_step(command: List[str], report_path: Path, require_elevate
         "$ErrorActionPreference = 'Stop'",
         "Set-Location -LiteralPath '" + str(progress.ROOT).replace("'", "''") + "'",
         "$bin = '" + str(bin_path).replace("'", "''") + "'",
-        "$argFile = '" + str(argfile).replace("'", "''") + "'",
+        "$cmdFile = '" + str(cmdline_file).replace("'", "''") + "'",
         "$log = '" + str(log).replace("'", "''") + "'",
         "$out = $log + '.out'",
         "$err = $log + '.err'",
-        "$stepArgs = @(Get-Content -LiteralPath $argFile -Encoding utf8)",
+        "$argLine = Get-Content -LiteralPath $cmdFile -Raw -Encoding utf8",
         "try {",
-        "  # Start-Process -ArgumentList re-tokenizes arrays; use ProcessStartInfo.ArgumentList instead.",
+        "  # Windows PowerShell 5.1 lacks ProcessStartInfo.ArgumentList; pass one escaped command line.",
         "  $psi = New-Object System.Diagnostics.ProcessStartInfo",
         "  $psi.FileName = $bin",
+        "  $psi.Arguments = $argLine",
         "  $psi.WorkingDirectory = (Get-Location).Path",
         "  $psi.UseShellExecute = $false",
         "  $psi.RedirectStandardOutput = $true",
         "  $psi.RedirectStandardError = $true",
         "  $psi.CreateNoWindow = $true",
-        "  foreach ($arg in $stepArgs) { [void]$psi.ArgumentList.Add([string]$arg) }",
         "  $p = [System.Diagnostics.Process]::Start($psi)",
         "  $stdout = $p.StandardOutput.ReadToEnd()",
         "  $stderr = $p.StandardError.ReadToEnd()",

@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:1ec82aa97aa95bd8f6c1f90c55e6bb9cf231a3f321ae13aac7106d997a5294a8 -->
-<!-- checkpoint-id: CP-0084 -->
+<!-- state-digest: sha256:d4990d111bdd4574231177a768f44c5f7411cd1acde126eb84292c9cbed6231d -->
+<!-- checkpoint-id: CP-0085 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,8 +9,8 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T19:19:48Z`
-- 更新时间（北京时间）：`2026-07-15T03:19:48+08:00`
+- 更新时间（UTC）：`2026-07-14T19:25:07Z`
+- 更新时间（北京时间）：`2026-07-15T03:25:07+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
@@ -19,29 +19,29 @@
 - 阶段状态：`in_progress`；切片状态：`in_progress`；动作状态：`running`
 - 当前切片验收：已满足 `1`，待验证或阻塞 `1`，合计 `2`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P9S3-FIX-LAUNCHER-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-P9S3-FIX-LAUNCHER-001（EVT-1346；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-P9S3-FIX-LAUNCHER-001；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P9S3-FIX-LAUNCHER-002` 处于 `running`，等待只读对账
+- 最新当前有效证据：P9-S3 dual window pause isolation rebind on 29b2c4e（EVD-0553，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-P9S3-FIX-LAUNCHER-002；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
-- 最新 checkpoint：`CP-0084`；safeToResume=`true`；safeToRunLiveInput=`true`
+- 最新 checkpoint：`CP-0085`；safeToResume=`true`；safeToRunLiveInput=`true`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T19:15:35Z`；年龄=`253s`；TTL=`300s`；expiresAt=`2026-07-14T19:20:35Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T19:23:54Z`；年龄=`73s`；TTL=`300s`；expiresAt=`2026-07-14T19:28:54Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已过期` | confirm core EVD-0537；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交构建 | `已过期` | confirm vite EVD-0533；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交应用已启动 | `已过期` | confirm app EVD-0534；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 后台 HWND 输入已实际发送 | `未验证` | await P9-S3 multi-step live rebind |
-| 游戏后置状态已观察 | `未验证` | await P9-S3 live outcome rebind |
+| 自动测试 | `已过期` | EVD-0549 core on 29b2c4e；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 当前提交构建 | `已过期` | EVD-0546 vite on 29b2c4e；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 当前提交应用已启动 | `已过期` | EVD-0548 app PID 38688 on 29b2c4e；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 后台 HWND 输入已实际发送 | `未验证` | await live |
+| 游戏后置状态已观察 | `未验证` | await live |
 | 前台鼠标键盘未受影响 | `部分` | 静态安全审计只允许 PostMessageW 路径，但尚缺当前版本实测前后台 HWND、鼠标位置和用户并行操作证据。 |
 | 双窗口隔离 | `已过期` | rebind multi-window EVD-0540 pause-scope on ae4455f；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 重启持久化 | `已过期` | confirm persist EVD-0541；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 重启持久化 | `已过期` | EVD-0547 AppData on 29b2c4e；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
 
 ## 阶段表
 
@@ -78,11 +78,11 @@
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
 | `P9-S3-C1` | Multi-step live paths including match_only/image_click/hotkey with postconditions | `pending` | `live_input`, `live_outcome` | none |
-| `P9-S3-C2` | Dual-window isolation with sequential live inputs and pause-scope contract | `passed` | `live_input`, `multi_window` | `EVD-0540` |
+| `P9-S3-C2` | Dual-window isolation with sequential live inputs and pause-scope contract | `passed` | `live_input`, `multi_window` | `EVD-0540`, `EVD-0553` |
 
 ## 当前动作
 
-- actionId：`ACT-P9S3-FIX-LAUNCHER-001`
+- actionId：`ACT-P9S3-FIX-LAUNCHER-002`
 - 类型：`git_commit`
 - 目标：`repo:main`
 - 副作用级别：`git_commit`
@@ -90,7 +90,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P9S3-FIX-LAUNCHER-001；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P9S3-FIX-LAUNCHER-002；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -106,18 +106,18 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`ae4455fcd98991a9f1fe4ee3053d4fc4c6166661`
-- verified HEAD：`ae4455fcd98991a9f1fe4ee3053d4fc4c6166661`
+- observed HEAD：`29b2c4eef7beb337169cce8f43287b7134276bca`
+- verified HEAD：`29b2c4eef7beb337169cce8f43287b7134276bca`
 - origin/main：`ae4455fcd98991a9f1fe4ee3053d4fc4c6166661`
-- working tree fingerprint：`sha256:47a6cd3aded38ed93e18147b3a89e4143a081b02b0fbb642ca3986333d9a733c`
-- 最新 checkpoint：`CP-0084` (state_snapshot)
+- working tree fingerprint：`sha256:6f3c90f35caa9653148c339ade5d7747c98906baae66cfe165aee4980f6cf1bf`
+- 最新 checkpoint：`CP-0085` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`true`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0084-p9-s3-pre-live-multi-step.json`
+- `docs/execution/checkpoints/CP-0085-p9-s3-pre-live-multi-step-after-launcher-fix.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
@@ -132,7 +132,7 @@
 - PID `8604`：controller-app；cleanupAllowed=`true`
 - PID `71160`：controller-app；cleanupAllowed=`true`
 - PID `51816`：controller-app；cleanupAllowed=`true`
-- PID `88548`：controller-app；cleanupAllowed=`true`
+- PID `38688`：controller-app；cleanupAllowed=`true`
 
 ### 只观察到的外部进程
 
@@ -163,7 +163,8 @@
 - PID `52124`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `72520`：`MyGame_x64r.exe`，game-client；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `25488`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
-- PID `88548`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `88548`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `38688`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 
 ### 本轮管理的产物
 
@@ -182,29 +183,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0538` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
-| `EVD-0539` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
-| `EVD-0540` | `multi_window` | `passed` | `stale` | pause-scope dual window isolation contract with live dual HWNDs<br>证据工作树指纹与当前现场不同 |
-| `EVD-0541` | `persistence` | `passed` | `stale` | P9-S3 real AppData persistence rebind<br>证据工作树指纹与当前现场不同 |
-| `EVD-0542` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
-| `EVD-0543` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
-| `EVD-0544` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
-| `EVD-0545` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
+| `EVD-0546` | `build` | `passed` | `stale` | P9-S3 rebind vite after launcher fix 29b2c4e<br>证据工作树指纹与当前现场不同 |
+| `EVD-0547` | `persistence` | `passed` | `stale` | P9-S3 persistence after 29b2c4e<br>证据工作树指纹与当前现场不同 |
+| `EVD-0548` | `app_runtime` | `passed` | `stale` | Current-commit controller app launched and observed as created_by_current_run process<br>证据工作树指纹与当前现场不同 |
+| `EVD-0549` | `test` | `passed` | `stale` | P9-S3-rebind-core-29b2c4e<br>证据工作树指纹与当前现场不同 |
+| `EVD-0550` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
+| `EVD-0551` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
+| `EVD-0552` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
+| `EVD-0553` | `multi_window` | `passed` | `valid` | P9-S3 dual window pause isolation rebind on 29b2c4e<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 1337 | `2026-07-14T19:16:51Z` | `slice_state_changed` | 更新验收轴 currentCommitBuilt -> passed |
-| 1338 | `2026-07-14T19:16:52Z` | `slice_state_changed` | 更新验收轴 currentCommitAppLaunched -> passed |
-| 1339 | `2026-07-14T19:16:53Z` | `slice_state_changed` | 更新验收轴 automated -> passed |
-| 1340 | `2026-07-14T19:16:54Z` | `slice_state_changed` | 更新验收轴 restartPersistenceVerified -> passed |
-| 1341 | `2026-07-14T19:16:56Z` | `checkpoint` | 创建 CP-0084：identity+preflight ready for match_only/image_click/hotkey |
-| 1342 | `2026-07-14T19:17:05Z` | `slice_state_changed` | 更新验收轴 hwndInputActuallySent -> not_verified |
-| 1343 | `2026-07-14T19:17:06Z` | `slice_state_changed` | 更新验收轴 gamePostconditionObserved -> not_verified |
-| 1344 | `2026-07-14T19:18:01Z` | `action_intent` | 登记副作用动作 ACT-P9S3-IMG-CLICK-001 |
-| 1345 | `2026-07-14T19:19:41Z` | `action_result` | 副作用动作 ACT-P9S3-IMG-CLICK-001 -> failed |
-| 1346 | `2026-07-14T19:19:48Z` | `action_intent` | 登记副作用动作 ACT-P9S3-FIX-LAUNCHER-001 |
+| 1366 | `2026-07-14T19:23:04Z` | `slice_state_changed` | 更新验收轴 hwndInputActuallySent -> not_verified |
+| 1367 | `2026-07-14T19:23:05Z` | `slice_state_changed` | 更新验收轴 gamePostconditionObserved -> not_verified |
+| 1368 | `2026-07-14T19:23:06Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
+| 1369 | `2026-07-14T19:23:09Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
+| 1370 | `2026-07-14T19:23:54Z` | `runtime_observation` | Strict target capture completed bounded zero-input wait_image preflight |
+| 1371 | `2026-07-14T19:24:25Z` | `checkpoint` | 创建 CP-0085：identity EVD-0551 preflight EVD-0552 controller 38688 |
+| 1372 | `2026-07-14T19:24:28Z` | `action_intent` | 登记副作用动作 ACT-P9S3-IMG-CLICK-002 |
+| 1373 | `2026-07-14T19:25:04Z` | `action_result` | 副作用动作 ACT-P9S3-IMG-CLICK-002 -> failed |
+| 1374 | `2026-07-14T19:25:07Z` | `evidence_recorded` | P9-S3 dual window pause isolation rebind on 29b2c4e |
+| 1375 | `2026-07-14T19:25:08Z` | `action_intent` | 登记副作用动作 ACT-P9S3-FIX-LAUNCHER-002 |
 
 ## 异常恢复
 
