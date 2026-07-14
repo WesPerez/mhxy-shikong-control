@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 932,
+  "revision": 936,
   "generation": 1,
-  "updatedAt": "2026-07-14T14:25:03Z",
+  "updatedAt": "2026-07-14T14:25:19Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,12 +29,12 @@
   "overallStatus": "active",
   "currentPhaseId": "P4",
   "phaseStatus": "in_progress",
-  "actionStatus": "succeeded",
+  "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
     "id": "P4-S6",
     "title": "Full home-vitality vertical remaining gates",
-    "status": "in_progress",
+    "status": "blocked",
     "startedAt": "2026-07-14T14:13:36Z",
     "scope": [
       "src/home-vitality-core.js",
@@ -86,7 +86,10 @@
         ]
       }
     ],
-    "nextAction": "Commit P4-S6 partial progress; begin P5 persistence specialized path."
+    "nextAction": "Begin P5-S1 SaveCoordinator/future-schema persistence baseline.",
+    "blockers": [
+      "P4-S6-C3 restart retention requires P5 persistence specialized verifier and app restart proof"
+    ]
   },
   "phases": [
     {
@@ -205,7 +208,7 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "3199ad1caaa6241b65d3ec5b0767b067d40d7e14",
+    "observedHead": "167227ce2cd676d31e6a0343d9cf75e4ecacf18d",
     "verifiedHead": "9b55dd076a5beec5ef04aeddb135a334720993ca",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9b55dd076a5beec5ef04aeddb135a334720993ca",
@@ -223,23 +226,23 @@
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "5063c834127cb886adaf05c73bbdb3ac5dda1f9898080241f88fba7a0c398eb2",
-        "size": 13603
+        "sha256": "d4da701e091455a67681725e692631b8a291ad067bc18df707211262930ece28",
+        "size": 13929
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "219edc2ac95b164d4baa9533517ec099c325431723dc4139625231b48cb239a1",
-        "size": 1402425
+        "sha256": "399bb1fc9c818cac6f906f28d28254f8a4a650363cd6f1684a03ad9b12fd1d42",
+        "size": 1406495
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "a86e3875c5fe47df1578ed47d1fcf155e7cb692f8cb9e4ac0f8083154e0a8823",
-        "size": 74648
+        "sha256": "99d3844fdfcc9a56629601f417c08bdfd93f1af383503909c53ea6f2b9d65f38",
+        "size": 76485
       }
     ],
-    "workingTreeFingerprint": "sha256:18f72ac573c15d805505ed2f953cb7fcfade2c6d79778e614dff6e59925948a9",
+    "workingTreeFingerprint": "sha256:4d3961d342ec578fbb042a1b2aa6e4dafa53c70278428822c929c96b3b2b8d8a",
     "dirtyEntries": [
       {
         "status": " M",
@@ -261,21 +264,33 @@
       }
     ]
   },
-  "inFlightAction": null,
-  "lastAction": {
-    "actionId": "ACT-P4S6-COMMIT-001",
+  "inFlightAction": {
+    "actionId": "ACT-P5S1-COMMIT-001",
     "kind": "git_commit",
     "targetIdentity": "main",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "C1/C2 evidence on ledger",
+    "expectedPrecondition": "P5-S1 begun",
     "expectedPostcondition": "commit",
-    "idempotencyKey": "p4-s6-commit-001",
-    "startedAt": "2026-07-14T14:25:01Z",
+    "idempotencyKey": "p5-s1-commit-begin-001",
+    "startedAt": "2026-07-14T14:25:19Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [],
+    "status": "running"
+  },
+  "lastAction": {
+    "actionId": "ACT-P5S1-COMMIT-BEGIN-001",
+    "kind": "git_commit",
+    "targetIdentity": "main",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P5-S1 begun",
+    "expectedPostcondition": "begin commit",
+    "idempotencyKey": "p5-s1-begin-001",
+    "startedAt": "2026-07-14T14:25:04Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
     "status": "succeeded",
-    "endedAt": "2026-07-14T14:25:03Z",
-    "result": "committed 3199ad1caaa6241b65d3ec5b0767b067d40d7e14"
+    "endedAt": "2026-07-14T14:25:06Z",
+    "result": "P5-S1 begun"
   },
   "safety": {
     "realInputSent": true,
@@ -749,9 +764,9 @@
     }
   },
   "eventTail": {
-    "seq": 882,
-    "id": "EVT-0882",
-    "hash": "sha256:f906047d05babc5a5234445e1f7f7348ba9c89077a28563af724456b371c54d7"
+    "seq": 886,
+    "id": "EVT-0886",
+    "hash": "sha256:39acdd16433506ef7b6d400d2b12de43d0935fb2bfb23bdcd2986e3b83fe18b9"
   },
   "evidenceTail": {
     "seq": 406,

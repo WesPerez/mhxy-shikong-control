@@ -1,5 +1,5 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:7fe7941b05db7fd41fd6a81352b7dc5f5bc253eab1ce23cbb2da40c898cd7d48 -->
+<!-- state-digest: sha256:f4a22efbf88479cb51ef900c288dfd18cb4bbf1f8036dea018bc91765066a86c -->
 <!-- checkpoint-id: CP-0065 -->
 # 长任务执行状态
 
@@ -8,26 +8,26 @@
 
 ## 恢复首屏
 
-- 恢复结论：**可恢复代码工作；其它副作用仍需各自门禁**
-- 更新时间（UTC）：`2026-07-14T14:25:03Z`
-- 更新时间（北京时间）：`2026-07-14T22:25:03+08:00`
+- 恢复结论：**STOP：存在未决副作用，只允许只读对账**
+- 更新时间（UTC）：`2026-07-14T14:25:19Z`
+- 更新时间（北京时间）：`2026-07-14T22:25:19+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
 - 当前阶段：`P4`
 - 当前切片：`P4-S6` - Full home-vitality vertical remaining gates
-- 阶段状态：`in_progress`；切片状态：`in_progress`；动作状态：`succeeded`
+- 阶段状态：`in_progress`；切片状态：`blocked`；动作状态：`running`
 - 当前切片验收：已满足 `2`，待验证或阻塞 `1`，合计 `3`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：当前没有副作用动作在执行，停在下一动作之前
-- 最新当前有效证据：最近事件：副作用动作 ACT-P4S6-COMMIT-001 -> succeeded（EVT-0882；不是当前验收通过证据）
-- 唯一下一动作：Commit P4-S6 partial progress; begin P5 persistence specialized path.
-- 当前切片执行 blocker：none
+- 当前工作：未决动作 `ACT-P5S1-COMMIT-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：最近事件：登记副作用动作 ACT-P5S1-COMMIT-001（EVT-0886；不是当前验收通过证据）
+- 唯一下一动作：对账未决副作用动作 ACT-P5S1-COMMIT-001；结果明确前禁止重放
+- 当前切片执行 blocker：P4-S6-C3 restart retention requires P5 persistence specialized verifier and app restart proof
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
 - 最新 checkpoint：`CP-0065`；safeToResume=`true`；safeToRunLiveInput=`false`
-- 当前允许：只读审计、连续性元数据对账、当前切片内的代码工作。
-- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T14:24:33Z`；年龄=`30s`；TTL=`300s`；expiresAt=`2026-07-14T14:29:33Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 当前允许：只读审计、连续性元数据对账。
+- 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T14:24:33Z`；年龄=`46s`；TTL=`300s`；expiresAt=`2026-07-14T14:29:33Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
@@ -85,11 +85,15 @@
 
 ## 当前动作
 
-- 当前没有未决副作用动作。
+- actionId：`ACT-P5S1-COMMIT-001`
+- 类型：`git_commit`
+- 目标：`main`
+- 副作用级别：`git_commit`
+- 状态：`running`
 
 ## 下一步
 
-- 唯一下一动作：Commit P4-S6 partial progress; begin P5 persistence specialized path.
+- 唯一下一动作：对账未决副作用动作 ACT-P5S1-COMMIT-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -105,10 +109,10 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`3199ad1caaa6241b65d3ec5b0767b067d40d7e14`
+- observed HEAD：`167227ce2cd676d31e6a0343d9cf75e4ecacf18d`
 - verified HEAD：`9b55dd076a5beec5ef04aeddb135a334720993ca`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:18f72ac573c15d805505ed2f953cb7fcfade2c6d79778e614dff6e59925948a9`
+- working tree fingerprint：`sha256:4d3961d342ec578fbb042a1b2aa6e4dafa53c70278428822c929c96b3b2b8d8a`
 - 最新 checkpoint：`CP-0065` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
@@ -184,16 +188,16 @@
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 873 | `2026-07-14T14:24:21Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
-| 874 | `2026-07-14T14:24:24Z` | `checkpoint` | 创建 CP-0064：ESC outcome |
-| 875 | `2026-07-14T14:24:25Z` | `action_intent` | 登记副作用动作 ACT-P4S6-LIVE-D |
-| 876 | `2026-07-14T14:24:26Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
 | 877 | `2026-07-14T14:24:33Z` | `runtime_observation` | Bounded home-vitality live outcome observed after inputSent |
 | 878 | `2026-07-14T14:24:34Z` | `action_result` | 副作用动作 ACT-P4S6-LIVE-D -> succeeded |
 | 879 | `2026-07-14T14:24:59Z` | `decision` | P4-S6-C1 offline contracts passed (EVD-0390/0391). P4-S6-C2 multi-step live ALT+N+ESC passed (EVD-0403/0406). P4-S6-C3 restart retention remains pending: persistence specialized verifier allowlist empty; belongs to P5. |
 | 880 | `2026-07-14T14:25:00Z` | `checkpoint` | 创建 CP-0065：C1/C2 done; C3 deferred to P5 |
 | 881 | `2026-07-14T14:25:01Z` | `action_intent` | 登记副作用动作 ACT-P4S6-COMMIT-001 |
 | 882 | `2026-07-14T14:25:03Z` | `action_result` | 副作用动作 ACT-P4S6-COMMIT-001 -> succeeded |
+| 883 | `2026-07-14T14:25:04Z` | `action_intent` | 登记副作用动作 ACT-P5S1-COMMIT-BEGIN-001 |
+| 884 | `2026-07-14T14:25:06Z` | `action_result` | 副作用动作 ACT-P5S1-COMMIT-BEGIN-001 -> succeeded |
+| 885 | `2026-07-14T14:25:17Z` | `slice_state_changed` | P4-S6 C1 offline and C2 multi-step live passed; C3 restart retention blocked on missing persistence specialized verifier (P5). |
+| 886 | `2026-07-14T14:25:19Z` | `action_intent` | 登记副作用动作 ACT-P5S1-COMMIT-001 |
 
 ## 异常恢复
 
