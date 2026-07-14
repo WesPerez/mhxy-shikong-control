@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:05c706c4c34f4ab7a3ead233a7952392575d7cdfd3508da8de07dc118fb7f46f -->
-<!-- checkpoint-id: CP-0056 -->
+<!-- state-digest: sha256:4a82fc4cd0221aee7eabe5bfbd3a47f1a615b5d55d9278c3c5d4472ff63cb81f -->
+<!-- checkpoint-id: CP-0057 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,8 +9,8 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T13:07:37Z`
-- 更新时间（北京时间）：`2026-07-14T21:07:37+08:00`
+- 更新时间（UTC）：`2026-07-14T13:16:39Z`
+- 更新时间（北京时间）：`2026-07-14T21:16:39+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
@@ -19,24 +19,24 @@
 - 阶段状态：`in_progress`；切片状态：`in_progress`；动作状态：`running`
 - 当前切片验收：已满足 `0`，待验证或阻塞 `2`，合计 `2`
 - 本轮是否发送真实游戏输入：`false`
-- 当前工作：未决动作 `ACT-P4S5-COMMIT-ELEV-001` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-P4S5-COMMIT-ELEV-001（EVT-0782；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-P4S5-COMMIT-ELEV-001；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-P4S5-COMMIT-LIVEFIX-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：最近事件：登记副作用动作 ACT-P4S5-COMMIT-LIVEFIX-001（EVT-0802；不是当前验收通过证据）
+- 唯一下一动作：对账未决副作用动作 ACT-P4S5-COMMIT-LIVEFIX-001；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：Game HWND exists (PID 86812 / HWND 26157554) but controller privilege is insufficient for gated input.
-- 最新 checkpoint：`CP-0056`；safeToResume=`true`；safeToRunLiveInput=`true`
+- 最新 checkpoint：`CP-0057`；safeToResume=`true`；safeToRunLiveInput=`true`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T13:05:22Z`；年龄=`135s`；TTL=`300s`；expiresAt=`2026-07-14T13:10:22Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T13:13:06Z`；年龄=`213s`；TTL=`300s`；expiresAt=`2026-07-14T13:18:06Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已过期` | Core suite rebound on 3dfbcf1 before live；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交构建 | `已过期` | Vite production build rebound on 3dfbcf1 before live；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交应用已启动 | `已过期` | Elevated controller relaunched on 3dfbcf1 for live gate；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 自动测试 | `已过期` | core rebind 8ac6d74；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 当前提交构建 | `已过期` | vite rebind 8ac6d74；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 当前提交应用已启动 | `已过期` | app rebind 8ac6d74；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
 | 后台 HWND 输入已实际发送 | `未验证` | 当前 HEAD 没有应用 UI 到指定 hwnd 的真实输入通过证据。 |
 | 游戏后置状态已观察 | `未验证` | 没有绑定当前 HEAD、exe、workspace 和窗口身份的游戏后置状态证据。 |
 | 前台鼠标键盘未受影响 | `部分` | 静态安全审计只允许 PostMessageW 路径，但尚缺当前版本实测前后台 HWND、鼠标位置和用户并行操作证据。 |
@@ -85,7 +85,7 @@
 
 ## 当前动作
 
-- actionId：`ACT-P4S5-COMMIT-ELEV-001`
+- actionId：`ACT-P4S5-COMMIT-LIVEFIX-001`
 - 类型：`git_commit`
 - 目标：`main`
 - 副作用级别：`git_commit`
@@ -93,7 +93,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P4S5-COMMIT-ELEV-001；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-P4S5-COMMIT-LIVEFIX-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -109,29 +109,31 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`3dfbcf129e8155ef6566ae67ee13e2780cd12e55`
-- verified HEAD：`3dfbcf129e8155ef6566ae67ee13e2780cd12e55`
+- observed HEAD：`8ac6d74706bba2aee078c642e12ed7c9566483e4`
+- verified HEAD：`8ac6d74706bba2aee078c642e12ed7c9566483e4`
 - origin/main：`3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9`
-- working tree fingerprint：`sha256:191223eb87f6ff8d684e65f64e7ca03d5f05c257edf5add8deb1db0c08cf53b7`
-- 最新 checkpoint：`CP-0056` (state_snapshot)
+- working tree fingerprint：`sha256:21dff1064a5accf304102be771e30d38864d898833919ff2de9ea4d6b4a72799`
+- 最新 checkpoint：`CP-0057` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`true`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
-- `docs/execution/checkpoints/CP-0056-p4-s5-pre-live-home-vitality.json`
+- `docs/execution/checkpoints/CP-0057-p4-s5-pre-live-home-vitality-8ac6d74.json`
 - `docs/execution/events.jsonl`
 - `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
 - `scripts/verify_bounded_live_input.py`
+- `src-tauri/src/bin/bounded_live_step.rs`
 
 ## 运行进程与产物
 
 ### 本轮管理的进程
 
 - PID `61780`：controller-app；cleanupAllowed=`true`
-- PID `30892`：controller-app；cleanupAllowed=`true`
+- PID `55040`：controller-app；cleanupAllowed=`true`
+- PID `8604`：controller-app；cleanupAllowed=`true`
 
 ### 只观察到的外部进程
 
@@ -152,7 +154,9 @@
 - PID `71740`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`task_owned`，cleanupAllowed=`false`
 - PID `16824`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `56384`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
-- PID `30892`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `30892`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `55040`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `8604`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 
 ### 本轮管理的产物
 
@@ -171,29 +175,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0363` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
-| `EVD-0364` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
-| `EVD-0365` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
-| `EVD-0366` | `test` | `passed` | `stale` | P4-S5-final-rebind-core-before-live<br>证据工作树指纹与当前现场不同 |
-| `EVD-0367` | `build` | `passed` | `stale` | P4-S5-final-rebind-vite-before-live<br>证据工作树指纹与当前现场不同 |
-| `EVD-0368` | `app_runtime` | `passed` | `stale` | Current-commit controller app launched and observed as created_by_current_run process<br>证据工作树指纹与当前现场不同 |
-| `EVD-0369` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
-| `EVD-0370` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
+| `EVD-0369` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0370` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0371` | `test` | `passed` | `stale` | P4-S5-rebind-core-8ac6d74<br>证据工作树指纹与当前现场不同 |
+| `EVD-0372` | `build` | `passed` | `stale` | P4-S5-rebind-vite-8ac6d74<br>证据工作树指纹与当前现场不同 |
+| `EVD-0373` | `app_runtime` | `passed` | `stale` | Current-commit controller app launched and observed as created_by_current_run process<br>证据工作树指纹与当前现场不同 |
+| `EVD-0374` | `app_runtime` | `passed` | `stale` | Current-commit controller app launched and observed as created_by_current_run process<br>证据工作树指纹与当前现场不同 |
+| `EVD-0375` | `window_identity` | `passed` | `stale` | Verified live window identity for game-client (read-only, no input)<br>证据工作树指纹与当前现场不同 |
+| `EVD-0376` | `live_preflight` | `passed` | `stale` | Strict target capture completed bounded zero-input wait_image preflight<br>证据工作树指纹与当前现场不同 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 773 | `2026-07-14T13:04:15Z` | `action_result` | 副作用动作 ACT-P4S5-APP-STOP-003 -> succeeded |
-| 774 | `2026-07-14T13:04:16Z` | `runtime_observation` | Stopped controller 56384 for app gate rebind |
-| 775 | `2026-07-14T13:04:17Z` | `action_intent` | 登记副作用动作 ACT-P4S5-APP-004 |
-| 776 | `2026-07-14T13:04:22Z` | `runtime_observation` | Current-commit controller app launched and observed as created_by_current_run process |
-| 777 | `2026-07-14T13:04:24Z` | `action_result` | 副作用动作 ACT-P4S5-APP-004 -> succeeded |
-| 778 | `2026-07-14T13:04:39Z` | `slice_state_changed` | 更新验收轴 currentCommitAppLaunched -> passed |
-| 779 | `2026-07-14T13:04:41Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
-| 780 | `2026-07-14T13:05:22Z` | `runtime_observation` | Strict target capture completed bounded zero-input wait_image preflight |
-| 781 | `2026-07-14T13:05:35Z` | `checkpoint` | 创建 CP-0056：Gates rebound; elevated controller 30892; window EVD-0369; preflight EVD-0370; ready for bounded live hotkey. |
-| 782 | `2026-07-14T13:07:37Z` | `action_intent` | 登记副作用动作 ACT-P4S5-COMMIT-ELEV-001 |
+| 793 | `2026-07-14T13:11:25Z` | `action_intent` | 登记副作用动作 ACT-P4S5-APP-006 |
+| 794 | `2026-07-14T13:11:31Z` | `runtime_observation` | Current-commit controller app launched and observed as created_by_current_run process |
+| 795 | `2026-07-14T13:11:32Z` | `action_result` | 副作用动作 ACT-P4S5-APP-006 -> succeeded |
+| 796 | `2026-07-14T13:11:34Z` | `slice_state_changed` | 更新验收轴 currentCommitAppLaunched -> passed |
+| 797 | `2026-07-14T13:12:27Z` | `runtime_observation` | Verified live window identity for game-client (read-only, no input) |
+| 798 | `2026-07-14T13:13:06Z` | `runtime_observation` | Strict target capture completed bounded zero-input wait_image preflight |
+| 799 | `2026-07-14T13:13:08Z` | `checkpoint` | 创建 CP-0057：Ready for bounded live on 8ac6d74 |
+| 800 | `2026-07-14T13:13:09Z` | `action_intent` | 登记副作用动作 ACT-P4S5-LIVE-HOTKEY-002 |
+| 801 | `2026-07-14T13:13:13Z` | `action_result` | 副作用动作 ACT-P4S5-LIVE-HOTKEY-002 -> failed |
+| 802 | `2026-07-14T13:16:39Z` | `action_intent` | 登记副作用动作 ACT-P4S5-COMMIT-LIVEFIX-001 |
 
 ## 异常恢复
 

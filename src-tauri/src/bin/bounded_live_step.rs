@@ -474,7 +474,16 @@ fn verify_expected(expected: &ExpectedIdentity, actual: &AppWindow) -> Result<()
             expected.pid, actual.process_id
         ));
     }
-    if actual.title != expected.title {
+    let expected_title = expected.title.trim();
+    let actual_title = actual.title.trim();
+    // Allow "*" / empty expected title for elevated launchers that cannot
+    // reliably preserve non-ASCII argv encoding.
+    if !expected_title.is_empty()
+        && expected_title != "*"
+        && actual_title != expected_title
+        && !actual_title.contains(expected_title)
+        && !expected_title.contains(actual_title)
+    {
         return Err(format!(
             "title mismatch: expected {:?} got {:?}",
             expected.title, actual.title

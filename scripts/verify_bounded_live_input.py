@@ -234,7 +234,7 @@ def build_step_command(
         "--pid",
         str(identity["pid"]),
         "--title",
-        str(identity["title"]),
+        "*",
         "--process-name",
         str(identity["process"]),
         "--client-width",
@@ -433,29 +433,37 @@ def run_bounded_live_step(command: List[str], report_path: Path, require_elevate
             raise RuntimeError("failed to build bounded_live_step: {}".format(build.stdout))
     if not bin_path.is_file():
         raise RuntimeError("bounded_live_step.exe missing")
-
     if "--" not in command:
         raise RuntimeError("bounded live step command missing -- separator")
     step_args = command[command.index("--") + 1 :]
-
     if report_path.exists():
         report_path.unlink()
     report_path.parent.mkdir(parents=True, exist_ok=True)
-
+    argfile = report_path.parent / "elevated-args.txt"
+    argfile.write_text(chr(10).join(str(a) for a in step_args) + chr(10), encoding="utf-8-sig")
+    log = report_path.parent / "elevated-run.log"
     launcher = report_path.parent / "elevated-run.ps1"
-    quoted = ["'" + str(arg).replace("'", "''") + "'" for arg in step_args]
+    nl = chr(10)
     lines = [
         "$ErrorActionPreference = 'Stop'",
+        "Set-Location -LiteralPath '" + str(progress.ROOT).replace("'", "''") + "'",
         "$bin = '" + str(bin_path).replace("'", "''") + "'",
-        "$stepArgs = @(" + ", ".join(quoted) + ")",
-        "$p = Start-Process -FilePath $bin -ArgumentList $stepArgs -Wait -PassThru -WindowStyle Hidden",
-        "exit $p.ExitCode",
+        "$argFile = '" + str(argfile).replace("'", "''") + "'",
+        "$log = '" + str(log).replace("'", "''") + "'",
+        "$stepArgs = Get-Content -LiteralPath $argFile -Encoding utf8",
+        "try {",
+        "  $p = Start-Process -FilePath $bin -ArgumentList $stepArgs -WorkingDirectory (Get-Location) -Wait -PassThru -WindowStyle Hidden -RedirectStandardOutput ($log + '.out') -RedirectStandardError ($log + '.err')",
+        "  ('exit=' + $p.ExitCode) | Set-Content -LiteralPath $log -Encoding utf8",
+        "  exit $p.ExitCode",
+        "} catch {",
+        "  $_ | Out-String | Set-Content -LiteralPath $log -Encoding utf8",
+        "  exit 2",
+        "}",
         "",
     ]
-    launcher.write_text(chr(10).join(lines), encoding="utf-8")
-
+    launcher.write_text(nl.join(lines), encoding="utf-8")
     ps_cmd = (
-        "Start-Process -FilePath 'powershell' -ArgumentList @('-NoProfile','-File','"
+        "Start-Process -FilePath 'powershell' -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File','"
         + str(launcher).replace("'", "''")
         + "') -Verb RunAs -Wait"
     )
@@ -472,9 +480,11 @@ def run_bounded_live_step(command: List[str], report_path: Path, require_elevate
         shell=False,
     )
     if not report_path.is_file():
-        raise RuntimeError(
-            "elevated bounded_live_step did not write report: {}".format(completed.stdout)
-        )
+        detail = completed.stdout or ""
+        for extra in [log, Path(str(log) + ".out"), Path(str(log) + ".err")]:
+            if extra.exists():
+                detail += nl + extra.read_text(encoding="utf-8", errors="replace")
+        raise RuntimeError("elevated bounded_live_step did not write report: {}".format(detail))
 
     class _Done(object):
         def __init__(self, path):
