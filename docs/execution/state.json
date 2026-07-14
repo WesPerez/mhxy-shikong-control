@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 884,
+  "revision": 888,
   "generation": 1,
-  "updatedAt": "2026-07-14T14:12:55Z",
+  "updatedAt": "2026-07-14T14:13:37Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,48 +32,55 @@
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P4-S5",
-    "title": "Home-vitality bounded live queue under elevated controller",
-    "status": "verified",
-    "startedAt": "2026-07-14T10:13:02Z",
+    "id": "P4-S6",
+    "title": "Full home-vitality vertical remaining gates",
+    "status": "in_progress",
+    "startedAt": "2026-07-14T14:13:36Z",
     "scope": [
-      "src/main.js",
       "src/home-vitality-core.js",
+      "src/main.js",
       "docs/execution"
     ],
     "nonGoals": [
-      "Do not stop user game process",
-      "Do not expand beyond home-vitality first vertical task"
+      "Do not stop user game",
+      "Do not expand to P6 multi-task set yet"
     ],
     "safetyBoundaries": [
-      "Live input only via controller PostMessage path after manual confirmation",
-      "Game process is user_preexisting; cleanupAllowed=false"
+      "Live input only after elevated gates and manual confirmation"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P4-S5-C1",
-        "text": "bounded home-vitality input path executes with inputSent evidence only after manual confirmation and elevated window gates",
-        "status": "passed",
-        "evidenceIds": [
-          "EVD-0384"
-        ],
+        "id": "P4-S6-C1",
+        "text": "Offline full blueprint instantiate, readiness, recovery contracts pass",
+        "status": "pending",
+        "evidenceIds": [],
         "requiredEvidenceCategories": [
-          "live_input"
+          "source_audit",
+          "test"
         ]
       },
       {
-        "id": "P4-S5-C2",
-        "text": "game postcondition observed for vitality change without claiming broader multi-task completion",
-        "status": "passed",
-        "evidenceIds": [
-          "EVD-0387"
-        ],
+        "id": "P4-S6-C2",
+        "text": "At least multi-step home-vitality live path beyond single hotkey with postcondition",
+        "status": "pending",
+        "evidenceIds": [],
         "requiredEvidenceCategories": [
+          "live_input",
           "live_outcome"
+        ]
+      },
+      {
+        "id": "P4-S6-C3",
+        "text": "Restart retains task/assets or documents explicit remaining gap with evidence",
+        "status": "pending",
+        "evidenceIds": [],
+        "requiredEvidenceCategories": [
+          "app_runtime",
+          "persistence"
         ]
       }
     ],
-    "nextAction": "Commit P4-S5 live closeout; inventory remaining P4 items then P5 persistence."
+    "nextAction": "Audit remaining P4 14.5 gates against code/runtime; implement missing offline UI/recovery/restart pieces first."
   },
   "phases": [
     {
@@ -192,97 +199,47 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "e93cee3aa90266759354789d53203c1173d71c7e",
+    "observedHead": "60647c22cd9550bf8c95d497be3b04ffb19f8ae8",
     "verifiedHead": "e93cee3aa90266759354789d53203c1173d71c7e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "e93cee3aa90266759354789d53203c1173d71c7e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0058-p4-s5-pre-live-e93cee3.json",
-      "docs/execution/checkpoints/CP-0059-p4-s5-pre-live-outcome-e93cee3.json",
-      "docs/execution/checkpoints/CP-0060-p4-s5-verified-closeout.json",
       "docs/execution/events.jsonl",
-      "docs/execution/evidence.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0058-p4-s5-pre-live-e93cee3.json",
-      "?? docs/execution/checkpoints/CP-0059-p4-s5-pre-live-outcome-e93cee3.json",
-      "?? docs/execution/checkpoints/CP-0060-p4-s5-verified-closeout.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "c8fd7b3d1ca522a4131718ffcacb48aefa06fdc70321af4bb54d331b6ace64ae",
-        "size": 13873
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0058-p4-s5-pre-live-e93cee3.json",
-        "exists": true,
-        "sha256": "b41c0d03b4d51a4a81c9979f48e0f255f5bb685615028467d5e5717d4bb009eb",
-        "size": 23206
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0059-p4-s5-pre-live-outcome-e93cee3.json",
-        "exists": true,
-        "sha256": "7847e9204dcde83c551f81c2f8b3ff3f242862412d1987eb9b0c16696f61415a",
-        "size": 24097
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0060-p4-s5-verified-closeout.json",
-        "exists": true,
-        "sha256": "27bb33d9caeb1dc9c50ed9e28cf146078f18dfb7b9310fb1ab76b14a86c1697e",
-        "size": 24752
+        "sha256": "44e9aa6ec8392e31e881141b0122b47434a0c1fc2d0a4d6b2ee6880be0b6a058",
+        "size": 13879
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "17dc84f87a8e620807d99c7f8aa459e620e9bc866d04ca3d402aed2a77bc953e",
-        "size": 1353602
-      },
-      {
-        "path": "docs/execution/evidence.jsonl",
-        "exists": true,
-        "sha256": "5712300a5180714b5c146363acf29dd8979f98d436e1d039aa9c754f3d9357ab",
-        "size": 1111850
+        "sha256": "14d2d2982fd303e19c149c7146a9c5f90ec12856e8c89e094bc55f8a63a502ee",
+        "size": 1357292
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "3d60d2c8ddea60682e68826e86c17bec55917b58d328e795d36fe7d45e2d7745",
-        "size": 75627
+        "sha256": "adf9d224021da5c7fbb4a16c6e7c7a4886185507691b1a32164df40fdb962e95",
+        "size": 74762
       }
     ],
-    "workingTreeFingerprint": "sha256:15182c259ace92a3d33afe9353fc034b25326c49c816506fba144f190b79ff6f",
+    "workingTreeFingerprint": "sha256:8014c7753f9b318f91b42a2424ec09ad0c1f318856c277908d26bdb7921e0601",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0058-p4-s5-pre-live-e93cee3.json",
-        "displayPath": "docs/execution/checkpoints/CP-0058-p4-s5-pre-live-e93cee3.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0059-p4-s5-pre-live-outcome-e93cee3.json",
-        "displayPath": "docs/execution/checkpoints/CP-0059-p4-s5-pre-live-outcome-e93cee3.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0060-p4-s5-verified-closeout.json",
-        "displayPath": "docs/execution/checkpoints/CP-0060-p4-s5-verified-closeout.json"
       },
       {
         "status": " M",
@@ -293,18 +250,25 @@
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "docs/execution/evidence.jsonl",
-        "displayPath": "docs/execution/evidence.jsonl"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P4S6-COMMIT-LEDGER-001",
+    "kind": "git_commit",
+    "targetIdentity": "main",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P4-S6 begun; ledger dirty only",
+    "expectedPostcondition": "ledger commit",
+    "idempotencyKey": "p4-s6-ledger-001",
+    "startedAt": "2026-07-14T14:13:37Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P4S5-COMMIT-CLOSE-001",
     "kind": "git_commit",
     "targetIdentity": "main",
@@ -315,23 +279,9 @@
     "startedAt": "2026-07-14T14:12:55Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P4S5-LIVE-OUTCOME-001",
-    "kind": "game_hotkey",
-    "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
-    "sideEffectClass": "game_input",
-    "expectedPrecondition": "C1 live_input done; pre-live for outcome",
-    "expectedPostcondition": "live_outcome postcondition observed",
-    "idempotencyKey": "p4-s5-live-outcome-001",
-    "startedAt": "2026-07-14T14:12:08Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [],
     "status": "succeeded",
-    "leaseTokenHash": "6981b2cf8ed65fcf1583ad37764e4f9cab444abe5810d2782bf1384732334452",
-    "endedAt": "2026-07-14T14:12:16Z",
-    "result": "live_outcome ok"
+    "endedAt": "2026-07-14T14:12:57Z",
+    "result": "Committed P4-S5 closeout at 60647c22cd9550bf8c95d497be3b04ffb19f8ae8"
   },
   "safety": {
     "realInputSent": true,
@@ -766,9 +716,9 @@
     }
   },
   "eventTail": {
-    "seq": 834,
-    "id": "EVT-0834",
-    "hash": "sha256:7e6892c0cb0c858ca09489f51119140cc4adb7d829740b3e2940e455ac743d41"
+    "seq": 838,
+    "id": "EVT-0838",
+    "hash": "sha256:668ad37d3793289706a150bebd929ff1b48a058229e58753160a62344e0329c4"
   },
   "evidenceTail": {
     "seq": 387,
@@ -2293,6 +2243,52 @@
       "nextAction": "在 elevated 控制器完成 entry.home/button.home_clean 素材确认后执行有界 live 队列。",
       "phaseId": "P4",
       "verifiedAt": "2026-07-14T10:13:02Z"
+    },
+    {
+      "id": "P4-S5",
+      "title": "Home-vitality bounded live queue under elevated controller",
+      "status": "verified",
+      "startedAt": "2026-07-14T10:13:02Z",
+      "scope": [
+        "src/main.js",
+        "src/home-vitality-core.js",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "Do not stop user game process",
+        "Do not expand beyond home-vitality first vertical task"
+      ],
+      "safetyBoundaries": [
+        "Live input only via controller PostMessage path after manual confirmation",
+        "Game process is user_preexisting; cleanupAllowed=false"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P4-S5-C1",
+          "text": "bounded home-vitality input path executes with inputSent evidence only after manual confirmation and elevated window gates",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0384"
+          ],
+          "requiredEvidenceCategories": [
+            "live_input"
+          ]
+        },
+        {
+          "id": "P4-S5-C2",
+          "text": "game postcondition observed for vitality change without claiming broader multi-task completion",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0387"
+          ],
+          "requiredEvidenceCategories": [
+            "live_outcome"
+          ]
+        }
+      ],
+      "nextAction": "Begin P4-S6 full home-vitality vertical remaining gates.",
+      "phaseId": "P4",
+      "verifiedAt": "2026-07-14T14:13:36Z"
     }
   ]
 }
