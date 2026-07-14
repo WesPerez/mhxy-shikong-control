@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1449,
+  "revision": 1487,
   "generation": 1,
-  "updatedAt": "2026-07-14T19:27:40Z",
+  "updatedAt": "2026-07-14T19:33:55Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -28,13 +28,13 @@
   },
   "overallStatus": "active",
   "currentPhaseId": "P9",
-  "phaseStatus": "in_progress",
+  "phaseStatus": "verified",
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
     "id": "P9-S3",
     "title": "Full multi-step live and pause isolation closeout",
-    "status": "in_progress",
+    "status": "verified",
     "startedAt": "2026-07-14T19:05:08Z",
     "scope": [
       "docs/execution",
@@ -50,8 +50,12 @@
       {
         "id": "P9-S3-C1",
         "text": "Multi-step live paths including match_only/image_click/hotkey with postconditions",
-        "status": "pending",
-        "evidenceIds": [],
+        "status": "passed",
+        "evidenceIds": [
+          "EVD-0567",
+          "EVD-0568",
+          "EVD-0569"
+        ],
         "requiredEvidenceCategories": [
           "live_input",
           "live_outcome"
@@ -64,7 +68,8 @@
         "evidenceIds": [
           "EVD-0540",
           "EVD-0553",
-          "EVD-0558"
+          "EVD-0558",
+          "EVD-0565"
         ],
         "requiredEvidenceCategories": [
           "live_input",
@@ -72,7 +77,7 @@
         ]
       }
     ],
-    "nextAction": "identity preflight multi-step image_click dual pause isolation"
+    "nextAction": "final ledger commit and push"
   },
   "phases": [
     {
@@ -132,7 +137,7 @@
     {
       "id": "P9",
       "title": "源码清理、稳定提交和发布",
-      "status": "in_progress",
+      "status": "verified",
       "summary": "在调用链和完整验证后清理、提交、推送和发布稳定版本。"
     }
   ],
@@ -143,33 +148,40 @@
       "evidenceIds": []
     },
     "automated": {
-      "status": "not_verified",
-      "note": "await EVD core f2dee8b",
-      "evidenceIds": []
+      "status": "passed",
+      "note": "EVD-0570 final core e77ab1b",
+      "evidenceIds": [
+        "EVD-0570"
+      ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "EVD-0554",
+      "note": "EVD-0561",
       "evidenceIds": [
-        "EVD-0554"
+        "EVD-0561"
       ]
     },
     "currentCommitAppLaunched": {
       "status": "passed",
-      "note": "EVD-0555",
+      "note": "EVD-0562",
       "evidenceIds": [
-        "EVD-0555"
+        "EVD-0562"
       ]
     },
     "hwndInputActuallySent": {
-      "status": "not_verified",
-      "note": "await live",
-      "evidenceIds": []
+      "status": "passed",
+      "note": "image_click+hotkey EVD-0567/0568",
+      "evidenceIds": [
+        "EVD-0567",
+        "EVD-0568"
+      ]
     },
     "gamePostconditionObserved": {
-      "status": "not_verified",
-      "note": "await live",
-      "evidenceIds": []
+      "status": "passed",
+      "note": "EVD-0569 outcome",
+      "evidenceIds": [
+        "EVD-0569"
+      ]
     },
     "foregroundUnaffected": {
       "status": "partial",
@@ -178,80 +190,80 @@
     },
     "secondWindowIsolationVerified": {
       "status": "passed",
-      "note": "EVD-0558",
+      "note": "EVD-0565",
       "evidenceIds": [
-        "EVD-0558"
+        "EVD-0565"
       ]
     },
     "restartPersistenceVerified": {
       "status": "passed",
-      "note": "EVD-0556",
+      "note": "EVD-0563",
       "evidenceIds": [
-        "EVD-0556"
+        "EVD-0563"
       ]
     }
   },
   "git": {
     "branch": "main",
-    "observedHead": "f2dee8b37d7f602f8f95831996c2537ce62ea3c8",
-    "verifiedHead": "f2dee8b37d7f602f8f95831996c2537ce62ea3c8",
+    "observedHead": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
+    "verifiedHead": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
     "upstreamHead": "ae4455fcd98991a9f1fe4ee3053d4fc4c6166661",
-    "lastKnownStableCommit": "f2dee8b37d7f602f8f95831996c2537ce62ea3c8",
+    "lastKnownStableCommit": "e77ab1b714a196b3b3b1203cda799c6c978349ee",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json",
+      "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
+      "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
-      "docs/execution/state.json",
-      "scripts/verify_bounded_live_input.py"
+      "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json",
+      "?? docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
+      "?? docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
-      " M docs/execution/state.json",
-      " M scripts/verify_bounded_live_input.py"
+      " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "d79a70144b45a8b8499cdfc82d28f4f08be5dd81c757157de9159841c4f60508",
-        "size": 14148
+        "sha256": "7f6dee3521064e8026908dc0c9b5fb3544b9644b39c4291540c81e0e56a2f6f4",
+        "size": 14224
       },
       {
-        "path": "docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json",
+        "path": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
         "exists": true,
-        "sha256": "2816cd4433ed884a1ae5b992bfbbfc4386d7297056d2c41499d75d747a0b1a85",
-        "size": 29091
+        "sha256": "1156f536bdab6139de98afafe6c485e59880d6219c5b7bf26dfbb60275528b88",
+        "size": 29463
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
+        "exists": true,
+        "sha256": "9723c1de19c9d299443de51dfddd6115b2beb37f354bbd268b2aa60921914d06",
+        "size": 30219
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "b7fd067e305a96ca3519d02f48f80432e09fcf4f7cdb9ab1e4072b892081d632",
-        "size": 1891202
+        "sha256": "a4bc3356937062780d76e8a9f89c20002e5e7b2e1692a6bf1669072b9cd3793f",
+        "size": 1926703
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "bd96b85a95e4a83c4efeb12814727480094725b824d8531147271f8a7de06dd2",
-        "size": 1547321
+        "sha256": "a3b54fbf5dd8cdc69945e44855f62dc12123e077691cf29bf5b2d714591f895f",
+        "size": 1580113
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "80dec60542e31fe195d86fac0e296a87eace9aa494ae31897ae9ab1813715b7e",
-        "size": 102068
-      },
-      {
-        "path": "scripts/verify_bounded_live_input.py",
-        "exists": true,
-        "sha256": "7ff24ff14eb92e0319822353d89591f662944d6ee7caf37095e3b044a2fb9210",
-        "size": 32788
+        "sha256": "80fd49aa4f4110eed54421c912f1cf4673b28c6c07b6730935b35d3365bb1997",
+        "size": 102631
       }
     ],
-    "workingTreeFingerprint": "sha256:6edf4ab36ce22eccbd4f1ad730b2b4dcee4bc9bc44e42d73c25bac40e2b8ff7d",
+    "workingTreeFingerprint": "sha256:c4b95df955686343b9e7fd2ad7fe291cdd2b6c34f9c7070722623b1e07da2f87",
     "dirtyEntries": [
       {
         "status": " M",
@@ -262,8 +274,14 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json",
-        "displayPath": "docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json",
+        "displayPath": "docs/execution/checkpoints/CP-0087-p9-s3-pre-live-e77ab1b.json"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
+        "displayPath": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json"
       },
       {
         "status": " M",
@@ -282,46 +300,40 @@
         "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
-        "destinationPath": "scripts/verify_bounded_live_input.py",
-        "displayPath": "scripts/verify_bounded_live_input.py"
       }
     ]
   },
   "inFlightAction": {
-    "actionId": "ACT-P9S3-FIX-LAUNCHER-003",
+    "actionId": "ACT-P9S3-FINAL-COMMIT-001",
     "kind": "git_commit",
     "targetIdentity": "repo:main",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "json.dumps escape fix",
-    "expectedPostcondition": "committed",
-    "idempotencyKey": "p9s3-fix-launcher-003",
-    "startedAt": "2026-07-14T19:27:40Z",
+    "expectedPrecondition": "P9-S3 verified",
+    "expectedPostcondition": "ledger committed",
+    "idempotencyKey": "p9s3-final-commit-001",
+    "startedAt": "2026-07-14T19:33:55Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
     "status": "running"
   },
   "lastAction": {
-    "actionId": "ACT-P9S3-LIVE-003",
-    "kind": "game_image_click",
+    "actionId": "ACT-P9S3-HOTKEY-004",
+    "kind": "game_hotkey",
     "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
     "sideEffectClass": "game_input",
-    "expectedPrecondition": "pre-live f2dee8b; EVD-0557/0559",
-    "expectedPostcondition": "image_click hotkey outcome",
-    "idempotencyKey": "p9s3-live-003",
-    "startedAt": "2026-07-14T19:27:08Z",
+    "expectedPrecondition": "after image_click",
+    "expectedPostcondition": "hotkey+outcome",
+    "idempotencyKey": "p9s3-hotkey-004",
+    "startedAt": "2026-07-14T19:30:44Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
-      "controller-pid=87256",
-      "window-evidence=EVD-0557"
+      "controller-pid=65304",
+      "window-evidence=EVD-0564"
     ],
-    "status": "failed",
-    "leaseTokenHash": "150949a2324237c81ac29d28c202c4181961974f7ec6fbf85700bf6ce9d1fe10",
-    "endedAt": "2026-07-14T19:27:38Z",
-    "result": "syntax error in _win_escape before launch"
+    "status": "succeeded",
+    "leaseTokenHash": "111b90c698da5264c6d6618d9572932d87c6f429f2dbf8a63219a3899d98b31c",
+    "endedAt": "2026-07-14T19:31:25Z",
+    "result": "EVD-0568/0569 hotkey+outcome"
   },
   "safety": {
     "realInputSent": true,
@@ -331,7 +343,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T19:26:35Z",
+    "observedAt": "2026-07-14T19:31:15Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -474,13 +486,13 @@
         "lastObservedAt": "2026-07-14T14:20:40Z"
       },
       {
-        "pid": 87256,
+        "pid": 65304,
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe",
         "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
         "commandLine": "",
-        "creationTime": "2026-07-14T19:25:31Z",
+        "creationTime": "2026-07-14T19:27:52Z",
         "ownership": "created_by_current_run",
         "ownershipEvidence": [
           "exePath=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe",
@@ -489,15 +501,15 @@
           "elevated=true",
           "verifier=current-app-launch-v1",
           "exeSha256=13be5d27e00ec627cea480a6455c0c66726b811b21a42456f479775965aed327",
-          "observedHead=f2dee8b37d7f602f8f95831996c2537ce62ea3c8",
-          "actionId=ACT-P9S3-APP-003"
+          "observedHead=e77ab1b714a196b3b3b1203cda799c6c978349ee",
+          "actionId=ACT-P9S3-APP-004"
         ],
         "cleanupAllowed": true,
         "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
-        "createdByActionId": "ACT-P9S3-APP-003",
-        "createdAt": "2026-07-14T19:25:34Z",
+        "createdByActionId": "ACT-P9S3-APP-004",
+        "createdAt": "2026-07-14T19:27:55Z",
         "present": true,
-        "lastObservedAt": "2026-07-14T19:25:34Z"
+        "lastObservedAt": "2026-07-14T19:27:55Z"
       }
     ],
     "observedExternalProcesses": [
@@ -852,10 +864,22 @@
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "ownership": "created_by_current_run",
-        "present": true,
+        "present": false,
         "creationTime": "2026-07-14T19:25:31Z",
-        "lastObservedAt": "2026-07-14T19:25:34Z",
+        "lastObservedAt": "2026-07-14T19:27:49Z",
         "lastSeenAt": "2026-07-14T19:25:34Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-14T19:27:49Z"
+      },
+      {
+        "pid": 65304,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-14T19:27:52Z",
+        "lastObservedAt": "2026-07-14T19:27:55Z",
+        "lastSeenAt": "2026-07-14T19:27:55Z",
         "cleanupAllowed": false
       }
     ],
@@ -901,8 +925,8 @@
     "lastWindowIdentity": {
       "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
       "verified": true,
-      "observedAt": "2026-07-14T19:25:44Z",
-      "evidenceId": "EVD-0557",
+      "observedAt": "2026-07-14T19:28:08Z",
+      "evidenceId": "EVD-0564",
       "identity": {
         "hwnd": 26157554,
         "pid": 86812,
@@ -915,24 +939,24 @@
     }
   },
   "eventTail": {
-    "seq": 1399,
-    "id": "EVT-1399",
-    "hash": "sha256:a0dea6a2d4daf2018e7061afa2f4cbe09c871002d02f4079f65154a2811c6c6c"
+    "seq": 1437,
+    "id": "EVT-1437",
+    "hash": "sha256:6a60bae03d60b15f965c6006d3f6adf142db434d13f6a3894eb4b63bae3995e1"
   },
   "evidenceTail": {
-    "seq": 560,
-    "id": "EVD-0560",
-    "hash": "sha256:ac5d98b93a93bf3a40f747cf858ec2d002c00b4562461909ede233b42eaf99bb"
+    "seq": 570,
+    "id": "EVD-0570",
+    "hash": "sha256:d8407b3a1d122d553bc5c1981328dd46da6f80f1997f7cac25292d4c47a7b2f8"
   },
-  "checkpointCounter": 86,
+  "checkpointCounter": 88,
   "lastCheckpoint": {
-    "id": "CP-0086",
+    "id": "CP-0088",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0086-p9-s3-pre-live-multi-step-f2dee8b.json",
-    "createdAt": "2026-07-14T19:27:05Z",
+    "path": "docs/execution/checkpoints/CP-0088-p9-s3-verified.json",
+    "createdAt": "2026-07-14T19:33:42Z",
     "safeToResume": true,
-    "safeToRunLiveInput": true,
-    "hash": "sha256:ab34fb43e930b141873c223c0f2a48795da191731defe099cd85b70308be20c0"
+    "safeToRunLiveInput": false,
+    "hash": "sha256:943335666774cd75faff23fd153b5fdf2eea8e95720aa2edb3c0794a8cd54b50"
   },
   "resume": {
     "blockers": [
@@ -944,7 +968,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0086"
+    "lastSafeResumeSnapshotId": "CP-0088"
   },
   "completedSlices": [
     {
