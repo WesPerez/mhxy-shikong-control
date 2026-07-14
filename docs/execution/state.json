@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 931,
+  "revision": 932,
   "generation": 1,
-  "updatedAt": "2026-07-14T14:25:01Z",
+  "updatedAt": "2026-07-14T14:25:03Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -29,7 +29,7 @@
   "overallStatus": "active",
   "currentPhaseId": "P4",
   "phaseStatus": "in_progress",
-  "actionStatus": "running",
+  "actionStatus": "succeeded",
   "acceptanceLevel": "design",
   "activeSlice": {
     "id": "P4-S6",
@@ -205,125 +205,47 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "9b55dd076a5beec5ef04aeddb135a334720993ca",
+    "observedHead": "3199ad1caaa6241b65d3ec5b0767b067d40d7e14",
     "verifiedHead": "9b55dd076a5beec5ef04aeddb135a334720993ca",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9b55dd076a5beec5ef04aeddb135a334720993ca",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0061-p4-s6-pre-live-multistep.json",
-      "docs/execution/checkpoints/CP-0062-p4-s6-pre-live-multistep.json",
-      "docs/execution/checkpoints/CP-0063-p4-s6-pre-live-retry.json",
-      "docs/execution/checkpoints/CP-0064-p4-s6-pre-live-outcome-retry.json",
-      "docs/execution/checkpoints/CP-0065-p4-s6-partial-c1-c2.json",
       "docs/execution/events.jsonl",
-      "docs/execution/evidence.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0061-p4-s6-pre-live-multistep.json",
-      "?? docs/execution/checkpoints/CP-0062-p4-s6-pre-live-multistep.json",
-      "?? docs/execution/checkpoints/CP-0063-p4-s6-pre-live-retry.json",
-      "?? docs/execution/checkpoints/CP-0064-p4-s6-pre-live-outcome-retry.json",
-      "?? docs/execution/checkpoints/CP-0065-p4-s6-partial-c1-c2.json",
       " M docs/execution/events.jsonl",
-      " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "562fb13b4064f5ba9ec97e7522857dab84918d8bbaa89a9991955e197261dcbc",
-        "size": 14005
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0061-p4-s6-pre-live-multistep.json",
-        "exists": true,
-        "sha256": "96e308878e74a9587d283cb0b03bfaf71e0e465f7d92c9238133747f40a903c4",
-        "size": 25050
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0062-p4-s6-pre-live-multistep.json",
-        "exists": true,
-        "sha256": "b06724fc2c2b214fd477bc31560c28bbe354f88a436aedd5635f3aa541097de9",
-        "size": 25909
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0063-p4-s6-pre-live-retry.json",
-        "exists": true,
-        "sha256": "e4370d2bca1c4f0fc16382ccc64bb7bbff4c3a9159596e75349aa6b31b96d9dd",
-        "size": 26768
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0064-p4-s6-pre-live-outcome-retry.json",
-        "exists": true,
-        "sha256": "12d0299a64a03af364ff6460cc12cf3dce8f1c0d1356490d8d65cdde1b93eabf",
-        "size": 27649
-      },
-      {
-        "path": "docs/execution/checkpoints/CP-0065-p4-s6-partial-c1-c2.json",
-        "exists": true,
-        "sha256": "ca62ac654dc4d8f2922ab83a1926420c13cb68877ca34d2b8f77d3529e3b2476",
-        "size": 28333
+        "sha256": "5063c834127cb886adaf05c73bbdb3ac5dda1f9898080241f88fba7a0c398eb2",
+        "size": 13603
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "8114b702976736aacd727e9beeebc649cb9b878f182134f5bef009e2979f40a9",
-        "size": 1401379
-      },
-      {
-        "path": "docs/execution/evidence.jsonl",
-        "exists": true,
-        "sha256": "bad682450ec79f4a7bd7a4c9ce840e0c8d6c8ae5bf4544730bfe239fac3b3253",
-        "size": 1166216
+        "sha256": "219edc2ac95b164d4baa9533517ec099c325431723dc4139625231b48cb239a1",
+        "size": 1402425
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "f0354220da867fba42d5f68dc3cd08d448c773c367a07856ec0e5637dd5ebdf8",
-        "size": 80329
+        "sha256": "a86e3875c5fe47df1578ed47d1fcf155e7cb692f8cb9e4ac0f8083154e0a8823",
+        "size": 74648
       }
     ],
-    "workingTreeFingerprint": "sha256:c36ffcaba212c87f99e9af1b84e222e85870fbeab042c19412958032be3539b7",
+    "workingTreeFingerprint": "sha256:18f72ac573c15d805505ed2f953cb7fcfade2c6d79778e614dff6e59925948a9",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0061-p4-s6-pre-live-multistep.json",
-        "displayPath": "docs/execution/checkpoints/CP-0061-p4-s6-pre-live-multistep.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0062-p4-s6-pre-live-multistep.json",
-        "displayPath": "docs/execution/checkpoints/CP-0062-p4-s6-pre-live-multistep.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0063-p4-s6-pre-live-retry.json",
-        "displayPath": "docs/execution/checkpoints/CP-0063-p4-s6-pre-live-retry.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0064-p4-s6-pre-live-outcome-retry.json",
-        "displayPath": "docs/execution/checkpoints/CP-0064-p4-s6-pre-live-outcome-retry.json"
-      },
-      {
-        "status": "??",
-        "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0065-p4-s6-partial-c1-c2.json",
-        "displayPath": "docs/execution/checkpoints/CP-0065-p4-s6-partial-c1-c2.json"
       },
       {
         "status": " M",
@@ -334,18 +256,13 @@
       {
         "status": " M",
         "sourcePath": null,
-        "destinationPath": "docs/execution/evidence.jsonl",
-        "displayPath": "docs/execution/evidence.jsonl"
-      },
-      {
-        "status": " M",
-        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
       }
     ]
   },
-  "inFlightAction": {
+  "inFlightAction": null,
+  "lastAction": {
     "actionId": "ACT-P4S6-COMMIT-001",
     "kind": "git_commit",
     "targetIdentity": "main",
@@ -356,23 +273,9 @@
     "startedAt": "2026-07-14T14:25:01Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P4S6-LIVE-D",
-    "kind": "game_hotkey",
-    "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
-    "sideEffectClass": "game_input",
-    "expectedPrecondition": "after ALT+N",
-    "expectedPostcondition": "ESC",
-    "idempotencyKey": "p4-s6-live-d",
-    "startedAt": "2026-07-14T14:24:25Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [],
     "status": "succeeded",
-    "leaseTokenHash": "a06d00864f5c18ff55b5e97f202f69e078fa658d532338a513b2bdab244e1392",
-    "endedAt": "2026-07-14T14:24:34Z",
-    "result": "EVD-0406\n{\"evidenceId\": \"EVD-0406\", \"targetIdentity\": \"game-client:86812@MyGame_x64r.exe:26157554\", \"reportPath\": \"E:\\\\Project\\\\Common\\\\mhxy-shikong-control\\\\assets\\\\resource\\\\ShiKong\\\\reports\\\\dev-pr"
+    "endedAt": "2026-07-14T14:25:03Z",
+    "result": "committed 3199ad1caaa6241b65d3ec5b0767b067d40d7e14"
   },
   "safety": {
     "realInputSent": true,
@@ -846,9 +749,9 @@
     }
   },
   "eventTail": {
-    "seq": 881,
-    "id": "EVT-0881",
-    "hash": "sha256:61a2703cc3716f6898b9dd65a31e87fe09f736481cab9fce44b8365c5b9eed5f"
+    "seq": 882,
+    "id": "EVT-0882",
+    "hash": "sha256:f906047d05babc5a5234445e1f7f7348ba9c89077a28563af724456b371c54d7"
   },
   "evidenceTail": {
     "seq": 406,
