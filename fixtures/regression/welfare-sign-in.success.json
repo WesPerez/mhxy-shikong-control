@@ -1,0 +1,7 @@
+{
+  "taskId": "welfare-sign-in",
+  "outcome": "success",
+  "steps": 10,
+  "inputSent": true,
+  "postconditionObserved": true
+}

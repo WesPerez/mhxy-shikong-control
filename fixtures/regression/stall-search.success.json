@@ -1,0 +1,7 @@
+{
+  "taskId": "stall-search",
+  "outcome": "success",
+  "steps": 10,
+  "inputSent": true,
+  "postconditionObserved": true
+}

@@ -1,0 +1,7 @@
+{
+  "taskId": "home-vitality",
+  "outcome": "failure",
+  "failureCode": "image_not_found",
+  "inputSent": false,
+  "blockedBeforeInput": true
+}

@@ -1,0 +1,7 @@
+{
+  "taskId": "team-observe",
+  "outcome": "success",
+  "steps": 10,
+  "inputSent": true,
+  "postconditionObserved": true
+}

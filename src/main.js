@@ -81,6 +81,10 @@ import {
   assessDualQueueIsolation,
 } from "./multi-window-isolation-core.js";
 import {
+  loadRegressionCatalog,
+  validateRegressionCatalog,
+} from "./regression-suite-core.js";
+import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
   mergeLiveValidationRunHistory,

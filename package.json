@@ -24,7 +24,7 @@
     "test:home-vitality": "node scripts/test_home_vitality_core.mjs",
     "test:live-validation": "node scripts/test_live_validation_core.mjs",
     "test:execution-progress": "python -B scripts/test_execution_progress.py",
-    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:runtime-lane-audit && npm run test:workflow-readiness-audit && npm run test:strict-capture-preflight && npm run test:strict-capture-preflight-audit && npm run test:strict-capture-probe-binary && npm run test:target-library && npm run test:manual-confirmation && npm run test:home-vitality && npm run test:live-validation && npm run test:match-overlay && npm run test:execution-progress && npm run test:bounded-live-input && npm run test:save-coordinator && npm run test:asset-store && npm run test:workspace-persistence && npm run test:welfare-sign-in && npm run test:bag-organize && npm run test:team-observe && npm run test:stall-search && npm run test:multi-window-isolation",
+    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:runtime-lane-audit && npm run test:workflow-readiness-audit && npm run test:strict-capture-preflight && npm run test:strict-capture-preflight-audit && npm run test:strict-capture-probe-binary && npm run test:target-library && npm run test:manual-confirmation && npm run test:home-vitality && npm run test:live-validation && npm run test:match-overlay && npm run test:execution-progress && npm run test:bounded-live-input && npm run test:save-coordinator && npm run test:asset-store && npm run test:workspace-persistence && npm run test:welfare-sign-in && npm run test:bag-organize && npm run test:team-observe && npm run test:stall-search && npm run test:multi-window-isolation && npm run test:regression-suite",
     "audit:input-safety": "python scripts/audit_input_safety.py",
     "audit:control-flow-schema": "python scripts/audit_control_flow_schema.py",
     "audit:failure-evidence": "python scripts/audit_failure_evidence_bundle.py",
@@ -51,7 +51,7 @@
     "verify:app-runtime-launch": "python -B scripts/verify_app_runtime_launch.py",
     "execution:checkpoint": "python scripts/execution_progress.py checkpoint --label manual --type state_snapshot --reason manual --safe-to-resume",
     "audit:execution-state": "python scripts/audit_execution_state.py",
-    "audit:all": "npm run audit:input-safety && npm run audit:control-flow-schema && npm run audit:failure-evidence && npm run audit:step-params && npm run audit:quick-steps && npm run audit:workspace-migration && npm run audit:workflow-readiness && npm run audit:home-vitality-offline && npm run audit:readiness-taxonomy && npm run audit:completion-action-dock && npm run audit:live-validation && npm run audit:live-validation-import && npm run audit:queue-readiness && npm run audit:runtime-lane && npm run audit:capture-policy && npm run audit:strict-capture-preflight && npm run audit:ocr-worker && npm run audit:workbench-layout && npm run audit:workbench-viewports && npm run audit:execution-state && npm run audit:asset-store && npm run audit:workspace-persistence && npm run audit:welfare-sign-in-offline && npm run audit:bag-organize-offline && npm run audit:team-observe-offline && npm run audit:stall-search-offline && npm run audit:multi-window-isolation-offline",
+    "audit:all": "npm run audit:input-safety && npm run audit:control-flow-schema && npm run audit:failure-evidence && npm run audit:step-params && npm run audit:quick-steps && npm run audit:workspace-migration && npm run audit:workflow-readiness && npm run audit:home-vitality-offline && npm run audit:readiness-taxonomy && npm run audit:completion-action-dock && npm run audit:live-validation && npm run audit:live-validation-import && npm run audit:queue-readiness && npm run audit:runtime-lane && npm run audit:capture-policy && npm run audit:strict-capture-preflight && npm run audit:ocr-worker && npm run audit:workbench-layout && npm run audit:workbench-viewports && npm run audit:execution-state && npm run audit:asset-store && npm run audit:workspace-persistence && npm run audit:welfare-sign-in-offline && npm run audit:bag-organize-offline && npm run audit:team-observe-offline && npm run audit:stall-search-offline && npm run audit:multi-window-isolation-offline && npm run audit:regression-suite-offline",
     "live:hotkey:preflight": "python scripts/live_background_hotkey_validation.py",
     "live:hotkey:allow-input": "python scripts/live_background_hotkey_validation.py --allow-input --require-executed",
     "live:hotkey:allow-both": "python scripts/live_background_hotkey_validation.py --allow-input --require-executed --both",
@@ -79,7 +79,9 @@
     "audit:stall-search-offline": "python scripts/audit_stall_search_offline.py",
     "test:multi-window-isolation": "node scripts/test_multi_window_isolation_core.mjs",
     "audit:multi-window-isolation-offline": "python scripts/audit_multi_window_isolation_offline.py",
-    "verify:multi-window-isolation": "python -B scripts/verify_multi_window_isolation.py"
+    "verify:multi-window-isolation": "python -B scripts/verify_multi_window_isolation.py",
+    "test:regression-suite": "node scripts/test_regression_suite_core.mjs",
+    "audit:regression-suite-offline": "python scripts/audit_regression_suite_offline.py"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0"

@@ -1,0 +1,7 @@
+{
+  "taskId": "bag-organize",
+  "outcome": "success",
+  "steps": 10,
+  "inputSent": true,
+  "postconditionObserved": true
+}

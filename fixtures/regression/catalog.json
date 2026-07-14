@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "generatedForPhase": "P8",
+  "tasks": [
+    {
+      "id": "home-vitality",
+      "status": "validated",
+      "minSteps": 10,
+      "liveEvidence": true
+    },
+    {
+      "id": "welfare-sign-in",
+      "status": "validated",
+      "minSteps": 10,
+      "liveEvidence": true
+    },
+    {
+      "id": "bag-organize",
+      "status": "validated",
+      "minSteps": 10,
+      "liveEvidence": true
+    },
+    {
+      "id": "team-observe",
+      "status": "validated",
+      "minSteps": 10,
+      "liveEvidence": true
+    },
+    {
+      "id": "stall-search",
+      "status": "validated",
+      "minSteps": 10,
+      "liveEvidence": true
+    },
+    {
+      "id": "mail-claim",
+      "status": "blueprint",
+      "minSteps": 10,
+      "liveEvidence": false
+    },
+    {
+      "id": "pet-feed",
+      "status": "needs_capture",
+      "minSteps": 10,
+      "liveEvidence": false
+    },
+    {
+      "id": "map-travel",
+      "status": "unsupported",
+      "minSteps": 10,
+      "liveEvidence": false
+    }
+  ],
+  "failureMatrix": [
+    {
+      "id": "missing_asset",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "missing_coordinate",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "ocr_mismatch",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "image_not_found",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "privilege_insufficient",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "window_disappeared",
+      "blocksBeforeInput": true
+    },
+    {
+      "id": "capture_unreliable",
+      "blocksBeforeInput": true,
+      "zeroInput": true
+    },
+    {
+      "id": "task_interrupted",
+      "recoverable": true
+    },
+    {
+      "id": "restart_recovery_config_only",
+      "noAutoResumeInputSession": true
+    }
+  ]
+}
