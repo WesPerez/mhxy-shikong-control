@@ -185,17 +185,44 @@ def verify_and_launch(
 
         evidence_criteria = runtime_evidence_criteria(state, criterion_id, gate_rebind)
 
-        creationflags = 0
-        if os.name == "nt":
-            creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
-        proc = subprocess.Popen(
-            [str(exe_path)],
-            cwd=str(cwd),
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=creationflags,
-        )
-        pid = int(proc.pid)
+        require_elevated = str(launch.get("elevated") or ownership_map.get("elevated") or "").lower() in {"1", "true", "yes"}
+        if require_elevated and os.name == "nt":
+            listed = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name = 'mhxy-shikong-control.exe'\" | Select-Object -ExpandProperty ProcessId"],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False,
+            )
+            before = {int(tok) for tok in (listed.stdout or "").split() if tok.isdigit()}
+            subprocess.run(
+                ["powershell", "-NoProfile", "-Command", "Start-Process -FilePath '{exe}' -WorkingDirectory '{cwd}' -Verb RunAs".format(exe=str(exe_path).replace("'", "''"), cwd=str(cwd).replace("'", "''"))],
+                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            )
+            pid = None
+            deadline = time.time() + max(5.0, float(wait_seconds))
+            while time.time() < deadline and pid is None:
+                listed = subprocess.run(
+                    ["powershell", "-NoProfile", "-Command", "Get-CimInstance Win32_Process -Filter \"Name = 'mhxy-shikong-control.exe'\" | Select-Object -ExpandProperty ProcessId"],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False,
+                )
+                for tok in (listed.stdout or "").split():
+                    if tok.isdigit() and int(tok) not in before:
+                        pid = int(tok)
+                        break
+                if pid is None:
+                    time.sleep(0.3)
+            if pid is None:
+                raise RuntimeError("elevated controller launch did not produce an observable new process")
+        else:
+            creationflags = 0
+            if os.name == "nt":
+                creationflags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            proc = subprocess.Popen(
+                [str(exe_path)],
+                cwd=str(cwd),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=creationflags,
+            )
+            pid = int(proc.pid)
         deadline = time.time() + max(1.0, float(wait_seconds))
         while time.time() < deadline:
             if process_is_running(pid):
