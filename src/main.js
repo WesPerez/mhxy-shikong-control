@@ -52,6 +52,7 @@ import {
   assessHomeVitalityReadiness,
   summarizeHomeVitalityGaps,
 } from "./home-vitality-core.js";
+import { createSaveCoordinator } from "./save-coordinator-core.js";
 import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
@@ -1449,7 +1450,10 @@ function markDirty(reason = "draft") {
   $("#workspace-state").textContent = "dirty";
   $("#workspace-state").classList.remove("ok");
   window.clearTimeout(state.saveTimer);
-  state.saveTimer = window.setTimeout(saveWorkspaceNow, 500);
+  if (!state.saveCoordinator) {
+    state.saveCoordinator = createSaveCoordinator({ saveFn: saveWorkspaceNow });
+  }
+  state.saveCoordinator.schedule(500);
   renderWorkflowList();
   renderQueueWorkflowPicker();
   renderAssignments();

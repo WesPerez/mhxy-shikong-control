@@ -24,7 +24,7 @@
     "test:home-vitality": "node scripts/test_home_vitality_core.mjs",
     "test:live-validation": "node scripts/test_live_validation_core.mjs",
     "test:execution-progress": "python -B scripts/test_execution_progress.py",
-    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:runtime-lane-audit && npm run test:workflow-readiness-audit && npm run test:strict-capture-preflight && npm run test:strict-capture-preflight-audit && npm run test:strict-capture-probe-binary && npm run test:target-library && npm run test:manual-confirmation && npm run test:home-vitality && npm run test:live-validation && npm run test:match-overlay && npm run test:execution-progress && npm run test:bounded-live-input",
+    "test:all-core": "npm run test:control-flow && npm run test:failure-evidence && npm run test:step-params && npm run test:workspace-migration && npm run test:run-dispatch && npm run test:capture-policy && npm run test:workbench-layout && npm run test:runtime-lane-audit && npm run test:workflow-readiness-audit && npm run test:strict-capture-preflight && npm run test:strict-capture-preflight-audit && npm run test:strict-capture-probe-binary && npm run test:target-library && npm run test:manual-confirmation && npm run test:home-vitality && npm run test:live-validation && npm run test:match-overlay && npm run test:execution-progress && npm run test:bounded-live-input && npm run test:save-coordinator",
     "audit:input-safety": "python scripts/audit_input_safety.py",
     "audit:control-flow-schema": "python scripts/audit_control_flow_schema.py",
     "audit:failure-evidence": "python scripts/audit_failure_evidence_bundle.py",
@@ -62,7 +62,8 @@
     "verify:window-identity": "python -B scripts/verify_window_identity.py",
     "test:manual-confirmation": "node scripts/test_manual_confirmation_core.mjs",
     "test:bounded-live-input": "python -B scripts/test_verify_bounded_live_input.py",
-    "verify:bounded-live-input": "python -B scripts/verify_bounded_live_input.py"
+    "verify:bounded-live-input": "python -B scripts/verify_bounded_live_input.py",
+    "test:save-coordinator": "node scripts/test_save_coordinator_core.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.0"
