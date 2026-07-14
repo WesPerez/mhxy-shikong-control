@@ -77,6 +77,10 @@ import {
   assessStallSearchReadiness,
 } from "./stall-search-core.js";
 import {
+  analyzeWindowEventTimeline,
+  assessDualQueueIsolation,
+} from "./multi-window-isolation-core.js";
+import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
   mergeLiveValidationRunHistory,
