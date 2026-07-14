@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1295,
+  "revision": 1349,
   "generation": 1,
-  "updatedAt": "2026-07-14T18:47:59Z",
+  "updatedAt": "2026-07-14T19:01:43Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -32,57 +32,58 @@
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P9-S1",
-    "title": "Cleanup package validate and release gate",
+    "id": "P9-S2",
+    "title": "Final live closeout dual-window and multi-task hotkeys",
     "status": "verified",
-    "startedAt": "2026-07-14T18:35:15Z",
+    "startedAt": "2026-07-14T18:51:45Z",
     "scope": [
       "docs/execution",
-      "package.json",
       "scripts"
     ],
     "nonGoals": [
-      "No force push"
+      "No purchase"
     ],
     "safetyBoundaries": [
-      "No stop of user game processes"
+      "verified HWND only"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P9-S1-C1",
-        "text": "Full core tests and production vite build pass on release HEAD",
+        "id": "P9-S2-C1",
+        "text": "Both game windows identity and capture preflight verified",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0499",
-          "EVD-0500",
-          "EVD-0502",
-          "EVD-0504",
-          "EVD-0506",
-          "EVD-0509"
+          "EVD-0529",
+          "EVD-0530",
+          "EVD-0531"
         ],
         "requiredEvidenceCategories": [
-          "build",
-          "test"
+          "live_preflight",
+          "window_identity"
         ]
       },
       {
-        "id": "P9-S1-C2",
-        "text": "Execution state audit clean and tracked worktree clean after release commit",
+        "id": "P9-S2-C2",
+        "text": "Dual-window live inputs and multi-task hotkey paths with postconditions",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0501",
-          "EVD-0503",
-          "EVD-0505",
-          "EVD-0507",
-          "EVD-0508"
+          "EVD-0520",
+          "EVD-0521",
+          "EVD-0522",
+          "EVD-0523",
+          "EVD-0524",
+          "EVD-0525",
+          "EVD-0526",
+          "EVD-0527",
+          "EVD-0528"
         ],
         "requiredEvidenceCategories": [
-          "cleanup_audit",
-          "source_audit"
+          "live_input",
+          "live_outcome",
+          "multi_window"
         ]
       }
     ],
-    "nextAction": "commit trailing ledger and optional second push for tracked clean"
+    "nextAction": "commit final closeout and push"
   },
   "phases": [
     {
@@ -154,37 +155,37 @@
     },
     "automated": {
       "status": "passed",
-      "note": "EVD-0509",
+      "note": "EVD-0515 final core",
       "evidenceIds": [
-        "EVD-0509"
+        "EVD-0515"
       ]
     },
     "currentCommitBuilt": {
       "status": "passed",
-      "note": "EVD-0506",
+      "note": "EVD-0510 final vite",
       "evidenceIds": [
-        "EVD-0506"
+        "EVD-0510"
       ]
     },
     "currentCommitAppLaunched": {
       "status": "passed",
-      "note": "EVD-0463 app",
+      "note": "EVD-0514 final app",
       "evidenceIds": [
-        "EVD-0463"
+        "EVD-0514"
       ]
     },
     "hwndInputActuallySent": {
       "status": "passed",
-      "note": "EVD-0487",
+      "note": "EVD-0521 live",
       "evidenceIds": [
-        "EVD-0487"
+        "EVD-0521"
       ]
     },
     "gamePostconditionObserved": {
       "status": "passed",
-      "note": "EVD-0488",
+      "note": "EVD-0522 outcome",
       "evidenceIds": [
-        "EVD-0488"
+        "EVD-0522"
       ]
     },
     "foregroundUnaffected": {
@@ -194,62 +195,84 @@
     },
     "secondWindowIsolationVerified": {
       "status": "passed",
-      "note": "EVD-0493 dual HWND isolation",
+      "note": "EVD-0527 multi",
       "evidenceIds": [
-        "EVD-0493"
+        "EVD-0527"
       ]
     },
     "restartPersistenceVerified": {
       "status": "passed",
-      "note": "EVD-0462 real AppData",
+      "note": "final persistence rebind",
       "evidenceIds": [
-        "EVD-0462"
+        "EVD-0532"
       ]
     }
   },
   "git": {
     "branch": "main",
-    "observedHead": "dfe62125a4055da69fe1b5bc2a65cd8a032c399f",
-    "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
-    "upstreamHead": "2a5986a598920c99875d49c330c95b522dac96a2",
-    "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
+    "observedHead": "6c9be4d615ba60732a74bc068b897d514e0e45a3",
+    "verifiedHead": "6c9be4d615ba60732a74bc068b897d514e0e45a3",
+    "upstreamHead": "6c9be4d615ba60732a74bc068b897d514e0e45a3",
+    "lastKnownStableCommit": "6c9be4d615ba60732a74bc068b897d514e0e45a3",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
+      "docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json",
       "docs/execution/events.jsonl",
+      "docs/execution/evidence.jsonl",
       "docs/execution/state.json"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
+      "?? docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json",
       " M docs/execution/events.jsonl",
+      " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "1851e134895f60dcf1cb475f9e8887c29e829626e5af84c2c57ff3efc4f56805",
-        "size": 13396
+        "sha256": "d4574faa6a97bcaf020f3547b4e1a438a7979e336a3a3cf956df24b96e53b91e",
+        "size": 13744
+      },
+      {
+        "path": "docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json",
+        "exists": true,
+        "sha256": "e252de7d887d9e8492c4ca5c2bf829343108a5187f9b0e5fb2250d9f4845bc3a",
+        "size": 27971
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "ee9ab5f65235ba85ea74def18732a6d3cc6d06361f418e686d3b60e5c3e38461",
-        "size": 1752821
+        "sha256": "fb1fcaf85fdf29e96a4d1f1e1feadb2ec9520d2f0b13418d00fefe416b65538d",
+        "size": 1797886
+      },
+      {
+        "path": "docs/execution/evidence.jsonl",
+        "exists": true,
+        "sha256": "4591eb5d53c7c603f0accd6399f397b8fa6dc78d97d1e504853d55976842908f",
+        "size": 1472272
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "38a019a9951e1abdf9b0cf09bd44f3d771e0c948a4c2f5f671dde4b1f52c6934",
-        "size": 95973
+        "sha256": "c23021ee8c0c570952a66451b39fb58a9e86689c46a1ebe9e2b5e7b771e2b2e9",
+        "size": 99766
       }
     ],
-    "workingTreeFingerprint": "sha256:1c7b99854fb2660b01b14c3841db30cd70def5a7732159521169e5f15575515b",
+    "workingTreeFingerprint": "sha256:17cd041da720d1c4319e0633be77852bd0c7ef9ba41e0c2cc757f01f7625c9d1",
     "dirtyEntries": [
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "docs/execution/STATUS.md",
         "displayPath": "docs/execution/STATUS.md"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json",
+        "displayPath": "docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json"
       },
       {
         "status": " M",
@@ -260,20 +283,26 @@
       {
         "status": " M",
         "sourcePath": null,
+        "destinationPath": "docs/execution/evidence.jsonl",
+        "displayPath": "docs/execution/evidence.jsonl"
+      },
+      {
+        "status": " M",
+        "sourcePath": null,
         "destinationPath": "docs/execution/state.json",
         "displayPath": "docs/execution/state.json"
       }
     ]
   },
   "inFlightAction": {
-    "actionId": "ACT-P9-COMMIT-LEDGER-005",
+    "actionId": "ACT-FINAL-COMMIT-001",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
     "sideEffectClass": "git_commit",
-    "expectedPrecondition": "trail",
-    "expectedPostcondition": "clean",
-    "idempotencyKey": "p9-trail2",
-    "startedAt": "2026-07-14T18:47:59Z",
+    "expectedPrecondition": "P9-S2 verified with final app and dual live",
+    "expectedPostcondition": "final closeout committed",
+    "idempotencyKey": "final-closeout-6c9",
+    "startedAt": "2026-07-14T19:01:43Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
       "cwd=E:/Project/Common/mhxy-shikong-control"
@@ -281,21 +310,28 @@
     "status": "running"
   },
   "lastAction": {
-    "actionId": "ACT-P9-COMMIT-LEDGER-004",
-    "kind": "git_commit",
-    "targetIdentity": "local-repo",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "post-push ledger dirty",
-    "expectedPostcondition": "clean or second push",
-    "idempotencyKey": "p9-post-push-ledger",
-    "startedAt": "2026-07-14T18:47:56Z",
+    "actionId": "ACT-FINAL-APP-001",
+    "kind": "process_start",
+    "targetIdentity": "E:/Project/Common/mhxy-shikong-control/src-tauri/target/debug/mhxy-shikong-control.exe",
+    "sideEffectClass": "process_start",
+    "expectedPrecondition": "final HEAD debug build ready",
+    "expectedPostcondition": "app_runtime evidence",
+    "idempotencyKey": "final-app-6c9be4d",
+    "startedAt": "2026-07-14T18:50:28Z",
     "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
     "ownershipEvidence": [
-      "cwd=E:/Project/Common/mhxy-shikong-control"
+      "exePath=E:/Project/Common/mhxy-shikong-control/src-tauri/target/debug/mhxy-shikong-control.exe",
+      "exeSha256=3ca6b66949e4427ca27845c1220186a2e01b045af3d48a97c4341ec72a4e33e6",
+      "expectedHead=6c9be4d615ba60732a74bc068b897d514e0e45a3",
+      "elevated=true",
+      "cwd=E:/Project/Common/mhxy-shikong-control",
+      "role=controller-app"
     ],
     "status": "succeeded",
-    "endedAt": "2026-07-14T18:47:58Z",
-    "result": "committed dfe62125a4055da69fe1b5bc2a65cd8a032c399f"
+    "leaseTokenHash": "153f6dd4907b7166f2ebd87de5b7336d357d84fe7789883199fc7cc7c4196c26",
+    "endedAt": "2026-07-14T18:50:38Z",
+    "result": "controller app launched pid=25488 exe=E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe evidence=EVD-0514",
+    "verifiedEvidenceId": "EVD-0514"
   },
   "safety": {
     "realInputSent": true,
@@ -305,7 +341,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T18:47:53Z",
+    "observedAt": "2026-07-14T19:01:39Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -448,32 +484,32 @@
         "lastObservedAt": "2026-07-14T14:20:40Z"
       },
       {
-        "pid": 52124,
+        "pid": 25488,
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
-        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target-p5-s4\\debug\\mhxy-shikong-control.exe",
+        "exePath": "E:\\Project\\Common\\mhxy-shikong-control\\src-tauri\\target\\debug\\mhxy-shikong-control.exe",
         "cwd": "E:\\Project\\Common\\mhxy-shikong-control",
         "commandLine": "",
-        "creationTime": "2026-07-14T17:59:57Z",
+        "creationTime": "2026-07-14T18:50:31Z",
         "ownership": "created_by_current_run",
         "ownershipEvidence": [
-          "exePath=E:/Project/Common/mhxy-shikong-control/src-tauri/target-p5-s4/debug/mhxy-shikong-control.exe",
-          "exeSha256=d7c4004ed81955a92461e365803a36d3e7bd361a139f75557cebdc0184b057e8",
-          "expectedHead=02f564f8219bfceaf725ee21ff08f48c2104e4b0",
+          "exePath=E:/Project/Common/mhxy-shikong-control/src-tauri/target/debug/mhxy-shikong-control.exe",
+          "exeSha256=3ca6b66949e4427ca27845c1220186a2e01b045af3d48a97c4341ec72a4e33e6",
+          "expectedHead=6c9be4d615ba60732a74bc068b897d514e0e45a3",
           "elevated=true",
           "cwd=E:/Project/Common/mhxy-shikong-control",
           "role=controller-app",
           "verifier=current-app-launch-v1",
-          "exeSha256=d7c4004ed81955a92461e365803a36d3e7bd361a139f75557cebdc0184b057e8",
-          "observedHead=02f564f8219bfceaf725ee21ff08f48c2104e4b0",
-          "actionId=ACT-P6S1-APP-001"
+          "exeSha256=3ca6b66949e4427ca27845c1220186a2e01b045af3d48a97c4341ec72a4e33e6",
+          "observedHead=6c9be4d615ba60732a74bc068b897d514e0e45a3",
+          "actionId=ACT-FINAL-APP-001"
         ],
         "cleanupAllowed": true,
         "createdByRunId": "RUN-20260710-CONTINUITY-BASELINE",
-        "createdByActionId": "ACT-P6S1-APP-001",
-        "createdAt": "2026-07-14T18:00:00Z",
+        "createdByActionId": "ACT-FINAL-APP-001",
+        "createdAt": "2026-07-14T18:50:34Z",
         "present": true,
-        "lastObservedAt": "2026-07-14T18:00:00Z"
+        "lastObservedAt": "2026-07-14T18:50:34Z"
       }
     ],
     "observedExternalProcesses": [
@@ -644,8 +680,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:47:50Z",
-        "lastSeenAt": "2026-07-14T18:47:50Z",
+        "lastObservedAt": "2026-07-14T19:01:37Z",
+        "lastSeenAt": "2026-07-14T19:01:37Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -769,11 +805,12 @@
         "name": "mhxy-shikong-control.exe",
         "role": "controller-app",
         "ownership": "created_by_current_run",
-        "present": true,
+        "present": false,
         "creationTime": "2026-07-14T18:00:00Z",
-        "lastObservedAt": "2026-07-14T18:47:53Z",
-        "lastSeenAt": "2026-07-14T18:47:53Z",
-        "cleanupAllowed": false
+        "lastObservedAt": "2026-07-14T18:49:42Z",
+        "lastSeenAt": "2026-07-14T18:49:12Z",
+        "cleanupAllowed": false,
+        "observedAbsentAt": "2026-07-14T18:49:42Z"
       },
       {
         "pid": 72520,
@@ -782,9 +819,20 @@
         "ownership": "created_by_current_run",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:47:52Z",
-        "lastSeenAt": "2026-07-14T18:47:52Z",
+        "lastObservedAt": "2026-07-14T19:01:39Z",
+        "lastSeenAt": "2026-07-14T19:01:39Z",
         "creationTime": "2026-07-14T18:21:59Z"
+      },
+      {
+        "pid": 25488,
+        "name": "mhxy-shikong-control.exe",
+        "role": "controller-app",
+        "ownership": "created_by_current_run",
+        "present": true,
+        "creationTime": "2026-07-14T18:50:00Z",
+        "lastObservedAt": "2026-07-14T19:01:35Z",
+        "lastSeenAt": "2026-07-14T19:01:35Z",
+        "cleanupAllowed": false
       }
     ],
     "managedArtifacts": [
@@ -827,13 +875,13 @@
       }
     ],
     "lastWindowIdentity": {
-      "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
+      "targetIdentity": "game-client:72520@MyGame_x64r.exe:50401600",
       "verified": true,
-      "observedAt": "2026-07-14T18:18:04Z",
-      "evidenceId": "EVD-0485",
+      "observedAt": "2026-07-14T18:57:25Z",
+      "evidenceId": "EVD-0530",
       "identity": {
-        "hwnd": 26157554,
-        "pid": 86812,
+        "hwnd": 50401600,
+        "pid": 72520,
         "title": "梦幻西游：时空",
         "process": "MyGame_x64r.exe",
         "clientWidth": 509,
@@ -843,24 +891,24 @@
     }
   },
   "eventTail": {
-    "seq": 1245,
-    "id": "EVT-1245",
-    "hash": "sha256:a5e3807db551369dc7a5b8dc06b72e1c61a5a7ec4d11b8aa4a6fdce6e1cb4290"
+    "seq": 1299,
+    "id": "EVT-1299",
+    "hash": "sha256:65ba4e66fbacd15a0fefca57df85e95d67a643783c29de007866775b181416fc"
   },
   "evidenceTail": {
-    "seq": 509,
-    "id": "EVD-0509",
-    "hash": "sha256:071fc1da69bf300db76a35cc238678dfaa2c93970c624acabea4f78e81931c18"
+    "seq": 532,
+    "id": "EVD-0532",
+    "hash": "sha256:0e4f215ee2d1e010208e471431b724fda012687cc7f05ad9d97988e4ec1511bf"
   },
-  "checkpointCounter": 82,
+  "checkpointCounter": 83,
   "lastCheckpoint": {
-    "id": "CP-0082",
+    "id": "CP-0083",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0082-pre-push-p9.json",
-    "createdAt": "2026-07-14T18:46:43Z",
+    "path": "docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json",
+    "createdAt": "2026-07-14T19:01:41Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:c39fcc61920bbbc1ab4130857d36289484963c982a1dde224591e1a8f335a9fa"
+    "hash": "sha256:f23649b4528b298d49a2ee4d40c77edc846eab913a7725a25bf7c1d638557372"
   },
   "resume": {
     "blockers": [
@@ -872,7 +920,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0082"
+    "lastSafeResumeSnapshotId": "CP-0083"
   },
   "completedSlices": [
     {
@@ -3038,6 +3086,65 @@
       "nextAction": "Begin P9 cleanup package commit push",
       "phaseId": "P8",
       "verifiedAt": "2026-07-14T18:35:15Z"
+    },
+    {
+      "id": "P9-S1",
+      "title": "Cleanup package validate and release gate",
+      "status": "verified",
+      "startedAt": "2026-07-14T18:35:15Z",
+      "scope": [
+        "docs/execution",
+        "package.json",
+        "scripts"
+      ],
+      "nonGoals": [
+        "No force push"
+      ],
+      "safetyBoundaries": [
+        "No stop of user game processes"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P9-S1-C1",
+          "text": "Full core tests and production vite build pass on release HEAD",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0499",
+            "EVD-0500",
+            "EVD-0502",
+            "EVD-0504",
+            "EVD-0506",
+            "EVD-0509",
+            "EVD-0510",
+            "EVD-0515"
+          ],
+          "requiredEvidenceCategories": [
+            "build",
+            "test"
+          ]
+        },
+        {
+          "id": "P9-S1-C2",
+          "text": "Execution state audit clean and tracked worktree clean after release commit",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0501",
+            "EVD-0503",
+            "EVD-0505",
+            "EVD-0507",
+            "EVD-0508",
+            "EVD-0511",
+            "EVD-0512"
+          ],
+          "requiredEvidenceCategories": [
+            "cleanup_audit",
+            "source_audit"
+          ]
+        }
+      ],
+      "nextAction": "commit trailing ledger and optional second push for tracked clean",
+      "phaseId": "P9",
+      "verifiedAt": "2026-07-14T18:51:45Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 <!-- generated-by: scripts/execution_progress.py; do-not-edit-manually -->
-<!-- state-digest: sha256:2a10663fc9752afa98d09e1a8f28f4b173c9ada4cae7bd005c9444fb4477d3c5 -->
-<!-- checkpoint-id: CP-0082 -->
+<!-- state-digest: sha256:5fef8086c2c18c04581e377f8cca61c2a0d7fa5a2dd71ee7e3d54c21267bf569 -->
+<!-- checkpoint-id: CP-0083 -->
 # 长任务执行状态
 
 > 本页由 `scripts/execution_progress.py` 从 `state.json`、事件账本和证据账本生成。
@@ -9,39 +9,39 @@
 ## 恢复首屏
 
 - 恢复结论：**STOP：存在未决副作用，只允许只读对账**
-- 更新时间（UTC）：`2026-07-14T18:47:59Z`
-- 更新时间（北京时间）：`2026-07-15T02:47:59+08:00`
+- 更新时间（UTC）：`2026-07-14T19:01:43Z`
+- 更新时间（北京时间）：`2026-07-15T03:01:43+08:00`
 - 长期任务：`MHXY-AUTOMATION-WORKBENCH`
 - 运行：`RUN-20260710-CONTINUITY-BASELINE` / attempt `9`
 - 总体状态：`active`
 - 当前阶段：`P9`
-- 当前切片：`P9-S1` - Cleanup package validate and release gate
+- 当前切片：`P9-S2` - Final live closeout dual-window and multi-task hotkeys
 - 阶段状态：`verified`；切片状态：`verified`；动作状态：`running`
 - 当前切片验收：已满足 `2`，待验证或阻塞 `0`，合计 `2`
 - 本轮是否发送真实游戏输入：`true`
-- 当前工作：未决动作 `ACT-P9-COMMIT-LEDGER-005` 处于 `running`，等待只读对账
-- 最新当前有效证据：最近事件：登记副作用动作 ACT-P9-COMMIT-LEDGER-005（EVT-1245；不是当前验收通过证据）
-- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-005；结果明确前禁止重放
+- 当前工作：未决动作 `ACT-FINAL-COMMIT-001` 处于 `running`，等待只读对账
+- 最新当前有效证据：final AppData restart persistence rebind（EVD-0532，当前工作区绑定有效）
+- 唯一下一动作：对账未决副作用动作 ACT-FINAL-COMMIT-001；结果明确前禁止重放
 - 当前切片执行 blocker：none
 - 全局恢复/验收风险：P4-S6-C3 restart retention needs P5 persistence specialized verifier/app restart live proof
-- 最新 checkpoint：`CP-0082`；safeToResume=`true`；safeToRunLiveInput=`false`
+- 最新 checkpoint：`CP-0083`；safeToResume=`true`；safeToRunLiveInput=`false`
 - 当前允许：只读审计、连续性元数据对账。
 - 当前禁止：归属不明对象的清理或停止、未登记 intent 的副作用动作、重放未决动作、真实游戏输入。
-- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T18:47:53Z`；年龄=`6s`；TTL=`300s`；expiresAt=`2026-07-14T18:52:53Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
+- 运行观察（STATUS 生成时）：**新鲜**；observedAt=`2026-07-14T19:01:39Z`；年龄=`4s`；TTL=`300s`；expiresAt=`2026-07-14T19:06:39Z`。执行窗口/进程动作前以 `execution:resume-check` 的动态结果为准。
 
 ## 验收轴
 
 | 验收轴 | 状态 | 依据/限制 |
 |---|---|---|
 | 代码表面能力 | `部分` | 源码已有 15 类步骤、任务/目标/队列/readiness/失败报告等表面能力，但大型文件耦合且真实闭环不足。 |
-| 自动测试 | `已过期` | EVD-0509；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交构建 | `已过期` | EVD-0506；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 当前提交应用已启动 | `已过期` | EVD-0463 app；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 后台 HWND 输入已实际发送 | `已过期` | EVD-0487；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 游戏后置状态已观察 | `已过期` | EVD-0488；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 自动测试 | `已通过` | EVD-0515 final core |
+| 当前提交构建 | `已通过` | EVD-0510 final vite |
+| 当前提交应用已启动 | `已通过` | EVD-0514 final app |
+| 后台 HWND 输入已实际发送 | `已通过` | EVD-0521 live |
+| 游戏后置状态已观察 | `已通过` | EVD-0522 outcome |
 | 前台鼠标键盘未受影响 | `部分` | 静态安全审计只允许 PostMessageW 路径，但尚缺当前版本实测前后台 HWND、鼠标位置和用户并行操作证据。 |
-| 双窗口隔离 | `已过期` | EVD-0493 dual HWND isolation；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
-| 重启持久化 | `已过期` | EVD-0462 real AppData；当前没有绑定现有 HEAD/工作树指纹的有效通过证据 |
+| 双窗口隔离 | `已通过` | EVD-0527 multi |
+| 重启持久化 | `已通过` | final persistence rebind |
 
 ## 阶段表
 
@@ -63,27 +63,26 @@
 ### 范围
 
 - docs/execution
-- package.json
 - scripts
 
 ### 非目标
 
-- No force push
+- No purchase
 
 ### 安全边界
 
-- No stop of user game processes
+- verified HWND only
 
 ### 验收条件
 
 | ID | 条件 | 状态 | 允许证据类别 | 证据 |
 |---|---|---|---|---|
-| `P9-S1-C1` | Full core tests and production vite build pass on release HEAD | `passed` | `build`, `test` | `EVD-0499`, `EVD-0500`, `EVD-0502`, `EVD-0504`, `EVD-0506`, `EVD-0509` |
-| `P9-S1-C2` | Execution state audit clean and tracked worktree clean after release commit | `passed` | `cleanup_audit`, `source_audit` | `EVD-0501`, `EVD-0503`, `EVD-0505`, `EVD-0507`, `EVD-0508` |
+| `P9-S2-C1` | Both game windows identity and capture preflight verified | `passed` | `live_preflight`, `window_identity` | `EVD-0529`, `EVD-0530`, `EVD-0531` |
+| `P9-S2-C2` | Dual-window live inputs and multi-task hotkey paths with postconditions | `passed` | `live_input`, `live_outcome`, `multi_window` | `EVD-0520`, `EVD-0521`, `EVD-0522`, `EVD-0523`, `EVD-0524`, `EVD-0525`, `EVD-0526`, `EVD-0527`, `EVD-0528` |
 
 ## 当前动作
 
-- actionId：`ACT-P9-COMMIT-LEDGER-005`
+- actionId：`ACT-FINAL-COMMIT-001`
 - 类型：`git_commit`
 - 目标：`local-repo`
 - 副作用级别：`git_commit`
@@ -91,7 +90,7 @@
 
 ## 下一步
 
-- 唯一下一动作：对账未决副作用动作 ACT-P9-COMMIT-LEDGER-005；结果明确前禁止重放
+- 唯一下一动作：对账未决副作用动作 ACT-FINAL-COMMIT-001；结果明确前禁止重放
 - 命令：`npm run execution:resume-check`
 
 ## 阻塞与风险
@@ -107,18 +106,20 @@
 ## Git 现场
 
 - 分支：`main`
-- observed HEAD：`dfe62125a4055da69fe1b5bc2a65cd8a032c399f`
-- verified HEAD：`9a15ec0ed96772984af950178a44ae1ca861a90e`
-- origin/main：`2a5986a598920c99875d49c330c95b522dac96a2`
-- working tree fingerprint：`sha256:1c7b99854fb2660b01b14c3841db30cd70def5a7732159521169e5f15575515b`
-- 最新 checkpoint：`CP-0082` (state_snapshot)
+- observed HEAD：`6c9be4d615ba60732a74bc068b897d514e0e45a3`
+- verified HEAD：`6c9be4d615ba60732a74bc068b897d514e0e45a3`
+- origin/main：`6c9be4d615ba60732a74bc068b897d514e0e45a3`
+- working tree fingerprint：`sha256:17cd041da720d1c4319e0633be77852bd0c7ef9ba41e0c2cc757f01f7625c9d1`
+- 最新 checkpoint：`CP-0083` (state_snapshot)
 - checkpoint safeToResume：`true`
 - checkpoint safeToRunLiveInput：`false`
 
 ### 当前非 ignored 改动
 
 - `docs/execution/STATUS.md`
+- `docs/execution/checkpoints/CP-0083-pre-commit-final-closeout.json`
 - `docs/execution/events.jsonl`
+- `docs/execution/evidence.jsonl`
 - `docs/execution/state.json`
 
 ## 运行进程与产物
@@ -130,7 +131,7 @@
 - PID `8604`：controller-app；cleanupAllowed=`true`
 - PID `71160`：controller-app；cleanupAllowed=`true`
 - PID `51816`：controller-app；cleanupAllowed=`true`
-- PID `52124`：controller-app；cleanupAllowed=`true`
+- PID `25488`：controller-app；cleanupAllowed=`true`
 
 ### 只观察到的外部进程
 
@@ -158,8 +159,9 @@
 - PID `51816`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `87704`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `46520`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
-- PID `52124`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `52124`：`mhxy-shikong-control.exe`，controller-app；present=`false`，归属=`created_by_current_run`，cleanupAllowed=`false`
 - PID `72520`：`MyGame_x64r.exe`，game-client；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
+- PID `25488`：`mhxy-shikong-control.exe`，controller-app；present=`true`，归属=`created_by_current_run`，cleanupAllowed=`false`
 
 ### 本轮管理的产物
 
@@ -178,29 +180,29 @@
 
 | ID | 类型 | 原始结果 | 当前适用性 | 结论/原因 |
 |---|---|---|---|---|
-| `EVD-0502` | `build` | `passed` | `stale` | P9-release-vite-fixed<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0503` | `source_audit` | `passed` | `stale` | P9-release-source-audit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0504` | `test` | `passed` | `stale` | P9-release-core<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0505` | `cleanup_audit` | `passed` | `stale` | P9-release-cleanup<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0506` | `build` | `passed` | `stale` | P9-push-vite<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0507` | `cleanup_audit` | `passed` | `stale` | P9-push-cleanup<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0508` | `source_audit` | `passed` | `stale` | P9-push-audit<br>证据 HEAD 与当前 observed HEAD 不同 |
-| `EVD-0509` | `test` | `passed` | `stale` | P9-push-core<br>证据 HEAD 与当前 observed HEAD 不同 |
+| `EVD-0525` | `live_input` | `passed` | `valid` | Bounded home-vitality live input executed with inputSent after elevated gates<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0526` | `live_outcome` | `passed` | `valid` | Bounded home-vitality live outcome observed after inputSent<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0527` | `multi_window` | `passed` | `valid` | final dual HWND isolation after multi-task hotkeys<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0528` | `multi_window` | `passed` | `valid` | final dual HWND isolation after multi-task hotkeys<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0529` | `window_identity` | `passed` | `invalid` | Verified live window identity for game-client (read-only, no input)<br>证据产物 hash 已变化：assets/resource/ShiKong/reports/dev-progress/window-identity-P9-S2-C1/identity-report.json |
+| `EVD-0530` | `window_identity` | `passed` | `valid` | Verified live window identity for game-client (read-only, no input)<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0531` | `live_preflight` | `passed` | `valid` | Strict target capture completed bounded zero-input wait_image preflight<br>绑定当前 HEAD、工作树指纹和受信来源 |
+| `EVD-0532` | `persistence` | `passed` | `valid` | final AppData restart persistence rebind<br>绑定当前 HEAD、工作树指纹和受信来源 |
 
 ## 最近事件
 
 | seq | 时间 | 类型 | 摘要 |
 |---:|---|---|---|
-| 1236 | `2026-07-14T18:47:14Z` | `action_result` | 副作用动作 ACT-P9-COMMIT-LEDGER-003 -> succeeded |
-| 1237 | `2026-07-14T18:47:15Z` | `action_intent` | 登记副作用动作 ACT-P9-PUSH-001 |
-| 1238 | `2026-07-14T18:47:30Z` | `action_result` | 副作用动作 ACT-P9-PUSH-001 -> succeeded |
-| 1239 | `2026-07-14T18:47:50Z` | `runtime_observation` | post-push ledger |
-| 1240 | `2026-07-14T18:47:52Z` | `runtime_observation` | post-push ledger B |
-| 1241 | `2026-07-14T18:47:53Z` | `runtime_observation` | post-push controller |
-| 1242 | `2026-07-14T18:47:54Z` | `decision` | origin/main pushed to 2a5986a; remaining dirty is post-push ledger metadata only |
-| 1243 | `2026-07-14T18:47:56Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-004 |
-| 1244 | `2026-07-14T18:47:58Z` | `action_result` | 副作用动作 ACT-P9-COMMIT-LEDGER-004 -> succeeded |
-| 1245 | `2026-07-14T18:47:59Z` | `action_intent` | 登记副作用动作 ACT-P9-COMMIT-LEDGER-005 |
+| 1290 | `2026-07-14T18:59:20Z` | `slice_state_changed` | 更新验收轴 secondWindowIsolationVerified -> passed |
+| 1291 | `2026-07-14T18:59:29Z` | `evidence_recorded` | final AppData restart persistence rebind |
+| 1292 | `2026-07-14T18:59:30Z` | `slice_state_changed` | 更新验收轴 restartPersistenceVerified -> passed |
+| 1293 | `2026-07-14T18:59:44Z` | `slice_state_changed` | P9-S2 final live closeout dual-window multi-task hotkeys verified on final-commit app |
+| 1294 | `2026-07-14T19:01:34Z` | `test_run` | UI viewports 10/10 passed across 5 sizes; tauri release NSIS bundle built |
+| 1295 | `2026-07-14T19:01:35Z` | `runtime_observation` | pre-final-commit |
+| 1296 | `2026-07-14T19:01:37Z` | `runtime_observation` | pre-final-commit A |
+| 1297 | `2026-07-14T19:01:39Z` | `runtime_observation` | pre-final-commit B |
+| 1298 | `2026-07-14T19:01:41Z` | `checkpoint` | 创建 CP-0083：final live closeout and package smoke |
+| 1299 | `2026-07-14T19:01:43Z` | `action_intent` | 登记副作用动作 ACT-FINAL-COMMIT-001 |
 
 ## 异常恢复
 
