@@ -69,6 +69,14 @@ import {
   assessBagOrganizeReadiness,
 } from "./bag-organize-core.js";
 import {
+  TEAM_OBSERVE_BLUEPRINT,
+  assessTeamObserveReadiness,
+} from "./team-observe-core.js";
+import {
+  STALL_SEARCH_BLUEPRINT,
+  assessStallSearchReadiness,
+} from "./stall-search-core.js";
+import {
   isLiveValidationEvidence,
   liveValidationRunHistoryEntry,
   mergeLiveValidationRunHistory,

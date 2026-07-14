@@ -1,9 +1,9 @@
 {
   "kind": "mhxy-shikong.execution-state",
   "schemaVersion": 1,
-  "revision": 1173,
+  "revision": 1202,
   "generation": 1,
-  "updatedAt": "2026-07-14T18:08:25Z",
+  "updatedAt": "2026-07-14T18:19:50Z",
   "taskId": "MHXY-AUTOMATION-WORKBENCH",
   "objective": "交付一个用户操作量低、可自定义编排、可持久化、多窗口并行且不影响前台鼠标键盘的梦幻西游后台自动化工作台。",
   "sourcePriority": [
@@ -28,34 +28,32 @@
   },
   "overallStatus": "active",
   "currentPhaseId": "P6",
-  "phaseStatus": "in_progress",
+  "phaseStatus": "verified",
   "actionStatus": "running",
   "acceptanceLevel": "design",
   "activeSlice": {
-    "id": "P6-S2",
-    "title": "Bag organize offline blueprint and bounded live",
+    "id": "P6-S4",
+    "title": "Stall search offline and bounded live",
     "status": "verified",
-    "startedAt": "2026-07-14T18:03:59Z",
+    "startedAt": "2026-07-14T18:13:17Z",
     "scope": [
-      "src/bag-organize-core.js",
-      "src/main.js",
-      "scripts",
+      "src/stall-search-core.js",
       "docs/execution"
     ],
     "nonGoals": [
-      "No trading"
+      "No purchase"
     ],
     "safetyBoundaries": [
-      "No game input without gates"
+      "Search only"
     ],
     "acceptanceCriteria": [
       {
-        "id": "P6-S2-C1",
-        "text": "Bag organize blueprint >=10 steps offline readiness",
+        "id": "P6-S4-C1",
+        "text": "Stall search blueprint offline",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0468",
-          "EVD-0470"
+          "EVD-0482",
+          "EVD-0484"
         ],
         "requiredEvidenceCategories": [
           "source_audit",
@@ -63,12 +61,12 @@
         ]
       },
       {
-        "id": "P6-S2-C2",
-        "text": "Bounded bag-related live path proves inputSent and postcondition",
+        "id": "P6-S4-C2",
+        "text": "Bounded stall live path",
         "status": "passed",
         "evidenceIds": [
-          "EVD-0473",
-          "EVD-0474"
+          "EVD-0487",
+          "EVD-0488"
         ],
         "requiredEvidenceCategories": [
           "live_input",
@@ -76,7 +74,7 @@
         ]
       }
     ],
-    "nextAction": "P6-S3 team observe offline+live"
+    "nextAction": "Begin P7 dual-window isolation"
   },
   "phases": [
     {
@@ -118,7 +116,7 @@
     {
       "id": "P6",
       "title": "第二至第五个真实任务",
-      "status": "in_progress",
+      "status": "verified",
       "summary": "逐个纵向闭环更多真实任务，不用草稿数量代替可用性。"
     },
     {
@@ -169,16 +167,16 @@
     },
     "hwndInputActuallySent": {
       "status": "passed",
-      "note": "EVD-0473",
+      "note": "EVD-0487",
       "evidenceIds": [
-        "EVD-0473"
+        "EVD-0487"
       ]
     },
     "gamePostconditionObserved": {
       "status": "passed",
-      "note": "EVD-0474",
+      "note": "EVD-0488",
       "evidenceIds": [
-        "EVD-0474"
+        "EVD-0488"
       ]
     },
     "foregroundUnaffected": {
@@ -201,105 +199,129 @@
   },
   "git": {
     "branch": "main",
-    "observedHead": "1bcac47412ce1d25f8eeef64cda0429f724ad4a5",
+    "observedHead": "44e4b96b71517f45068ac5d6a4bd5015c9b4790a",
     "verifiedHead": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "upstreamHead": "3eef34f8c4b115c94e2c3cd6adb93cf329a60ef9",
     "lastKnownStableCommit": "9a15ec0ed96772984af950178a44ae1ca861a90e",
     "dirtyPaths": [
       "docs/execution/STATUS.md",
-      "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
+      "docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json",
       "docs/execution/events.jsonl",
       "docs/execution/evidence.jsonl",
       "docs/execution/state.json",
       "package.json",
-      "scripts/audit_bag_organize_offline.py",
+      "scripts/audit_stall_search_offline.py",
+      "scripts/audit_team_observe_offline.py",
       "scripts/execution_progress.py",
-      "scripts/test_bag_organize_core.mjs",
-      "src/bag-organize-core.js",
-      "src/main.js"
+      "scripts/test_stall_search_core.mjs",
+      "scripts/test_team_observe_core.mjs",
+      "src/main.js",
+      "src/stall-search-core.js",
+      "src/team-observe-core.js"
     ],
     "dirtyStatus": [
       " M docs/execution/STATUS.md",
-      "?? docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
+      "?? docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json",
       " M docs/execution/events.jsonl",
       " M docs/execution/evidence.jsonl",
       " M docs/execution/state.json",
       " M package.json",
-      "?? scripts/audit_bag_organize_offline.py",
+      "?? scripts/audit_stall_search_offline.py",
+      "?? scripts/audit_team_observe_offline.py",
       " M scripts/execution_progress.py",
-      "?? scripts/test_bag_organize_core.mjs",
-      "?? src/bag-organize-core.js",
-      " M src/main.js"
+      "?? scripts/test_stall_search_core.mjs",
+      "?? scripts/test_team_observe_core.mjs",
+      " M src/main.js",
+      "?? src/stall-search-core.js",
+      "?? src/team-observe-core.js"
     ],
     "dirtyFiles": [
       {
         "path": "docs/execution/STATUS.md",
         "exists": true,
-        "sha256": "f9afa9a63a6eec8b5190023b3d89c0578d57576067fc4b8188fd6951548620c0",
-        "size": 13481
+        "sha256": "b0549156a08fc6c3778c9ba208834ae4d94423718ba2f871d6374a093145229c",
+        "size": 13761
       },
       {
-        "path": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
+        "path": "docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json",
         "exists": true,
-        "sha256": "37d8dde64495328dafb6715e9f378cbee977c028138acade58f270901e9b4a87",
-        "size": 30678
+        "sha256": "5c786a228b71e23027b991aa59729418c014b5df09822fb5868ed34f11305ca7",
+        "size": 32567
       },
       {
         "path": "docs/execution/events.jsonl",
         "exists": true,
-        "sha256": "d759b8cb315c1f60c3f7f3882dd1db8f90ba87e5b885acda0e9e5ac9aea045f7",
-        "size": 1630615
+        "sha256": "21adb2b6de8efa5c0e4c6346a05edadf70361bf2c1cd6b7c617c2665d0be2a76",
+        "size": 1660403
       },
       {
         "path": "docs/execution/evidence.jsonl",
         "exists": true,
-        "sha256": "152f9ed8782a685ef91aafc1717b4bbf1352193f0be1a08d51f907f30fe36e3e",
-        "size": 1318864
+        "sha256": "efdb1e7aa55b52e56b1a151bc2c6e84f7824c76734a3a75afb7404d446b894b8",
+        "size": 1364910
       },
       {
         "path": "docs/execution/state.json",
         "exists": true,
-        "sha256": "bd902c57d7e88f7ec7f0c870dcfed669f49fe43946ee1f3c45916e6e1980fa5f",
-        "size": 92983
+        "sha256": "b9245d3c03bbeea06a2d3274b256e464172df157883cbe2330bc8bccb83f27d4",
+        "size": 96727
       },
       {
         "path": "package.json",
         "exists": true,
-        "sha256": "7df0f6e135c98132d6278b278d6dc8f379488224cd4a426ac6c1bc9892e92208",
-        "size": 7253
+        "sha256": "36ffd332aeffb3c0943690b34c937d13fae44fef0c0099048c803b96473898b8",
+        "size": 7687
       },
       {
-        "path": "scripts/audit_bag_organize_offline.py",
+        "path": "scripts/audit_stall_search_offline.py",
         "exists": true,
-        "sha256": "34a3c72bb5260a913859d264de77dc92c1cd19d617a9635ec24b8955c7d069a7",
-        "size": 592
+        "sha256": "ca2b53e854a607af5965d90f671e2c1d8254027a22e0e629ef144afb3247ee3d",
+        "size": 385
+      },
+      {
+        "path": "scripts/audit_team_observe_offline.py",
+        "exists": true,
+        "sha256": "36061d308a2cee967ccc7da144eee746b66612c1eba93e32fc19bdb68798d070",
+        "size": 396
       },
       {
         "path": "scripts/execution_progress.py",
         "exists": true,
-        "sha256": "c06428b7f8955dda9dad779f55633d0e3e8f2662f4db42b44129a2e820141776",
-        "size": 129882
+        "sha256": "d0f3dcc8b02a52b800ebe7c64624f439f3d6f92cb83de622d611636f6bceb1d3",
+        "size": 130512
       },
       {
-        "path": "scripts/test_bag_organize_core.mjs",
+        "path": "scripts/test_stall_search_core.mjs",
         "exists": true,
-        "sha256": "c421baed4f8be8dac4b596026fc233f6d49446d087e2ae56d3d34b0c7b8fb97b",
-        "size": 544
+        "sha256": "4b9d3c9e062fc746e47648c228ed98f87e17ed847df3cf896c42743573c579f3",
+        "size": 454
       },
       {
-        "path": "src/bag-organize-core.js",
+        "path": "scripts/test_team_observe_core.mjs",
         "exists": true,
-        "sha256": "ee1fe7c8a0e0ce9221c690e06fdd27a8ed3f5e30b93ae6578661d372f6607e8e",
-        "size": 6092
+        "sha256": "d2b15dd2bd1b1fe1f6caa131ecabb5d47852523d44c44102e8045a9acc45684f",
+        "size": 454
       },
       {
         "path": "src/main.js",
         "exists": true,
-        "sha256": "32105d26a66e75793786723917ac6c90ad863caed1a53595b2fcc56804e8762e",
-        "size": 362229
+        "sha256": "a2669b702eef151c16a84ba38fe855d913b77c2b894cdf395f36c434e082ecc0",
+        "size": 362425
+      },
+      {
+        "path": "src/stall-search-core.js",
+        "exists": true,
+        "sha256": "67a7d216b50684e65f4c2bc60b20e93b6af548747d4f2732bd1716f35d8b3141",
+        "size": 4630
+      },
+      {
+        "path": "src/team-observe-core.js",
+        "exists": true,
+        "sha256": "1e3b1b4db5faa20854d5f01862eaabff8a4be661b2a85ef5d5ba269ed6b10461",
+        "size": 4415
       }
     ],
-    "workingTreeFingerprint": "sha256:069ef1be3ea757fb5f7e66601d70a0fa4716ce2086d86061ae44311fff2c158c",
+    "workingTreeFingerprint": "sha256:bb9cbf1f7fbf3ebf8b0dddeaa335c2e18c4024a51f5c1d4942a8c42f1bd00538",
     "dirtyEntries": [
       {
         "status": " M",
@@ -310,8 +332,8 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
-        "displayPath": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json"
+        "destinationPath": "docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json",
+        "displayPath": "docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json"
       },
       {
         "status": " M",
@@ -340,8 +362,14 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "scripts/audit_bag_organize_offline.py",
-        "displayPath": "scripts/audit_bag_organize_offline.py"
+        "destinationPath": "scripts/audit_stall_search_offline.py",
+        "displayPath": "scripts/audit_stall_search_offline.py"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "scripts/audit_team_observe_offline.py",
+        "displayPath": "scripts/audit_team_observe_offline.py"
       },
       {
         "status": " M",
@@ -352,24 +380,51 @@
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "scripts/test_bag_organize_core.mjs",
-        "displayPath": "scripts/test_bag_organize_core.mjs"
+        "destinationPath": "scripts/test_stall_search_core.mjs",
+        "displayPath": "scripts/test_stall_search_core.mjs"
       },
       {
         "status": "??",
         "sourcePath": null,
-        "destinationPath": "src/bag-organize-core.js",
-        "displayPath": "src/bag-organize-core.js"
+        "destinationPath": "scripts/test_team_observe_core.mjs",
+        "displayPath": "scripts/test_team_observe_core.mjs"
       },
       {
         "status": " M",
         "sourcePath": null,
         "destinationPath": "src/main.js",
         "displayPath": "src/main.js"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src/stall-search-core.js",
+        "displayPath": "src/stall-search-core.js"
+      },
+      {
+        "status": "??",
+        "sourcePath": null,
+        "destinationPath": "src/team-observe-core.js",
+        "displayPath": "src/team-observe-core.js"
       }
     ]
   },
   "inFlightAction": {
+    "actionId": "ACT-P6-COMMIT-S34-001",
+    "kind": "git_commit",
+    "targetIdentity": "local-repo",
+    "sideEffectClass": "git_commit",
+    "expectedPrecondition": "P6-S3/S4 passed",
+    "expectedPostcondition": "committed",
+    "idempotencyKey": "p6s34-team-stall",
+    "startedAt": "2026-07-14T18:19:50Z",
+    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
+    "ownershipEvidence": [
+      "cwd=E:/Project/Common/mhxy-shikong-control"
+    ],
+    "status": "running"
+  },
+  "lastAction": {
     "actionId": "ACT-P6-COMMIT-S2-001",
     "kind": "git_commit",
     "targetIdentity": "local-repo",
@@ -382,24 +437,9 @@
     "ownershipEvidence": [
       "cwd=E:/Project/Common/mhxy-shikong-control"
     ],
-    "status": "running"
-  },
-  "lastAction": {
-    "actionId": "ACT-P6-COMMIT-S1-001",
-    "kind": "git_commit",
-    "targetIdentity": "local-repo",
-    "sideEffectClass": "git_commit",
-    "expectedPrecondition": "P6-S1 C1/C2 passed",
-    "expectedPostcondition": "committed",
-    "idempotencyKey": "p6s1-welfare",
-    "startedAt": "2026-07-14T18:03:02Z",
-    "ownerRunId": "RUN-20260710-CONTINUITY-BASELINE",
-    "ownershipEvidence": [
-      "cwd=E:/Project/Common/mhxy-shikong-control"
-    ],
     "status": "succeeded",
-    "endedAt": "2026-07-14T18:03:04Z",
-    "result": "committed 1bcac47412ce1d25f8eeef64cda0429f724ad4a5"
+    "endedAt": "2026-07-14T18:08:27Z",
+    "result": "committed 44e4b96b71517f45068ac5d6a4bd5015c9b4790a"
   },
   "safety": {
     "realInputSent": true,
@@ -409,7 +449,7 @@
     "cleanupPerformed": false
   },
   "runtime": {
-    "observedAt": "2026-07-14T18:08:13Z",
+    "observedAt": "2026-07-14T18:19:42Z",
     "staleAfterSeconds": 300,
     "managedProcesses": [
       {
@@ -748,8 +788,8 @@
         "ownership": "user_preexisting",
         "cleanupAllowed": false,
         "present": true,
-        "lastObservedAt": "2026-07-14T18:08:13Z",
-        "lastSeenAt": "2026-07-14T18:08:13Z",
+        "lastObservedAt": "2026-07-14T18:19:42Z",
+        "lastSeenAt": "2026-07-14T18:19:42Z",
         "creationTime": "2026-07-14T00:48:47Z"
       },
       {
@@ -875,8 +915,8 @@
         "ownership": "created_by_current_run",
         "present": true,
         "creationTime": "2026-07-14T18:00:00Z",
-        "lastObservedAt": "2026-07-14T18:08:12Z",
-        "lastSeenAt": "2026-07-14T18:08:12Z",
+        "lastObservedAt": "2026-07-14T18:19:41Z",
+        "lastSeenAt": "2026-07-14T18:19:41Z",
         "cleanupAllowed": false
       }
     ],
@@ -922,8 +962,8 @@
     "lastWindowIdentity": {
       "targetIdentity": "game-client:86812@MyGame_x64r.exe:26157554",
       "verified": true,
-      "observedAt": "2026-07-14T18:06:26Z",
-      "evidenceId": "EVD-0471",
+      "observedAt": "2026-07-14T18:18:04Z",
+      "evidenceId": "EVD-0485",
       "identity": {
         "hwnd": 26157554,
         "pid": 86812,
@@ -936,24 +976,24 @@
     }
   },
   "eventTail": {
-    "seq": 1123,
-    "id": "EVT-1123",
-    "hash": "sha256:62cb44bb84d64fb38598eee9ab8046d327cf8170c1223ba01fb1c39012e457b4"
+    "seq": 1152,
+    "id": "EVT-1152",
+    "hash": "sha256:2e96c174042121d1e992abaf82712709d612835024fb6944097472f11386107c"
   },
   "evidenceTail": {
-    "seq": 474,
-    "id": "EVD-0474",
-    "hash": "sha256:a144c707e81414ebc10c09df6234116c3458ff982053737f199cd8cae3912d72"
+    "seq": 488,
+    "id": "EVD-0488",
+    "hash": "sha256:aebc3331b1eb064d4d80e015c2b1217e52e4788101e94affa3d71fbbd22e45c2"
   },
-  "checkpointCounter": 77,
+  "checkpointCounter": 78,
   "lastCheckpoint": {
-    "id": "CP-0077",
+    "id": "CP-0078",
     "type": "state_snapshot",
-    "path": "docs/execution/checkpoints/CP-0077-pre-commit-p6s2.json",
-    "createdAt": "2026-07-14T18:08:23Z",
+    "path": "docs/execution/checkpoints/CP-0078-pre-commit-p6s3s4.json",
+    "createdAt": "2026-07-14T18:19:48Z",
     "safeToResume": true,
     "safeToRunLiveInput": false,
-    "hash": "sha256:dcf18f7210e7e0a64cc7f80d18f88d1af8a5b692cce2e67d0836358d086dd9b5"
+    "hash": "sha256:b4201a29133e9f7545f98da070564dc68fcd55c5321f8a0960f9df96c34f54ea"
   },
   "resume": {
     "blockers": [
@@ -965,7 +1005,7 @@
     "doNotDo": [
       "Do not stop MyGame_x64r without user request."
     ],
-    "lastSafeResumeSnapshotId": "CP-0077"
+    "lastSafeResumeSnapshotId": "CP-0078"
   },
   "completedSlices": [
     {
@@ -2892,6 +2932,102 @@
       "nextAction": "P6-S2 bag organize offline then live vertical",
       "phaseId": "P6",
       "verifiedAt": "2026-07-14T18:03:59Z"
+    },
+    {
+      "id": "P6-S2",
+      "title": "Bag organize offline blueprint and bounded live",
+      "status": "verified",
+      "startedAt": "2026-07-14T18:03:59Z",
+      "scope": [
+        "src/bag-organize-core.js",
+        "src/main.js",
+        "scripts",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "No trading"
+      ],
+      "safetyBoundaries": [
+        "No game input without gates"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P6-S2-C1",
+          "text": "Bag organize blueprint >=10 steps offline readiness",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0468",
+            "EVD-0470"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P6-S2-C2",
+          "text": "Bounded bag-related live path proves inputSent and postcondition",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0473",
+            "EVD-0474"
+          ],
+          "requiredEvidenceCategories": [
+            "live_input",
+            "live_outcome"
+          ]
+        }
+      ],
+      "nextAction": "P6-S3 team observe offline+live",
+      "phaseId": "P6",
+      "verifiedAt": "2026-07-14T18:09:31Z"
+    },
+    {
+      "id": "P6-S3",
+      "title": "Team observe offline and bounded live",
+      "status": "verified",
+      "startedAt": "2026-07-14T18:09:31Z",
+      "scope": [
+        "src/team-observe-core.js",
+        "docs/execution"
+      ],
+      "nonGoals": [
+        "No auto team apply/create"
+      ],
+      "safetyBoundaries": [
+        "Observe only"
+      ],
+      "acceptanceCriteria": [
+        {
+          "id": "P6-S3-C1",
+          "text": "Team observe blueprint offline",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0475",
+            "EVD-0477"
+          ],
+          "requiredEvidenceCategories": [
+            "source_audit",
+            "test"
+          ]
+        },
+        {
+          "id": "P6-S3-C2",
+          "text": "Bounded team live path",
+          "status": "passed",
+          "evidenceIds": [
+            "EVD-0480",
+            "EVD-0481"
+          ],
+          "requiredEvidenceCategories": [
+            "live_input",
+            "live_outcome"
+          ]
+        }
+      ],
+      "nextAction": "P6-S4 stall search",
+      "phaseId": "P6",
+      "verifiedAt": "2026-07-14T18:13:17Z"
     }
   ]
 }
